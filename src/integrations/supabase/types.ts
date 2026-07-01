@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      temperos: {
+        Row: {
+          created_at: string
+          gramas_pote: number
+          id: string
+          nome: string
+          ordem: number
+          preco_kg: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gramas_pote?: number
+          id?: string
+          nome: string
+          ordem?: number
+          preco_kg?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gramas_pote?: number
+          id?: string
+          nome?: string
+          ordem?: number
+          preco_kg?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      variaveis: {
+        Row: {
+          caixa: number
+          comissao: number
+          custo_fabril: number
+          lacre: number
+          markup_atacado: number
+          markup_cliente: number
+          markup_industria: number
+          pote: number
+          rotulo: number
+          simples_nacional: number
+          termoencolhivel: number
+          transporte: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          caixa?: number
+          comissao?: number
+          custo_fabril?: number
+          lacre?: number
+          markup_atacado?: number
+          markup_cliente?: number
+          markup_industria?: number
+          pote?: number
+          rotulo?: number
+          simples_nacional?: number
+          termoencolhivel?: number
+          transporte?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          caixa?: number
+          comissao?: number
+          custo_fabril?: number
+          lacre?: number
+          markup_atacado?: number
+          markup_cliente?: number
+          markup_industria?: number
+          pote?: number
+          rotulo?: number
+          simples_nacional?: number
+          termoencolhivel?: number
+          transporte?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
