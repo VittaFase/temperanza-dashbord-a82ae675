@@ -1,13 +1,10 @@
-import Hero from "@/components/Hero";
-import ProductsGrid from "@/components/ProductsGrid";
-import Footer from "@/components/Footer";
-
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Hero />
-      <ProductsGrid />
-      <Footer />
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold mb-4">Temperanzza Dashboard</h1>
+        <p className="text-muted-foreground">Pronto para uma nova implementação.</p>
+      </div>
     </div>
   );
 };
