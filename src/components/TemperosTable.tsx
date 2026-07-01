@@ -9,26 +9,15 @@ import { Button } from "@/components/ui/button";
 type Props = {
   temperos: Tempero[];
   variaveis: Variaveis;
-  onChange: (t: Tempero[]) => void;
+  onUpdate: (t: Tempero) => void;
+  onDelete: (id: string) => void;
+  onAdd: () => void;
 };
 
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-export const TemperosTable = ({ temperos, variaveis, onChange }: Props) => {
-  const upd = (id: number, patch: Partial<Tempero>) =>
-    onChange(temperos.map((t) => (t.id === id ? { ...t, ...patch } : t)));
-
-  const remove = (id: number) => onChange(temperos.filter((t) => t.id !== id));
-
-  const add = () => {
-    const nextId = Math.max(0, ...temperos.map((t) => t.id)) + 1;
-    onChange([
-      ...temperos,
-      { id: nextId, nome: "Novo tempero", precoKg: 10, gramasPote: 50 },
-    ]);
-  };
-
+export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }: Props) => {
   const totais = temperos.reduce(
     (acc, t) => {
       const c = calcularTempero(t, variaveis);
@@ -45,7 +34,7 @@ export const TemperosTable = ({ temperos, variaveis, onChange }: Props) => {
     <Card className="shadow-card">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-display text-2xl">Temperos & Precificação</CardTitle>
-        <Button size="sm" onClick={add} variant="outline">
+        <Button size="sm" onClick={onAdd} variant="outline">
           <Plus className="h-4 w-4" /> Adicionar
         </Button>
       </CardHeader>
@@ -75,7 +64,7 @@ export const TemperosTable = ({ temperos, variaveis, onChange }: Props) => {
                   <TableCell>
                     <Input
                       value={t.nome}
-                      onChange={(e) => upd(t.id, { nome: e.target.value })}
+                      onChange={(e) => onUpdate({ ...t, nome: e.target.value })}
                       className="h-8 border-0 bg-transparent focus-visible:bg-background font-medium"
                     />
                   </TableCell>
@@ -84,7 +73,7 @@ export const TemperosTable = ({ temperos, variaveis, onChange }: Props) => {
                       type="number"
                       step="0.01"
                       value={t.precoKg}
-                      onChange={(e) => upd(t.id, { precoKg: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) => onUpdate({ ...t, precoKg: parseFloat(e.target.value) || 0 })}
                       className="h-8"
                     />
                   </TableCell>
@@ -93,7 +82,7 @@ export const TemperosTable = ({ temperos, variaveis, onChange }: Props) => {
                       type="number"
                       step="1"
                       value={t.gramasPote}
-                      onChange={(e) => upd(t.id, { gramasPote: parseFloat(e.target.value) || 0 })}
+                      onChange={(e) => onUpdate({ ...t, gramasPote: parseFloat(e.target.value) || 0 })}
                       className="h-8"
                     />
                   </TableCell>
@@ -107,7 +96,7 @@ export const TemperosTable = ({ temperos, variaveis, onChange }: Props) => {
                   </TableCell>
                   <TableCell>
                     <button
-                      onClick={() => remove(t.id)}
+                      onClick={() => onDelete(t.id)}
                       className="text-muted-foreground hover:text-destructive"
                       aria-label="remover"
                     >
