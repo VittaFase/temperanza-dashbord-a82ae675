@@ -14,6 +14,8 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [resending, setResending] = useState(false);
   const { user, loading } = useAuth();
   const nav = useNavigate();
 
@@ -24,6 +26,7 @@ const Auth = () => {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
+    setNeedsConfirm(false);
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
@@ -38,9 +41,32 @@ const Auth = () => {
         if (error) throw error;
       }
     } catch (err: any) {
-      toast.error(err.message ?? "Erro na autenticação");
+      const msg = err?.message ?? "Erro na autenticação";
+      if (/email/i.test(msg) && /confirm/i.test(msg)) setNeedsConfirm(true);
+      toast.error(msg);
     } finally {
       setBusy(false);
+    }
+  };
+
+  const resendConfirmation = async () => {
+    if (!email) {
+      toast.error("Informe o e-mail primeiro");
+      return;
+    }
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/` },
+      });
+      if (error) throw error;
+      toast.success("E-mail de confirmação reenviado. Verifique sua caixa de entrada.");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Não foi possível reenviar");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -82,6 +108,17 @@ const Auth = () => {
             <Button type="submit" className="w-full" disabled={busy}>
               {busy ? "..." : mode === "login" ? "Entrar" : "Criar conta"}
             </Button>
+            {needsConfirm && mode === "login" && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={resendConfirmation}
+                disabled={resending}
+              >
+                {resending ? "Reenviando..." : "Reenviar e-mail de confirmação"}
+              </Button>
+            )}
             <button
               type="button"
               className="w-full text-sm text-muted-foreground hover:text-primary"
