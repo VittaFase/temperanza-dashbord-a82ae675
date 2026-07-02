@@ -96,11 +96,11 @@ const Produtos = () => {
               <TableRow className="bg-secondary/60">
                 <TableHead className="w-14"></TableHead>
                 <TableHead className="min-w-[200px]">Produto</TableHead>
-                <TableHead className="w-40">SKU</TableHead>
-                <TableHead className="w-44">EAN</TableHead>
-                <TableHead className="w-48">R$/kg</TableHead>
-                <TableHead className="w-44">g/pote</TableHead>
-                <TableHead className="w-48">Estoque</TableHead>
+                <TableHead className="w-32">SKU</TableHead>
+                <TableHead className="w-36">EAN</TableHead>
+                <TableHead className="w-24">R$/kg</TableHead>
+                <TableHead className="w-20">g/pote</TableHead>
+                <TableHead className="w-40">Estoque</TableHead>
                 <TableHead className="w-28">Custo total</TableHead>
                 <TableHead className="w-28 text-primary">Indústria</TableHead>
                 <TableHead className="w-28 text-primary">Atacado</TableHead>
@@ -152,72 +152,40 @@ const Produtos = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 w-full">
-                        <button
-                          type="button"
-                          onClick={() => updateTempero({ ...t, precoKg: Math.max(0, +((t.precoKg || 0) - 0.1).toFixed(2)) })}
-                          className="h-7 w-7 shrink-0 rounded border border-input bg-background hover:bg-accent flex items-center justify-center text-sm font-bold"
-                          aria-label="diminuir preço"
-                        >−</button>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={t.precoKg}
-                          onChange={(e) => updateTempero({ ...t, precoKg: parseFloat(e.target.value) || 0 })}
-                          className="h-8 w-full min-w-0 text-center px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => updateTempero({ ...t, precoKg: +((t.precoKg || 0) + 0.1).toFixed(2) })}
-                          className="h-7 w-7 shrink-0 rounded border border-input bg-background hover:bg-accent flex items-center justify-center text-sm font-bold"
-                          aria-label="aumentar preço"
-                        >+</button>
-                      </div>
+                      <Input type="number" step="0.01" value={t.precoKg}
+                        onChange={(e) => updateTempero({ ...t, precoKg: parseFloat(e.target.value) || 0 })}
+                        className="h-8" />
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 w-full">
-                        <button
-                          type="button"
-                          onClick={() => updateTempero({ ...t, gramasPote: Math.max(0, (t.gramasPote || 0) - 1) })}
-                          className="h-7 w-7 shrink-0 rounded border border-input bg-background hover:bg-accent flex items-center justify-center text-sm font-bold"
-                          aria-label="diminuir gramas"
-                        >−</button>
-                        <Input
-                          type="number"
-                          step="1"
-                          value={t.gramasPote}
-                          onChange={(e) => updateTempero({ ...t, gramasPote: parseFloat(e.target.value) || 0 })}
-                          className="h-8 w-full min-w-0 text-center px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => updateTempero({ ...t, gramasPote: (t.gramasPote || 0) + 1 })}
-                          className="h-7 w-7 shrink-0 rounded border border-input bg-background hover:bg-accent flex items-center justify-center text-sm font-bold"
-                          aria-label="aumentar gramas"
-                        >+</button>
-                      </div>
+                      <Input type="number" step="1" value={t.gramasPote}
+                        onChange={(e) => updateTempero({ ...t, gramasPote: parseFloat(e.target.value) || 0 })}
+                        className="h-8" />
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 w-full">
+                      <div className="flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => updateTempero({ ...t, estoqueAtual: Math.max(0, (t.estoqueAtual || 0) - 1) })}
-                          className="h-7 w-7 shrink-0 rounded border border-input bg-background hover:bg-accent flex items-center justify-center text-sm font-bold"
+                          className="h-7 w-7 shrink-0 rounded border border-input bg-background hover:bg-accent hover:text-accent-foreground flex items-center justify-center text-sm font-bold"
                           aria-label="diminuir estoque"
-                        >−</button>
+                        >
+                          −
+                        </button>
                         <Input
                           type="number"
                           step="1"
                           value={t.estoqueAtual}
                           onChange={(e) => updateTempero({ ...t, estoqueAtual: parseInt(e.target.value) || 0 })}
-                          className={`h-8 w-full min-w-0 text-center px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${baixo ? "text-destructive font-semibold" : ""}`}
+                          className={`h-8 text-center px-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${baixo ? "text-destructive font-semibold" : ""}`}
                         />
                         <button
                           type="button"
                           onClick={() => updateTempero({ ...t, estoqueAtual: (t.estoqueAtual || 0) + 1 })}
-                          className="h-7 w-7 shrink-0 rounded border border-input bg-background hover:bg-accent flex items-center justify-center text-sm font-bold"
+                          className="h-7 w-7 shrink-0 rounded border border-input bg-background hover:bg-accent hover:text-accent-foreground flex items-center justify-center text-sm font-bold"
                           aria-label="aumentar estoque"
-                        >+</button>
+                        >
+                          +
+                        </button>
                       </div>
                     </TableCell>
                     <TableCell className="text-sm font-semibold">{brl(c.custoTotal)}</TableCell>
@@ -230,7 +198,7 @@ const Produtos = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 w-full">
+                      <div className="flex items-center gap-1">
                         <button
                           onClick={() => setEditing(t)}
                           className="text-muted-foreground hover:text-primary p-1"
