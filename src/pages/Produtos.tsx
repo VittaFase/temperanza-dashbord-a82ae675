@@ -152,7 +152,7 @@ const Produtos = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 w-full">
                         <button
                           type="button"
                           onClick={() => updateTempero({ ...t, precoKg: Math.max(0, +((t.precoKg || 0) - 0.1).toFixed(2)) })}
@@ -175,7 +175,7 @@ const Produtos = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 w-full">
                         <button
                           type="button"
                           onClick={() => updateTempero({ ...t, gramasPote: Math.max(0, (t.gramasPote || 0) - 1) })}
@@ -198,7 +198,7 @@ const Produtos = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 w-full">
                         <button
                           type="button"
                           onClick={() => updateTempero({ ...t, estoqueAtual: Math.max(0, (t.estoqueAtual || 0) - 1) })}
@@ -230,7 +230,7 @@ const Produtos = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 w-full">
                         <button
                           onClick={() => setEditing(t)}
                           className="text-muted-foreground hover:text-primary p-1"
