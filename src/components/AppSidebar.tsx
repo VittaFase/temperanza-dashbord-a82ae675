@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import sealAsset from "@/assets/temperanzza-seal.png.asset.json";
 
 const items = [
   { title: "Resumo", url: "/", icon: LayoutDashboard },
@@ -30,15 +31,28 @@ export const AppSidebar = () => {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b">
-        <div className="px-3 py-3">
-          <p className="text-[10px] tracking-[0.25em] uppercase text-gold">Temperanzza</p>
-          {!collapsed && <p className="font-display text-lg leading-tight">Dashboard</p>}
+      <SidebarHeader className="border-b border-sidebar-border">
+        <div className="flex items-center gap-3 px-2 py-3">
+          <img
+            src={sealAsset.url}
+            alt="Brasão Temperanzza"
+            className="h-10 w-10 shrink-0 rounded-full bg-brand-paper object-contain p-0.5 ring-1 ring-sidebar-border"
+          />
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="text-[10px] tracking-[0.28em] uppercase text-accent leading-none">
+                Temperanzza
+              </p>
+              <p className="font-display text-base leading-tight mt-1">Dashboard</p>
+            </div>
+          )}
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navegação</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[10px] tracking-[0.25em] uppercase">
+            Navegação
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
@@ -46,7 +60,7 @@ export const AppSidebar = () => {
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <NavLink to={item.url} end={item.url === "/"} className="flex items-center gap-2">
                       <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && <span className="font-medium">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -55,7 +69,7 @@ export const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t">
+      <SidebarFooter className="border-t border-sidebar-border">
         {!collapsed && user && (
           <p className="px-3 py-1 text-[11px] text-muted-foreground truncate">{user.email}</p>
         )}

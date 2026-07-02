@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import sealAsset from "@/assets/temperanzza-seal.png.asset.json";
 
 const Auth = () => {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -45,10 +46,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-hero-gradient flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-elegant">
-        <CardHeader className="text-center">
-          <p className="text-gold text-xs tracking-[0.3em] uppercase">Temperanzza</p>
-          <CardTitle className="font-display text-3xl mt-2">
+      <Card className="w-full max-w-md shadow-elegant border-border/50">
+        <CardHeader className="text-center items-center">
+          <img
+            src={sealAsset.url}
+            alt="Brasão Temperanzza"
+            className="h-20 w-20 rounded-full bg-brand-paper object-contain p-1 ring-1 ring-border mb-2"
+          />
+          <p className="text-accent text-[10px] tracking-[0.35em] uppercase">Temperanzza · Dashboard</p>
+          <CardTitle className="font-display text-4xl mt-1 tracking-wide">
             {mode === "login" ? "Entrar" : "Criar conta"}
           </CardTitle>
         </CardHeader>
