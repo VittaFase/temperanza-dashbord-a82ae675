@@ -27,7 +27,7 @@ export type Tempero = {
 };
 
 export const TEMPEROS_SEED: Omit<Tempero, "id">[] = [
-  { nome: "Ervas Finas", precoKg: 10.35, gramasPote: 20, estoqueAtual: 253, estoqueMinimo: 50, ordem: 1 },
+  { nome: "Ervas Finas", precoKg: 5.0, gramasPote: 20, estoqueAtual: 253, estoqueMinimo: 50, ordem: 1 },
   { nome: "Cebola em Pó", precoKg: 15.0, gramasPote: 35, estoqueAtual: 132, estoqueMinimo: 30, ordem: 2 },
   { nome: "Chimi Churri", precoKg: 16.0, gramasPote: 40, estoqueAtual: 127, estoqueMinimo: 30, ordem: 3 },
   { nome: "Lemon Pepper", precoKg: 13.0, gramasPote: 50, estoqueAtual: 100, estoqueMinimo: 20, ordem: 4 },
@@ -66,7 +66,7 @@ export type Variaveis = {
 };
 
 export const VARIAVEIS_INICIAIS: Variaveis = {
-  pote: 0.95,
+  pote: 0.1,
   lacre: 0.03,
   rotulo: 0.44,
   caixa: 0.12,
@@ -77,7 +77,7 @@ export const VARIAVEIS_INICIAIS: Variaveis = {
   transporte: 3,
   markupIndustria: 2.3,
   markupAtacado: 2.3,
-  markupCliente: 4.0,
+  markupCliente: 13.5,
   contabilidadeMensal: 500,
   producaoEstimada: 2000,
 };
