@@ -7,7 +7,7 @@ export type CalculoTempero = {
   custoDireto: number;
   custoComFabril: number;
   custoTotal: number;
-  precoIndustria: number;
+  
   precoAtacado: number;
   precoCliente: number;
   margemPct: number;
@@ -29,7 +29,7 @@ export const calcularTempero = (t: Tempero, v: Variaveis): CalculoTempero => {
   );
   const custoTotal = custoComFabril / divisor;
 
-  const precoIndustria = custoTotal * v.markupIndustria;
+  
   const precoAtacado = custoTotal * v.markupAtacado;
   const precoCliente = custoTotal * v.markupCliente;
   const margemPct =
@@ -42,7 +42,7 @@ export const calcularTempero = (t: Tempero, v: Variaveis): CalculoTempero => {
     custoDireto,
     custoComFabril,
     custoTotal,
-    precoIndustria,
+    
     precoAtacado,
     precoCliente,
     margemPct,

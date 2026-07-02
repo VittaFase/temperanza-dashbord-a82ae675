@@ -26,7 +26,7 @@ type DbVariaveis = {
   custo_fabril: number;
   comissao: number;
   transporte: number;
-  markup_industria: number;
+  
   markup_atacado: number;
   markup_cliente: number;
   contabilidade_mensal: number;
@@ -57,7 +57,7 @@ const toVariaveis = (r: DbVariaveis): Variaveis => ({
   custoFabril: Number(r.custo_fabril),
   comissao: Number(r.comissao),
   transporte: Number(r.transporte),
-  markupIndustria: Number(r.markup_industria),
+  
   markupAtacado: Number(r.markup_atacado),
   markupCliente: Number(r.markup_cliente),
   contabilidadeMensal: Number(r.contabilidade_mensal ?? 500),
@@ -145,7 +145,7 @@ export const fetchVariaveis = async (userId: string): Promise<Variaveis> => {
         termoencolhivel: v.termoencolhivel,
         simples_nacional: v.simplesNacional, custo_fabril: v.custoFabril,
         comissao: v.comissao, transporte: v.transporte,
-        markup_industria: v.markupIndustria, markup_atacado: v.markupAtacado,
+        markup_industria: v.markupAtacado, markup_atacado: v.markupAtacado,
         markup_cliente: v.markupCliente,
         contabilidade_mensal: v.contabilidadeMensal,
         producao_estimada: v.producaoEstimada,
@@ -163,7 +163,7 @@ export const saveVariaveis = async (userId: string, v: Variaveis) => {
     termoencolhivel: v.termoencolhivel,
     simples_nacional: v.simplesNacional, custo_fabril: v.custoFabril,
     comissao: v.comissao, transporte: v.transporte,
-    markup_industria: v.markupIndustria, markup_atacado: v.markupAtacado,
+    markup_industria: v.markupAtacado, markup_atacado: v.markupAtacado,
     markup_cliente: v.markupCliente,
     contabilidade_mensal: v.contabilidadeMensal,
     producao_estimada: v.producaoEstimada,

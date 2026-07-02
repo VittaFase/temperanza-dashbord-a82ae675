@@ -25,7 +25,6 @@ const CAMPOS_PERC: { key: keyof Variaveis; label: string }[] = [
 ];
 
 const MARKUPS: { key: keyof Variaveis; label: string }[] = [
-  { key: "markupIndustria", label: "Markup Indústria" },
   { key: "markupAtacado", label: "Markup Atacado" },
   { key: "markupCliente", label: "Markup Cliente Final" },
 ];
@@ -84,7 +83,7 @@ export const VariaveisPanel = ({ variaveis, onChange, onReset }: Props) => {
 
         <section>
           <h3 className="text-sm font-semibold mb-3 text-accent">Markups de Venda (multiplicador)</h3>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {MARKUPS.map(({ key, label }) => (
               <div key={key} className="space-y-1">
                 <Label className="text-xs">{label}</Label>
