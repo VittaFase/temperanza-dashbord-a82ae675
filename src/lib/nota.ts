@@ -58,9 +58,12 @@ export const gerarNotaHTML = (p: PedidoComItens): string => {
 </style>
 </head><body>
   <div class="header">
-    <div>
-      <h1>Temperanzza Gastronomia</h1>
-      <div class="muted">Comprovante não fiscal</div>
+    <div style="display:flex; align-items:center; gap:14px">
+      <img src="${LOGO_URL}" alt="Temperanzza" style="width:64px; height:64px; object-fit:contain; border-radius:50%; background:#f8f5ef; padding:4px" crossorigin="anonymous"/>
+      <div>
+        <h1>Temperanzza Condimentos</h1>
+        <div class="muted">Comprovante não fiscal</div>
+      </div>
     </div>
     <div style="text-align:right">
       <div class="badge">${canal}</div>
