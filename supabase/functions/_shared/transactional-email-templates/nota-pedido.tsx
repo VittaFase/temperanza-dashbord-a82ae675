@@ -45,7 +45,14 @@ const Email = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Heading style={h1}>Temperanzza Gastronomia</Heading>
+          <img
+            src="https://temperanza-dashbord.lovable.app/__l5e/assets-v1/44216df4-51ce-491b-8b04-0db5dc0ddced/temperanzza-seal.jpeg"
+            alt="Temperanzza"
+            width="72"
+            height="72"
+            style={{ display: 'block', margin: '0 auto 8px', borderRadius: '50%', objectFit: 'contain', background: '#f8f5ef', padding: '4px' }}
+          />
+          <Heading style={h1}>Temperanzza Condimentos</Heading>
           <Text style={muted}>Documento não fiscal</Text>
         </Section>
 
