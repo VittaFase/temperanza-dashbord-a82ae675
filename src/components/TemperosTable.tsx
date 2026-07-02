@@ -90,7 +90,10 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
                   <TableCell className="font-semibold text-primary">{brl(c.precoAtacado)}</TableCell>
                   <TableCell className="font-semibold text-primary">{brl(c.precoCliente)}</TableCell>
                   <TableCell className="text-sm text-herb-green font-medium">
-                    {c.margemPct.toFixed(0)}%
+                    {c.margemAtacadoPct.toFixed(0)}%
+                  </TableCell>
+                  <TableCell className="text-sm text-herb-green font-medium">
+                    {c.margemClientePct.toFixed(0)}%
                   </TableCell>
                   <TableCell>
                     <button
