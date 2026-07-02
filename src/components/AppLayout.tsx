@@ -10,10 +10,11 @@ const Shell = () => {
     <div className="min-h-screen flex w-full bg-background">
       <AppSidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-12 flex items-center border-b bg-card/50 backdrop-blur px-2 gap-2">
+        <header className="h-12 flex items-center border-b bg-card/50 backdrop-blur px-2 gap-3">
           <SidebarTrigger />
-          <span className="font-display text-sm text-muted-foreground">
-            Temperanzza · Custos & Precificação
+          <span className="brand-chip">Temperanzza</span>
+          <span className="font-display text-sm text-muted-foreground tracking-[0.2em]">
+            Custos & Precificação
           </span>
         </header>
         <main className="flex-1 overflow-auto">

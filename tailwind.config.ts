@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Playfair Display"', 'serif'],
-        sans: ['Lato', 'sans-serif'],
+        display: ['"Big Shoulders Stencil Display"', 'Impact', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        stencil: ['"Big Shoulders Stencil Display"', 'Impact', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
