@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Produtos from "./pages/Produtos";
 import Configuracoes from "./pages/Configuracoes";
 import Simulacao from "./pages/Simulacao";
+import Pedidos from "./pages/Pedidos";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/produtos" element={<Produtos />} />
+            <Route path="/pedidos" element={<Pedidos />} />
             <Route path="/configuracoes" element={<Configuracoes />} />
             <Route path="/simulacao" element={<Simulacao />} />
           </Route>

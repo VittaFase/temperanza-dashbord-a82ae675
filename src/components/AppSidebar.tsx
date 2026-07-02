@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, Settings, Sliders, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, Settings, Sliders, LogOut, ShoppingCart } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, SidebarFooter,
@@ -12,6 +12,7 @@ import sealAsset from "@/assets/temperanzza-seal.png.asset.json";
 const items = [
   { title: "Resumo", url: "/", icon: LayoutDashboard },
   { title: "Produtos", url: "/produtos", icon: Package },
+  { title: "Pedidos", url: "/pedidos", icon: ShoppingCart },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Simulação", url: "/simulacao", icon: Sliders },
 ];

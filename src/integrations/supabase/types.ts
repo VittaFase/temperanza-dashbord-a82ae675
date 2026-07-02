@@ -14,6 +14,211 @@ export type Database = {
   }
   public: {
     Tables: {
+      clientes: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          created_at: string
+          documento: string | null
+          email: string | null
+          endereco: string | null
+          estado: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          telefone: string | null
+          tipo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cep?: string | null
+          cidade?: string | null
+          created_at?: string
+          documento?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          telefone?: string | null
+          tipo?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cep?: string | null
+          cidade?: string | null
+          created_at?: string
+          documento?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          telefone?: string | null
+          tipo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      itens_pedido: {
+        Row: {
+          created_at: string
+          id: string
+          nome_produto: string
+          pedido_id: string
+          preco_unitario: number
+          quantidade: number
+          subtotal: number
+          tempero_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome_produto: string
+          pedido_id: string
+          preco_unitario: number
+          quantidade: number
+          subtotal: number
+          tempero_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome_produto?: string
+          pedido_id?: string
+          preco_unitario?: number
+          quantidade?: number
+          subtotal?: number
+          tempero_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "itens_pedido_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itens_pedido_tempero_id_fkey"
+            columns: ["tempero_id"]
+            isOneToOne: false
+            referencedRelation: "temperos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notas_nao_fiscais: {
+        Row: {
+          conteudo: Json
+          created_at: string
+          id: string
+          numero: string
+          pdf_path: string | null
+          pedido_id: string
+          user_id: string
+        }
+        Insert: {
+          conteudo?: Json
+          created_at?: string
+          id?: string
+          numero: string
+          pdf_path?: string | null
+          pedido_id: string
+          user_id: string
+        }
+        Update: {
+          conteudo?: Json
+          created_at?: string
+          id?: string
+          numero?: string
+          pdf_path?: string | null
+          pedido_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notas_nao_fiscais_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pedido_sequencia: {
+        Row: {
+          ultimo_numero: number
+          user_id: string
+        }
+        Insert: {
+          ultimo_numero?: number
+          user_id: string
+        }
+        Update: {
+          ultimo_numero?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pedidos: {
+        Row: {
+          canal: string
+          cliente_id: string | null
+          created_at: string
+          data_pedido: string
+          id: string
+          numero: number
+          observacoes: string | null
+          status: string
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          canal?: string
+          cliente_id?: string | null
+          created_at?: string
+          data_pedido?: string
+          id?: string
+          numero?: number
+          observacoes?: string | null
+          status?: string
+          total?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          canal?: string
+          cliente_id?: string | null
+          created_at?: string
+          data_pedido?: string
+          id?: string
+          numero?: number
+          observacoes?: string | null
+          status?: string
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       temperos: {
         Row: {
           created_at: string
