@@ -132,6 +132,45 @@ export const createTempero = async (userId: string, ordem: number): Promise<Temp
   return toTempero(data as DbTempero);
 };
 
+export const fetchVariaveis = async (userId: string): Promise<Variaveis> => {
+  const { data, error } = await supabase
+    .from("variaveis").select("*").eq("user_id", userId).maybeSingle();
+  if (error) throw error;
+  if (!data) {
+    const v = VARIAVEIS_INICIAIS;
+    const { data: created, error: e2 } = await supabase
+      .from("variaveis").insert({
+        user_id: userId,
+        pote: v.pote, lacre: v.lacre, rotulo: v.rotulo, caixa: v.caixa,
+        termoencolhivel: v.termoencolhivel,
+        simples_nacional: v.simplesNacional, custo_fabril: v.custoFabril,
+        comissao: v.comissao, transporte: v.transporte,
+        markup_industria: v.markupIndustria, markup_atacado: v.markupAtacado,
+        markup_cliente: v.markupCliente,
+        contabilidade_mensal: v.contabilidadeMensal,
+        producao_estimada: v.producaoEstimada,
+      }).select("*").single();
+    if (e2) throw e2;
+    return toVariaveis(created as DbVariaveis);
+  }
+  return toVariaveis(data as DbVariaveis);
+};
+
+export const saveVariaveis = async (userId: string, v: Variaveis) => {
+  const { error } = await supabase.from("variaveis").upsert({
+    user_id: userId,
+    pote: v.pote, lacre: v.lacre, rotulo: v.rotulo, caixa: v.caixa,
+    termoencolhivel: v.termoencolhivel,
+    simples_nacional: v.simplesNacional, custo_fabril: v.custoFabril,
+    comissao: v.comissao, transporte: v.transporte,
+    markup_industria: v.markupIndustria, markup_atacado: v.markupAtacado,
+    markup_cliente: v.markupCliente,
+    contabilidade_mensal: v.contabilidadeMensal,
+    producao_estimada: v.producaoEstimada,
+  });
+  if (error) throw error;
+};
+
 // ---------- Fotos ----------
 
 const BUCKET = "produtos";
