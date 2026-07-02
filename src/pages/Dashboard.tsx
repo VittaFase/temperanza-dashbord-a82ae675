@@ -70,26 +70,8 @@ const Dashboard = () => {
         </div>
       </section>
 
-      <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle className="font-display text-xl">Estoque por produto</CardTitle>
-        </CardHeader>
-        <CardContent className="h-[380px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ left: 8, right: 16, top: 8, bottom: 60 }}>
-              <XAxis dataKey="nome" angle={-35} textAnchor="end" interval={0} tick={{ fontSize: 11 }} height={80} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-              <Bar dataKey="estoque" radius={[4, 4, 0, 0]}>
-                {chartData.map((d, i) => (
-                  <Cell key={i} fill={d.estoque < d.minimo ? "hsl(var(--destructive))" : "hsl(var(--primary))"} />
-                ))}
-              </Bar>
-              <ReferenceLine y={0} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      <StockOverview linhas={linhas} totalPotes={potesTotal} />
+
 
       <Card className="shadow-card">
         <CardHeader className="flex flex-row items-center justify-between">
