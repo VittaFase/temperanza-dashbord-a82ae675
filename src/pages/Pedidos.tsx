@@ -24,7 +24,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { toast } from "sonner";
 import {
   Plus, Minus, Trash2, Search, UserPlus, FileText, ShoppingCart, X,
-  Pencil, Copy, Receipt, Mail,
+  Pencil, Copy, Receipt, Mail, MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -666,6 +666,44 @@ export default function Pedidos() {
                               }}
                             >
                               <Mail className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              title={p.cliente?.telefone ? "Enviar por WhatsApp" : "Cliente sem telefone cadastrado"}
+                              disabled={!p.cliente?.telefone}
+                              onClick={() => {
+                                const raw = (p.cliente?.telefone ?? "").replace(/\D/g, "");
+                                if (!raw) {
+                                  toast.error("Cliente sem telefone cadastrado");
+                                  return;
+                                }
+                                // Normaliza para E.164 sem '+': se não começar com código país, prefixa Brasil (55)
+                                const phone = raw.length <= 11 ? `55${raw}` : raw;
+                                const nome = p.cliente?.nome?.split(" ")[0] ?? "Olá";
+                                const numero = String(p.numero).padStart(6, "0");
+                                const linhas = p.itens.map(
+                                  (i) => `• ${i.quantidade}x ${i.nome_produto} — ${brl(i.subtotal)}`
+                                );
+                                const msg = [
+                                  `Olá, ${nome}! 👋`,
+                                  ``,
+                                  `Segue o resumo do seu pedido *#${numero}* na *Temperanza Gastronomia*:`,
+                                  ``,
+                                  ...linhas,
+                                  ``,
+                                  `*Total: ${brl(p.total)}*`,
+                                  (p as any).observacoes ? `\nObs.: ${(p as any).observacoes}` : ``,
+                                  ``,
+                                  `Agradecemos a preferência! 🌿`,
+                                ]
+                                  .filter(Boolean)
+                                  .join("\n");
+                                const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+                                window.open(url, "_blank", "noopener,noreferrer");
+                              }}
+                            >
+                              <MessageCircle className="h-3 w-3" />
                             </Button>
                             <Button
                               size="sm"
