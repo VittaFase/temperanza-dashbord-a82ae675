@@ -19,6 +19,7 @@ export type ItemPedido = {
   nome_produto: string;
   quantidade: number;
   preco_unitario: number;
+  desconto: number;
   subtotal: number;
 };
 
@@ -28,6 +29,8 @@ export type Pedido = {
   cliente_id: string | null;
   canal: "atacado" | "cliente_final";
   status: "rascunho" | "confirmado" | "cancelado";
+  subtotal: number;
+  desconto: number;
   total: number;
   observacoes: string | null;
   data_pedido: string;
@@ -75,10 +78,14 @@ export const criarPedido = async (
     cliente_id: string | null;
     canal: "atacado" | "cliente_final";
     observacoes?: string;
+    desconto?: number;
     itens: ItemPedido[];
   }
 ): Promise<PedidoComItens> => {
-  const total = input.itens.reduce((s, i) => s + i.subtotal, 0);
+  const subtotal = input.itens.reduce((s, i) => s + i.subtotal, 0);
+  const desconto = Math.max(0, Math.min(subtotal, input.desconto ?? 0));
+  const total = subtotal - desconto;
+
   const { data: pedido, error } = await supabase
     .from("pedidos")
     .insert({
@@ -86,6 +93,8 @@ export const criarPedido = async (
       cliente_id: input.cliente_id,
       canal: input.canal,
       observacoes: input.observacoes ?? null,
+      subtotal,
+      desconto,
       total,
       status: "confirmado",
     })
@@ -100,12 +109,12 @@ export const criarPedido = async (
     nome_produto: i.nome_produto,
     quantidade: i.quantidade,
     preco_unitario: i.preco_unitario,
+    desconto: i.desconto ?? 0,
     subtotal: i.subtotal,
   }));
 
   const { error: e2 } = await supabase.from("itens_pedido").insert(rows);
   if (e2) {
-    // reverte pedido se falhar (trigger repõe estoque no delete dos itens já inseridos, mas se nenhum item entrou basta apagar o pedido)
     await supabase.from("pedidos").delete().eq("id", pedido.id);
     throw e2;
   }
@@ -129,19 +138,22 @@ export const fetchPedidos = async (userId: string, limit = 50): Promise<PedidoCo
   if (error) throw error;
   return (pedidos ?? []).map((p: any) => ({
     ...p,
+    subtotal: Number(p.subtotal ?? p.total ?? 0),
+    desconto: Number(p.desconto ?? 0),
+    total: Number(p.total ?? 0),
     cliente: p.cliente ?? null,
     itens: (p.itens ?? []).map((i: any) => ({
       tempero_id: i.tempero_id,
       nome_produto: i.nome_produto,
       quantidade: Number(i.quantidade),
       preco_unitario: Number(i.preco_unitario),
+      desconto: Number(i.desconto ?? 0),
       subtotal: Number(i.subtotal),
     })),
   })) as PedidoComItens[];
 };
 
 export const cancelarPedido = async (id: string) => {
-  // apaga itens (trigger repõe estoque) e depois o pedido
   const { error: e1 } = await supabase.from("itens_pedido").delete().eq("pedido_id", id);
   if (e1) throw e1;
   const { error: e2 } = await supabase.from("pedidos").delete().eq("id", id);

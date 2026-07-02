@@ -68,6 +68,7 @@ export type Database = {
       itens_pedido: {
         Row: {
           created_at: string
+          desconto: number
           id: string
           nome_produto: string
           pedido_id: string
@@ -79,6 +80,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          desconto?: number
           id?: string
           nome_produto: string
           pedido_id: string
@@ -90,6 +92,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          desconto?: number
           id?: string
           nome_produto?: string
           pedido_id?: string
@@ -175,10 +178,12 @@ export type Database = {
           cliente_id: string | null
           created_at: string
           data_pedido: string
+          desconto: number
           id: string
           numero: number
           observacoes: string | null
           status: string
+          subtotal: number
           total: number
           updated_at: string
           user_id: string
@@ -188,10 +193,12 @@ export type Database = {
           cliente_id?: string | null
           created_at?: string
           data_pedido?: string
+          desconto?: number
           id?: string
           numero?: number
           observacoes?: string | null
           status?: string
+          subtotal?: number
           total?: number
           updated_at?: string
           user_id: string
@@ -201,10 +208,12 @@ export type Database = {
           cliente_id?: string | null
           created_at?: string
           data_pedido?: string
+          desconto?: number
           id?: string
           numero?: number
           observacoes?: string | null
           status?: string
+          subtotal?: number
           total?: number
           updated_at?: string
           user_id?: string
