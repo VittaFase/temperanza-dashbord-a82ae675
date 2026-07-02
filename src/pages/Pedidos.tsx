@@ -6,7 +6,7 @@ import {
   Cliente, PedidoComItens, ItemPedido,
   fetchClientes, upsertCliente, criarPedido, fetchPedidos, cancelarPedido,
 } from "@/lib/pedidos";
-import { abrirNota, abrirCupom80mm } from "@/lib/nota";
+import { NotaPreviewDialog } from "@/components/NotaPreviewDialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
