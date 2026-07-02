@@ -24,8 +24,9 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { toast } from "sonner";
 import {
   Plus, Minus, Trash2, Search, UserPlus, FileText, ShoppingCart, X,
-  Pencil, Copy, Receipt,
+  Pencil, Copy, Receipt, Mail,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -619,6 +620,52 @@ export default function Pedidos() {
                             </Button>
                             <Button size="sm" variant="ghost" title="Duplicar" onClick={() => duplicarPedido(p)}>
                               <Copy className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              title="Enviar por e-mail"
+                              disabled={!p.cliente?.email}
+                              onClick={async () => {
+                                if (!p.cliente?.email) {
+                                  toast.error("Cliente sem e-mail cadastrado");
+                                  return;
+                                }
+                                try {
+                                  const { error } = await supabase.functions.invoke(
+                                    "send-transactional-email",
+                                    {
+                                      body: {
+                                        templateName: "nota-pedido",
+                                        recipientEmail: p.cliente.email,
+                                        idempotencyKey: `nota-${p.id}`,
+                                        templateData: {
+                                          numero: p.numero,
+                                          data: new Date(p.data_pedido).toLocaleString("pt-BR"),
+                                          clienteNome: p.cliente?.nome ?? "Cliente",
+                                          canal: p.canal === "atacado" ? "Atacado" : "Cliente Final",
+                                          itens: p.itens.map((i) => ({
+                                            nome_produto: i.nome_produto,
+                                            quantidade: i.quantidade,
+                                            preco_unitario: i.preco_unitario,
+                                            subtotal: i.subtotal,
+                                          })),
+                                          subtotal: p.itens.reduce((s, i) => s + i.preco_unitario * i.quantidade, 0),
+                                          desconto: (p as any).desconto ?? 0,
+                                          total: p.total,
+                                          observacoes: (p as any).observacoes,
+                                        },
+                                      },
+                                    }
+                                  );
+                                  if (error) throw error;
+                                  toast.success(`Nota enviada para ${p.cliente.email}`);
+                                } catch (e: any) {
+                                  toast.error(e.message ?? "Falha ao enviar");
+                                }
+                              }}
+                            >
+                              <Mail className="h-3 w-3" />
                             </Button>
                             <Button
                               size="sm"
