@@ -150,7 +150,7 @@ const Produtos = () => {
                         step="1"
                         value={t.estoqueAtual}
                         onChange={(e) => updateTempero({ ...t, estoqueAtual: parseInt(e.target.value) || 0 })}
-                        className={`h-8 ${baixo ? "text-destructive font-semibold" : ""}`}
+                        className={`h-8 no-spin text-right tabular-nums ${baixo ? "text-destructive font-semibold" : ""}`}
                       />
                     </TableCell>
                     <TableCell className="text-sm font-semibold">{brl(c.custoTotal)}</TableCell>
