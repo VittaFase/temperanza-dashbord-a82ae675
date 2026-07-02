@@ -1,9 +1,10 @@
 import { useDashboard } from "@/hooks/useDashboard";
 import { calcularTempero } from "@/lib/calc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { AlertTriangle } from "lucide-react";
 import {
-  Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine, Cell,
+  Pie, PieChart, ResponsiveContainer, Tooltip, Cell,
 } from "recharts";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -37,9 +38,6 @@ const Dashboard = () => {
   const potesTotal = linhas.reduce((a, l) => a + l.estoqueAtual, 0);
   const alertas = linhas.filter((l) => l.estoqueAtual < l.estoqueMinimo);
 
-  const chartData = [...linhas]
-    .sort((a, b) => a.estoqueAtual - b.estoqueAtual)
-    .map((l) => ({ nome: l.nome, estoque: l.estoqueAtual, minimo: l.estoqueMinimo }));
 
   return (
     <div className="container py-6 space-y-6">
@@ -69,26 +67,8 @@ const Dashboard = () => {
         </div>
       </section>
 
-      <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle className="font-display text-xl">Estoque por produto</CardTitle>
-        </CardHeader>
-        <CardContent className="h-[380px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ left: 8, right: 16, top: 8, bottom: 60 }}>
-              <XAxis dataKey="nome" angle={-35} textAnchor="end" interval={0} tick={{ fontSize: 11 }} height={80} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-              <Bar dataKey="estoque" radius={[4, 4, 0, 0]}>
-                {chartData.map((d, i) => (
-                  <Cell key={i} fill={d.estoque < d.minimo ? "hsl(var(--destructive))" : "hsl(var(--primary))"} />
-                ))}
-              </Bar>
-              <ReferenceLine y={0} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      <StockOverview linhas={linhas} totalPotes={potesTotal} />
+
 
       <Card className="shadow-card">
         <CardHeader className="flex flex-row items-center justify-between">
@@ -129,5 +109,88 @@ const Stat = ({ label, value, accent }: { label: string; value: string; accent?:
     </CardContent>
   </Card>
 );
+
+const PALETTE = [
+  "hsl(var(--primary))", "hsl(var(--gold))", "#c97b3a", "#8fae5d", "#b8574b",
+  "#6b8e9e", "#d4a05a", "#7d5a8f", "#9c6b4f", "#5c8f7a",
+];
+
+type Linha = { id: string; nome: string; estoqueAtual: number; estoqueMinimo: number };
+
+const StockOverview = ({ linhas, totalPotes }: { linhas: Linha[]; totalPotes: number }) => {
+  const ordenadas = [...linhas].sort((a, b) => b.estoqueAtual - a.estoqueAtual);
+  const top = ordenadas.slice(0, 8);
+  const restoTotal = ordenadas.slice(8).reduce((a, l) => a + l.estoqueAtual, 0);
+  const pieData = [
+    ...top.map((l) => ({ name: l.nome, value: l.estoqueAtual })),
+    ...(restoTotal > 0 ? [{ name: "Outros", value: restoTotal }] : []),
+  ];
+
+  return (
+    <Card className="shadow-card">
+      <CardHeader>
+        <CardTitle className="font-display text-xl">Distribuição do estoque</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="relative h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius="60%"
+                  outerRadius="90%"
+                  paddingAngle={2}
+                  stroke="hsl(var(--background))"
+                  strokeWidth={2}
+                >
+                  {pieData.map((_, i) => (
+                    <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                  formatter={(v: number) => [`${v} potes`, ""]}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Total</p>
+              <p className="font-display text-4xl">{totalPotes.toLocaleString("pt-BR")}</p>
+              <p className="text-xs text-muted-foreground">potes</p>
+            </div>
+          </div>
+
+          <ul className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+            {ordenadas.map((l, i) => {
+              const critico = l.estoqueAtual < l.estoqueMinimo;
+              const alvo = Math.max(l.estoqueMinimo * 2, 1);
+              const pct = Math.min(100, (l.estoqueAtual / alvo) * 100);
+              return (
+                <li key={l.id} className="flex items-center gap-3 text-sm">
+                  <span
+                    className="h-3 w-3 rounded-sm shrink-0"
+                    style={{ background: i < 8 ? PALETTE[i % PALETTE.length] : "hsl(var(--muted))" }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between gap-2">
+                      <span className="truncate">{l.nome}</span>
+                      <span className={`font-mono tabular-nums text-xs ${critico ? "text-destructive" : "text-muted-foreground"}`}>
+                        {l.estoqueAtual}/{l.estoqueMinimo}
+                      </span>
+                    </div>
+                    <Progress value={pct} className={`h-1.5 mt-1 ${critico ? "[&>div]:bg-destructive" : ""}`} />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default Dashboard;
