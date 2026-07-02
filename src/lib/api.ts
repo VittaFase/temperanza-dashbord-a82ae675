@@ -6,6 +6,8 @@ type DbTempero = {
   nome: string;
   preco_kg: number;
   gramas_pote: number;
+  estoque_atual: number;
+  estoque_minimo: number;
   ordem: number;
 };
 
@@ -23,6 +25,8 @@ type DbVariaveis = {
   markup_industria: number;
   markup_atacado: number;
   markup_cliente: number;
+  contabilidade_mensal: number;
+  producao_estimada: number;
 };
 
 const toTempero = (r: DbTempero): Tempero => ({
@@ -30,6 +34,8 @@ const toTempero = (r: DbTempero): Tempero => ({
   nome: r.nome,
   precoKg: Number(r.preco_kg),
   gramasPote: Number(r.gramas_pote),
+  estoqueAtual: Number(r.estoque_atual ?? 0),
+  estoqueMinimo: Number(r.estoque_minimo ?? 20),
   ordem: r.ordem,
 });
 
@@ -46,6 +52,8 @@ const toVariaveis = (r: DbVariaveis): Variaveis => ({
   markupIndustria: Number(r.markup_industria),
   markupAtacado: Number(r.markup_atacado),
   markupCliente: Number(r.markup_cliente),
+  contabilidadeMensal: Number(r.contabilidade_mensal ?? 500),
+  producaoEstimada: Number(r.producao_estimada ?? 2000),
 });
 
 export const fetchTemperos = async (userId: string): Promise<Tempero[]> => {
@@ -56,8 +64,15 @@ export const fetchTemperos = async (userId: string): Promise<Tempero[]> => {
     .order("ordem", { ascending: true });
   if (error) throw error;
   if (!data || data.length === 0) {
-    const rows = TEMPEROS_SEED.map((t) => ({ ...t, user_id: userId, preco_kg: t.precoKg, gramas_pote: t.gramasPote }));
-    const insertRows = rows.map(({ precoKg, gramasPote, ...rest }: any) => rest);
+    const insertRows = TEMPEROS_SEED.map((t) => ({
+      user_id: userId,
+      nome: t.nome,
+      preco_kg: t.precoKg,
+      gramas_pote: t.gramasPote,
+      estoque_atual: t.estoqueAtual,
+      estoque_minimo: t.estoqueMinimo,
+      ordem: t.ordem,
+    }));
     const { data: seeded, error: e2 } = await supabase
       .from("temperos")
       .insert(insertRows)
@@ -75,6 +90,8 @@ export const upsertTempero = async (userId: string, t: Tempero) => {
     nome: t.nome,
     preco_kg: t.precoKg,
     gramas_pote: t.gramasPote,
+    estoque_atual: t.estoqueAtual,
+    estoque_minimo: t.estoqueMinimo,
     ordem: t.ordem,
   });
   if (error) throw error;
@@ -88,7 +105,15 @@ export const deleteTempero = async (id: string) => {
 export const createTempero = async (userId: string, ordem: number): Promise<Tempero> => {
   const { data, error } = await supabase
     .from("temperos")
-    .insert({ user_id: userId, nome: "Novo tempero", preco_kg: 10, gramas_pote: 50, ordem })
+    .insert({
+      user_id: userId,
+      nome: "Novo tempero",
+      preco_kg: 10,
+      gramas_pote: 50,
+      estoque_atual: 0,
+      estoque_minimo: 20,
+      ordem,
+    })
     .select("*")
     .single();
   if (error) throw error;
@@ -114,6 +139,8 @@ export const fetchVariaveis = async (userId: string): Promise<Variaveis> => {
         comissao: v.comissao, transporte: v.transporte,
         markup_industria: v.markupIndustria, markup_atacado: v.markupAtacado,
         markup_cliente: v.markupCliente,
+        contabilidade_mensal: v.contabilidadeMensal,
+        producao_estimada: v.producaoEstimada,
       })
       .select("*").single();
     if (e2) throw e2;
@@ -131,6 +158,8 @@ export const saveVariaveis = async (userId: string, v: Variaveis) => {
     comissao: v.comissao, transporte: v.transporte,
     markup_industria: v.markupIndustria, markup_atacado: v.markupAtacado,
     markup_cliente: v.markupCliente,
+    contabilidade_mensal: v.contabilidadeMensal,
+    producao_estimada: v.producaoEstimada,
   });
   if (error) throw error;
 };
