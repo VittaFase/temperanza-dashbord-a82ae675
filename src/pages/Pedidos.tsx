@@ -6,7 +6,7 @@ import {
   Cliente, PedidoComItens, ItemPedido,
   fetchClientes, upsertCliente, criarPedido, fetchPedidos, cancelarPedido,
 } from "@/lib/pedidos";
-import { abrirNota } from "@/lib/nota";
+import { abrirNota, abrirCupom80mm } from "@/lib/nota";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,12 +24,26 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { toast } from "sonner";
 import {
   Plus, Minus, Trash2, Search, UserPlus, FileText, ShoppingCart, X,
+  Pencil, Copy, Receipt,
 } from "lucide-react";
 
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 type Canal = "atacado" | "cliente_final";
+type ClienteForm = {
+  nome: string; tipo: Canal; documento: string; telefone: string;
+  email: string; endereco: string; cidade: string; estado: string; cep: string;
+};
+const formVazio: ClienteForm = {
+  nome: "", tipo: "cliente_final", documento: "", telefone: "",
+  email: "", endereco: "", cidade: "", estado: "", cep: "",
+};
+
+const recalcSubtotal = (i: ItemPedido): ItemPedido => ({
+  ...i,
+  subtotal: Math.max(0, i.preco_unitario * i.quantidade - (i.desconto ?? 0)),
+});
 
 export default function Pedidos() {
   const { user } = useAuth();
@@ -43,8 +57,10 @@ export default function Pedidos() {
   const [canal, setCanal] = useState<Canal>("cliente_final");
   const [carrinho, setCarrinho] = useState<ItemPedido[]>([]);
   const [obs, setObs] = useState("");
+  const [descontoGeral, setDescontoGeral] = useState<string>("");
+  const [descontoTipo, setDescontoTipo] = useState<"valor" | "percent">("valor");
   const [salvando, setSalvando] = useState(false);
-  const [dlgCliente, setDlgCliente] = useState(false);
+  const [dlgCliente, setDlgCliente] = useState<{ open: boolean; edit: Cliente | null }>({ open: false, edit: null });
 
   useEffect(() => {
     if (!user) return;
@@ -59,12 +75,11 @@ export default function Pedidos() {
     return canal === "atacado" ? c.precoAtacado : c.precoCliente;
   };
 
-  // recalcula preços quando canal muda
   useEffect(() => {
     setCarrinho((prev) =>
       prev.map((i) => {
         const preco = precoDoProduto(i.tempero_id);
-        return { ...i, preco_unitario: preco, subtotal: preco * i.quantidade };
+        return recalcSubtotal({ ...i, preco_unitario: preco });
       })
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,20 +125,19 @@ export default function Pedidos() {
           return prev;
         }
         return prev.map((i) =>
-          i.tempero_id === temperoId
-            ? { ...i, quantidade: i.quantidade + 1, subtotal: preco * (i.quantidade + 1) }
-            : i
+          i.tempero_id === temperoId ? recalcSubtotal({ ...i, quantidade: i.quantidade + 1 }) : i
         );
       }
       return [
         ...prev,
-        {
+        recalcSubtotal({
           tempero_id: temperoId,
           nome_produto: t.nome,
           quantidade: 1,
           preco_unitario: preco,
-          subtotal: preco,
-        },
+          desconto: 0,
+          subtotal: 0,
+        }),
       ];
     });
   };
@@ -136,17 +150,32 @@ export default function Pedidos() {
           const t = temperos.find((x) => x.id === id);
           const max = t?.estoqueAtual ?? 0;
           const q = Math.max(0, Math.min(max, i.quantidade + delta));
-          return { ...i, quantidade: q, subtotal: i.preco_unitario * q };
+          return recalcSubtotal({ ...i, quantidade: q });
         })
         .filter((i) => i.quantidade > 0)
+    );
+  };
+
+  const mudarDescontoItem = (id: string, valor: number) => {
+    setCarrinho((prev) =>
+      prev.map((i) =>
+        i.tempero_id === id
+          ? recalcSubtotal({ ...i, desconto: Math.max(0, Math.min(i.preco_unitario * i.quantidade, valor)) })
+          : i
+      )
     );
   };
 
   const removerItem = (id: string) =>
     setCarrinho((prev) => prev.filter((i) => i.tempero_id !== id));
 
-  const total = carrinho.reduce((s, i) => s + i.subtotal, 0);
+  const subtotal = carrinho.reduce((s, i) => s + i.subtotal, 0);
   const totalItens = carrinho.reduce((s, i) => s + i.quantidade, 0);
+  const descontoNum = Number(descontoGeral.replace(",", ".")) || 0;
+  const descontoAplicado = descontoTipo === "percent"
+    ? Math.min(subtotal, subtotal * (descontoNum / 100))
+    : Math.min(subtotal, descontoNum);
+  const total = Math.max(0, subtotal - descontoAplicado);
 
   const confirmar = async () => {
     if (!user) return;
@@ -160,24 +189,59 @@ export default function Pedidos() {
         cliente_id: clienteSel?.id ?? null,
         canal,
         observacoes: obs || undefined,
+        desconto: descontoAplicado,
         itens: carrinho,
       });
       toast.success(`Pedido #${String(p.numero).padStart(6, "0")} confirmado`);
-      // recarrega dados (estoque baixado + lista de pedidos)
-      const [novosPedidos] = await Promise.all([fetchPedidos(user.id)]);
+      const novosPedidos = await fetchPedidos(user.id);
       setPedidos(novosPedidos);
       abrirNota(p);
-      // limpa
       setCarrinho([]);
       setObs("");
+      setDescontoGeral("");
       setClienteSel(null);
-      // força reload dos temperos para refletir estoque
       window.dispatchEvent(new Event("temperos:refresh"));
     } catch (e: any) {
       toast.error(e.message ?? "Erro ao registrar pedido");
     } finally {
       setSalvando(false);
     }
+  };
+
+  const duplicarPedido = (p: PedidoComItens) => {
+    // recarrega itens no carrinho com preços atuais e valida estoque
+    const novos: ItemPedido[] = [];
+    let ajustou = false;
+    for (const item of p.itens) {
+      const t = temperos.find((x) => x.id === item.tempero_id);
+      if (!t) continue;
+      const qtd = Math.min(item.quantidade, t.estoqueAtual);
+      if (qtd <= 0) { ajustou = true; continue; }
+      if (qtd < item.quantidade) ajustou = true;
+      const preco = (() => {
+        const c = calcularTempero(t, variaveis);
+        return p.canal === "atacado" ? c.precoAtacado : c.precoCliente;
+      })();
+      novos.push(recalcSubtotal({
+        tempero_id: item.tempero_id,
+        nome_produto: t.nome,
+        quantidade: qtd,
+        preco_unitario: preco,
+        desconto: 0,
+        subtotal: 0,
+      }));
+    }
+    if (novos.length === 0) {
+      toast.error("Nenhum item disponível em estoque para duplicar");
+      return;
+    }
+    setCanal(p.canal);
+    setClienteSel(p.cliente ?? null);
+    setCarrinho(novos);
+    setObs(p.observacoes ?? "");
+    setDescontoGeral("");
+    toast.success(ajustou ? "Pedido duplicado (quantidades ajustadas ao estoque)" : "Pedido duplicado no carrinho");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -204,20 +268,17 @@ export default function Pedidos() {
         </ToggleGroup>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_360px] gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_380px] gap-4">
         {/* Clientes */}
         <Card className="p-3 flex flex-col gap-3 max-h-[calc(100vh-220px)]">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-sm tracking-widest uppercase">Clientes</h2>
-            <NovoClienteDialog
-              open={dlgCliente}
-              onOpenChange={setDlgCliente}
-              onCreated={(c) => {
-                setClientes((prev) => [...prev, c].sort((a, b) => a.nome.localeCompare(b.nome)));
-                setClienteSel(c);
-                setCanal(c.tipo);
-              }}
-            />
+            <Button
+              size="sm" variant="outline" className="h-8"
+              onClick={() => setDlgCliente({ open: true, edit: null })}
+            >
+              <UserPlus className="h-3 w-3 mr-1" /> Novo
+            </Button>
           </div>
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -238,24 +299,40 @@ export default function Pedidos() {
               <span className="text-muted-foreground">Consumidor não identificado</span>
             </button>
             {clientesFiltrados.map((c) => (
-              <button
+              <div
                 key={c.id}
-                onClick={() => {
-                  setClienteSel(c);
-                  setCanal(c.tipo);
-                }}
-                className={`w-full text-left rounded-md p-2 text-xs border ${
+                className={`group rounded-md border ${
                   clienteSel?.id === c.id
                     ? "border-primary bg-primary/5"
                     : "border-transparent hover:bg-muted"
                 }`}
               >
-                <div className="font-medium">{c.nome}</div>
-                <div className="text-muted-foreground text-[10px] uppercase tracking-wider">
-                  {c.tipo === "atacado" ? "Atacado" : "Cliente final"}
-                  {c.telefone ? ` · ${c.telefone}` : ""}
-                </div>
-              </button>
+                <button
+                  onClick={() => {
+                    setClienteSel(c);
+                    setCanal(c.tipo);
+                  }}
+                  className="w-full text-left p-2 text-xs"
+                >
+                  <div className="flex items-start justify-between gap-1">
+                    <div className="min-w-0">
+                      <div className="font-medium truncate">{c.nome}</div>
+                      <div className="text-muted-foreground text-[10px] uppercase tracking-wider">
+                        {c.tipo === "atacado" ? "Atacado" : "Cliente final"}
+                        {c.telefone ? ` · ${c.telefone}` : ""}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setDlgCliente({ open: true, edit: c }); }}
+                      className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-primary p-1"
+                      title="Editar"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </button>
+                  </div>
+                </button>
+              </div>
             ))}
           </div>
         </Card>
@@ -319,7 +396,7 @@ export default function Pedidos() {
             </h2>
             {carrinho.length > 0 && (
               <button
-                onClick={() => setCarrinho([])}
+                onClick={() => { setCarrinho([]); setDescontoGeral(""); }}
                 className="text-[10px] uppercase tracking-widest text-muted-foreground hover:text-destructive"
               >
                 Limpar
@@ -341,14 +418,14 @@ export default function Pedidos() {
               </p>
             )}
             {carrinho.map((i) => (
-              <div key={i.tempero_id} className="border rounded-md p-2 text-xs">
+              <div key={i.tempero_id} className="border rounded-md p-2 text-xs space-y-1.5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="font-medium leading-tight">{i.nome_produto}</div>
                   <button onClick={() => removerItem(i.tempero_id)} className="text-muted-foreground hover:text-destructive">
                     <X className="h-3 w-3" />
                   </button>
                 </div>
-                <div className="mt-2 flex items-center justify-between">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => mudarQtd(i.tempero_id, -1)}>
                       <Minus className="h-3 w-3" />
@@ -362,6 +439,16 @@ export default function Pedidos() {
                     <div className="text-[10px] text-muted-foreground">{brl(i.preco_unitario)}</div>
                     <div className="font-display">{brl(i.subtotal)}</div>
                   </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Desc.</span>
+                  <Input
+                    type="number" min={0} step="0.01"
+                    value={i.desconto || ""}
+                    placeholder="R$ 0,00"
+                    onChange={(e) => mudarDescontoItem(i.tempero_id, Number(e.target.value) || 0)}
+                    className="h-6 text-xs px-2"
+                  />
                 </div>
               </div>
             ))}
@@ -377,11 +464,41 @@ export default function Pedidos() {
             className="text-xs"
           />
 
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">
+              Desconto no total
+            </Label>
+            <div className="flex gap-1">
+              <Input
+                type="number" min={0} step="0.01"
+                value={descontoGeral}
+                placeholder="0"
+                onChange={(e) => setDescontoGeral(e.target.value)}
+                className="h-8 text-xs"
+              />
+              <ToggleGroup
+                type="single"
+                value={descontoTipo}
+                onValueChange={(v) => v && setDescontoTipo(v as any)}
+                className="border rounded-md"
+              >
+                <ToggleGroupItem value="valor" className="h-8 px-2 text-xs">R$</ToggleGroupItem>
+                <ToggleGroupItem value="percent" className="h-8 px-2 text-xs">%</ToggleGroupItem>
+              </ToggleGroup>
+            </div>
+          </div>
+
           <div className="space-y-1 text-sm">
             <div className="flex justify-between text-muted-foreground text-xs">
-              <span>{totalItens} unidades</span>
-              <span>{carrinho.length} produto(s)</span>
+              <span>{totalItens} unidades · {carrinho.length} produto(s)</span>
+              <span>{brl(subtotal)}</span>
             </div>
+            {descontoAplicado > 0 && (
+              <div className="flex justify-between text-destructive text-xs">
+                <span>Desconto</span>
+                <span>-{brl(descontoAplicado)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-baseline">
               <span className="text-xs uppercase tracking-widest text-muted-foreground">Total</span>
               <span className="font-display text-2xl">{brl(total)}</span>
@@ -434,12 +551,19 @@ export default function Pedidos() {
                     <td className="text-right tabular-nums font-display">{brl(p.total)}</td>
                     <td className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => abrirNota(p)}>
-                          <FileText className="h-3 w-3 mr-1" /> Nota
+                        <Button size="sm" variant="ghost" title="Nota A4" onClick={() => abrirNota(p)}>
+                          <FileText className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="ghost" title="Cupom 80mm" onClick={() => abrirCupom80mm(p)}>
+                          <Receipt className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="ghost" title="Duplicar" onClick={() => duplicarPedido(p)}>
+                          <Copy className="h-3 w-3" />
                         </Button>
                         <Button
                           size="sm"
                           variant="ghost"
+                          title="Cancelar"
                           onClick={async () => {
                             if (!confirm("Cancelar este pedido? O estoque será devolvido.")) return;
                             try {
@@ -463,33 +587,58 @@ export default function Pedidos() {
           </div>
         )}
       </Card>
+
+      <ClienteDialog
+        state={dlgCliente}
+        onOpenChange={(o) => setDlgCliente((s) => ({ ...s, open: o }))}
+        onSaved={(c, isNew) => {
+          setClientes((prev) => {
+            const rest = prev.filter((x) => x.id !== c.id);
+            return [...rest, c].sort((a, b) => a.nome.localeCompare(b.nome));
+          });
+          if (isNew) {
+            setClienteSel(c);
+            setCanal(c.tipo);
+          } else if (clienteSel?.id === c.id) {
+            setClienteSel(c);
+          }
+        }}
+      />
     </div>
   );
 }
 
-// ---------- Novo Cliente ----------
-function NovoClienteDialog({
-  open,
-  onOpenChange,
-  onCreated,
+// ---------- Cliente Dialog (novo + editar) ----------
+function ClienteDialog({
+  state, onOpenChange, onSaved,
 }: {
-  open: boolean;
+  state: { open: boolean; edit: Cliente | null };
   onOpenChange: (o: boolean) => void;
-  onCreated: (c: Cliente) => void;
+  onSaved: (c: Cliente, isNew: boolean) => void;
 }) {
   const { user } = useAuth();
-  const [form, setForm] = useState({
-    nome: "",
-    tipo: "cliente_final" as Canal,
-    documento: "",
-    telefone: "",
-    email: "",
-    endereco: "",
-    cidade: "",
-    estado: "",
-    cep: "",
-  });
+  const [form, setForm] = useState<ClienteForm>(formVazio);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (state.open) {
+      if (state.edit) {
+        setForm({
+          nome: state.edit.nome,
+          tipo: state.edit.tipo,
+          documento: state.edit.documento ?? "",
+          telefone: state.edit.telefone ?? "",
+          email: state.edit.email ?? "",
+          endereco: state.edit.endereco ?? "",
+          cidade: state.edit.cidade ?? "",
+          estado: state.edit.estado ?? "",
+          cep: state.edit.cep ?? "",
+        });
+      } else {
+        setForm(formVazio);
+      }
+    }
+  }, [state]);
 
   const salvar = async () => {
     if (!user) return;
@@ -499,14 +648,12 @@ function NovoClienteDialog({
     }
     setSaving(true);
     try {
-      const c = await upsertCliente(user.id, form);
-      onCreated(c);
-      toast.success("Cliente cadastrado");
+      const payload: any = { ...form };
+      if (state.edit) payload.id = state.edit.id;
+      const c = await upsertCliente(user.id, payload);
+      onSaved(c, !state.edit);
+      toast.success(state.edit ? "Cliente atualizado" : "Cliente cadastrado");
       onOpenChange(false);
-      setForm({
-        nome: "", tipo: "cliente_final", documento: "", telefone: "",
-        email: "", endereco: "", cidade: "", estado: "", cep: "",
-      });
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -515,15 +662,10 @@ function NovoClienteDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="h-8">
-          <UserPlus className="h-3 w-3 mr-1" /> Novo
-        </Button>
-      </DialogTrigger>
+    <Dialog open={state.open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Novo cliente</DialogTitle>
+          <DialogTitle>{state.edit ? "Editar cliente" : "Novo cliente"}</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
