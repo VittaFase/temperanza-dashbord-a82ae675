@@ -11,6 +11,8 @@ export type CalculoTempero = {
   precoAtacado: number;
   precoCliente: number;
   margemPct: number;
+  margemAtacadoPct: number;
+  margemClientePct: number;
 };
 
 // Fórmula Manus: impostos e comissão incidem "por dentro" sobre o preço de venda.
