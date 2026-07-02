@@ -95,9 +95,7 @@ const Produtos = () => {
             <TableHeader>
               <TableRow className="bg-secondary/60">
                 <TableHead className="w-14"></TableHead>
-                <TableHead className="min-w-[200px]">Produto</TableHead>
-                <TableHead className="w-32">SKU</TableHead>
-                <TableHead className="w-36">EAN</TableHead>
+                <TableHead className="min-w-[220px]">Produto</TableHead>
                 <TableHead className="w-24">Valor/kg</TableHead>
                 <TableHead className="w-20">Gramas</TableHead>
                 <TableHead className="w-40">Estoque</TableHead>
@@ -133,23 +131,6 @@ const Produtos = () => {
                           className="h-8 border-0 bg-transparent focus-visible:bg-background font-medium"
                         />
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        value={t.sku ?? ""}
-                        onChange={(e) => updateTempero({ ...t, sku: e.target.value })}
-                        placeholder="—"
-                        className="h-8 font-mono text-xs"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        value={t.ean ?? ""}
-                        onChange={(e) => updateTempero({ ...t, ean: e.target.value.replace(/\D/g, "").slice(0, 13) })}
-                        placeholder="—"
-                        inputMode="numeric"
-                        className="h-8 font-mono text-xs"
-                      />
                     </TableCell>
                     <TableCell>
                       <Input type="number" step="0.01" value={t.precoKg}
