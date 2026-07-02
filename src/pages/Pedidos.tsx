@@ -61,6 +61,13 @@ export default function Pedidos() {
   const [descontoTipo, setDescontoTipo] = useState<"valor" | "percent">("valor");
   const [salvando, setSalvando] = useState(false);
   const [dlgCliente, setDlgCliente] = useState<{ open: boolean; edit: Cliente | null }>({ open: false, edit: null });
+  const [preview, setPreview] = useState<{ open: boolean; pedido: PedidoComItens | null; formato: "a4" | "cupom" }>({ open: false, pedido: null, formato: "a4" });
+  const [histBusca, setHistBusca] = useState("");
+  const [histPeriodo, setHistPeriodo] = useState<"7" | "30" | "90" | "all">("30");
+  const [histCanal, setHistCanal] = useState<"todos" | Canal>("todos");
+
+  const abrirPreview = (p: PedidoComItens, formato: "a4" | "cupom" = "a4") =>
+    setPreview({ open: true, pedido: p, formato });
 
   useEffect(() => {
     if (!user) return;
