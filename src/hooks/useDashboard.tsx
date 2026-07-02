@@ -46,7 +46,7 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!user) return;
-    (async () => {
+    const load = async () => {
       try {
         setLoading(true);
         const [t, v] = await Promise.all([fetchTemperos(user.id), fetchVariaveis(user.id)]);
@@ -57,7 +57,13 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
       } finally {
         setLoading(false);
       }
-    })();
+    };
+    load();
+    const refresh = () => {
+      fetchTemperos(user.id).then(setTemperos).catch(() => {});
+    };
+    window.addEventListener("temperos:refresh", refresh);
+    return () => window.removeEventListener("temperos:refresh", refresh);
   }, [user]);
 
   useDebouncedEffect(() => {
