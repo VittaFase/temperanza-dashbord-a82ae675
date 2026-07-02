@@ -112,7 +112,7 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
               <TableCell>{brl(totais.custo)}</TableCell>
               <TableCell className="text-primary">{brl(totais.atacado)}</TableCell>
               <TableCell className="text-primary">{brl(totais.cliente)}</TableCell>
-              <TableCell colSpan={2}></TableCell>
+              <TableCell colSpan={3}></TableCell>
             </TableRow>
           </TableBody>
         </Table>
