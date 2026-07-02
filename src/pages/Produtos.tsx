@@ -96,11 +96,11 @@ const Produtos = () => {
               <TableRow className="bg-secondary/60">
                 <TableHead className="w-14"></TableHead>
                 <TableHead className="min-w-[200px]">Produto</TableHead>
-                <TableHead className="w-32">SKU</TableHead>
-                <TableHead className="w-36">EAN</TableHead>
-                <TableHead className="w-24">R$/kg</TableHead>
-                <TableHead className="w-20">g/pote</TableHead>
-                <TableHead className="w-40">Estoque</TableHead>
+                <TableHead className="w-40">SKU</TableHead>
+                <TableHead className="w-44">EAN</TableHead>
+                <TableHead className="w-40">R$/kg</TableHead>
+                <TableHead className="w-40">g/pote</TableHead>
+                <TableHead className="w-44">Estoque</TableHead>
                 <TableHead className="w-28">Custo total</TableHead>
                 <TableHead className="w-28 text-primary">Indústria</TableHead>
                 <TableHead className="w-28 text-primary">Atacado</TableHead>
