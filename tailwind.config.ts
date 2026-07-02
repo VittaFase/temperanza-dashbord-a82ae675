@@ -64,6 +64,18 @@ export default {
         terracotta: "hsl(var(--terracotta))",
         "herb-green": "hsl(var(--herb-green))",
         "spice-red": "hsl(var(--spice-red))",
+        brand: {
+          ink: "hsl(var(--brand-ink))",
+          paper: "hsl(var(--brand-paper))",
+          cream: "hsl(var(--brand-cream))",
+          red: "hsl(var(--brand-red))",
+          mustard: "hsl(var(--brand-mustard))",
+          emerald: "hsl(var(--brand-emerald))",
+          cyan: "hsl(var(--brand-cyan))",
+          amber: "hsl(var(--brand-amber))",
+          gold: "hsl(var(--brand-gold))",
+          silver: "hsl(var(--brand-silver))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
