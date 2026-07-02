@@ -1,9 +1,10 @@
 import { useDashboard } from "@/hooks/useDashboard";
 import { calcularTempero } from "@/lib/calc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { AlertTriangle } from "lucide-react";
 import {
-  Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceLine, Cell,
+  Pie, PieChart, ResponsiveContainer, Tooltip, Cell,
 } from "recharts";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
