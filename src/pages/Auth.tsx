@@ -108,6 +108,17 @@ const Auth = () => {
             <Button type="submit" className="w-full" disabled={busy}>
               {busy ? "..." : mode === "login" ? "Entrar" : "Criar conta"}
             </Button>
+            {needsConfirm && mode === "login" && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={resendConfirmation}
+                disabled={resending}
+              >
+                {resending ? "Reenviando..." : "Reenviar e-mail de confirmação"}
+              </Button>
+            )}
             <button
               type="button"
               className="w-full text-sm text-muted-foreground hover:text-primary"
