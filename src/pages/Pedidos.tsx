@@ -705,7 +705,6 @@ export default function Pedidos() {
                             >
                               <MessageCircle className="h-3 w-3" />
                             </Button>
-                            </Button>
                             <Button
                               size="sm"
                               variant="ghost"
