@@ -20,10 +20,11 @@ const Simulacao = () => {
   const linhasAtuais = temperos.map((t) => calcularTempero(t, variaveis));
   const linhasSim = temperos.map((t) => calcularTempero(t, sim));
 
-  const margemAtual =
-    linhasAtuais.length ? linhasAtuais.reduce((a, l) => a + l.margemPct, 0) / linhasAtuais.length : 0;
-  const margemSim =
-    linhasSim.length ? linhasSim.reduce((a, l) => a + l.margemPct, 0) / linhasSim.length : 0;
+  const avg = (arr: number[]) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+  const margemAtacadoAtual = avg(linhasAtuais.map((l) => l.margemAtacadoPct));
+  const margemAtacadoSim = avg(linhasSim.map((l) => l.margemAtacadoPct));
+  const margemClienteAtual = avg(linhasAtuais.map((l) => l.margemClientePct));
+  const margemClienteSim = avg(linhasSim.map((l) => l.margemClientePct));
 
   const aplicar = () => {
     setVariaveis({ ...variaveis, markupAtacado: mAtacado, markupCliente: mCliente });
@@ -52,12 +53,18 @@ const Simulacao = () => {
         <MarkupCard label="Markup Cliente Final" value={mCliente} onChange={setMCliente} />
       </div>
 
-      <Card className="shadow-card bg-card-gradient">
-        <CardContent className="p-5 grid gap-4 md:grid-cols-2">
-          <Stat label="Margem média atual" value={`${margemAtual.toFixed(1)}%`} />
-          <Stat label="Margem média simulada" value={`${margemSim.toFixed(1)}%`} accent />
-        </CardContent>
-      </Card>
+      <div className="grid gap-4 md:grid-cols-2">
+        <MargemCanal
+          titulo="Atacado"
+          atual={margemAtacadoAtual}
+          simulada={margemAtacadoSim}
+        />
+        <MargemCanal
+          titulo="Cliente Final"
+          atual={margemClienteAtual}
+          simulada={margemClienteSim}
+        />
+      </div>
 
       <Card className="shadow-card">
         <CardHeader className="flex flex-row items-center justify-between">
@@ -72,23 +79,34 @@ const Simulacao = () => {
             <TableHeader>
               <TableRow className="bg-secondary/60">
                 <TableHead>Produto</TableHead>
+                <TableHead className="text-right">Atacado atual</TableHead>
+                <TableHead className="text-right text-primary">Atacado sim.</TableHead>
+                <TableHead className="text-right">Δ Atac.</TableHead>
                 <TableHead className="text-right">Cliente atual</TableHead>
-                <TableHead className="text-right text-primary">Cliente simulado</TableHead>
-                <TableHead className="text-right">Δ</TableHead>
+                <TableHead className="text-right text-primary">Cliente sim.</TableHead>
+                <TableHead className="text-right">Δ Cli.</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {amostra.map((t, i) => {
-                const atual = linhasAtuais[i].precoCliente;
-                const novo = linhasSim[i].precoCliente;
-                const delta = novo - atual;
+                const aAtual = linhasAtuais[i].precoAtacado;
+                const aNovo = linhasSim[i].precoAtacado;
+                const aDelta = aNovo - aAtual;
+                const cAtual = linhasAtuais[i].precoCliente;
+                const cNovo = linhasSim[i].precoCliente;
+                const cDelta = cNovo - cAtual;
                 return (
                   <TableRow key={t.id}>
                     <TableCell className="font-medium">{t.nome}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">{brl(atual)}</TableCell>
-                    <TableCell className="text-right font-semibold text-primary">{brl(novo)}</TableCell>
-                    <TableCell className={`text-right font-mono ${delta >= 0 ? "text-herb-green" : "text-destructive"}`}>
-                      {delta >= 0 ? "+" : ""}{brl(delta)}
+                    <TableCell className="text-right text-muted-foreground">{brl(aAtual)}</TableCell>
+                    <TableCell className="text-right font-semibold text-primary">{brl(aNovo)}</TableCell>
+                    <TableCell className={`text-right font-mono text-xs ${aDelta >= 0 ? "text-herb-green" : "text-destructive"}`}>
+                      {aDelta >= 0 ? "+" : ""}{brl(aDelta)}
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground">{brl(cAtual)}</TableCell>
+                    <TableCell className="text-right font-semibold text-primary">{brl(cNovo)}</TableCell>
+                    <TableCell className={`text-right font-mono text-xs ${cDelta >= 0 ? "text-herb-green" : "text-destructive"}`}>
+                      {cDelta >= 0 ? "+" : ""}{brl(cDelta)}
                     </TableCell>
                   </TableRow>
                 );
@@ -98,6 +116,31 @@ const Simulacao = () => {
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+const MargemCanal = ({ titulo, atual, simulada }: { titulo: string; atual: number; simulada: number }) => {
+  const delta = simulada - atual;
+  const up = delta >= 0;
+  return (
+    <Card className="shadow-card bg-card-gradient">
+      <CardContent className="p-5 space-y-3">
+        <p className="text-xs uppercase tracking-[0.3em] text-gold">{titulo}</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Margem atual</p>
+            <p className="font-display text-2xl mt-1">{atual.toFixed(1)}%</p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Margem simulada</p>
+            <p className="font-display text-2xl mt-1 text-primary">{simulada.toFixed(1)}%</p>
+            <p className={`text-xs font-mono mt-0.5 ${up ? "text-herb-green" : "text-destructive"}`}>
+              {up ? "▲ +" : "▼ "}{delta.toFixed(1)} p.p.
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -111,13 +154,6 @@ const MarkupCard = ({ label, value, onChange }: { label: string; value: number; 
       <Slider value={[value]} min={1} max={8} step={0.05} onValueChange={([v]) => onChange(v)} />
     </CardContent>
   </Card>
-);
-
-const Stat = ({ label, value, accent }: { label: string; value: string; accent?: boolean }) => (
-  <div>
-    <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
-    <p className={`font-display text-3xl mt-1 ${accent ? "text-primary" : ""}`}>{value}</p>
-  </div>
 );
 
 export default Simulacao;

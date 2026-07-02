@@ -49,7 +49,8 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
               <TableHead className="w-28">Custo Total</TableHead>
               <TableHead className="w-28 text-primary">Atacado</TableHead>
               <TableHead className="w-28 text-primary">Cliente Final</TableHead>
-              <TableHead className="w-20">Margem</TableHead>
+              <TableHead className="w-24">Margem Atac.</TableHead>
+              <TableHead className="w-24">Margem Cli.</TableHead>
               <TableHead className="w-10"></TableHead>
             </TableRow>
           </TableHeader>
@@ -89,7 +90,10 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
                   <TableCell className="font-semibold text-primary">{brl(c.precoAtacado)}</TableCell>
                   <TableCell className="font-semibold text-primary">{brl(c.precoCliente)}</TableCell>
                   <TableCell className="text-sm text-herb-green font-medium">
-                    {c.margemPct.toFixed(0)}%
+                    {c.margemAtacadoPct.toFixed(0)}%
+                  </TableCell>
+                  <TableCell className="text-sm text-herb-green font-medium">
+                    {c.margemClientePct.toFixed(0)}%
                   </TableCell>
                   <TableCell>
                     <button
@@ -108,7 +112,7 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
               <TableCell>{brl(totais.custo)}</TableCell>
               <TableCell className="text-primary">{brl(totais.atacado)}</TableCell>
               <TableCell className="text-primary">{brl(totais.cliente)}</TableCell>
-              <TableCell colSpan={2}></TableCell>
+              <TableCell colSpan={3}></TableCell>
             </TableRow>
           </TableBody>
         </Table>
