@@ -46,7 +46,7 @@ const Email = ({
       <Container style={container}>
         <Section style={header}>
           <img
-            src="https://temperanza-dashbord.lovable.app/__l5e/assets-v1/aa0a757d-244b-42ca-85f8-9ad0404f5a67/temperanzza-seal.png"
+            src="https://temperanza-dashbord.lovable.app/__l5e/assets-v1/d2f939ce-f120-48ae-bb0c-89ef88b15b19/temperanzza-seal.png"
             alt="Temperanzza"
             width="72"
             height="72"
