@@ -24,7 +24,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { toast } from "sonner";
 import {
   Plus, Minus, Trash2, Search, UserPlus, FileText, ShoppingCart, X,
-  Pencil, Copy, Receipt, Mail,
+  Pencil, Copy, Receipt, Mail, MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
