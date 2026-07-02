@@ -162,31 +162,13 @@ const Produtos = () => {
                         className="h-8" />
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => updateTempero({ ...t, estoqueAtual: Math.max(0, (t.estoqueAtual || 0) - 1) })}
-                          className="h-7 w-7 shrink-0 rounded border border-input bg-background hover:bg-accent hover:text-accent-foreground flex items-center justify-center text-sm font-bold"
-                          aria-label="diminuir estoque"
-                        >
-                          −
-                        </button>
-                        <Input
-                          type="number"
-                          step="1"
-                          value={t.estoqueAtual}
-                          onChange={(e) => updateTempero({ ...t, estoqueAtual: parseInt(e.target.value) || 0 })}
-                          className={`h-8 text-center px-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${baixo ? "text-destructive font-semibold" : ""}`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => updateTempero({ ...t, estoqueAtual: (t.estoqueAtual || 0) + 1 })}
-                          className="h-7 w-7 shrink-0 rounded border border-input bg-background hover:bg-accent hover:text-accent-foreground flex items-center justify-center text-sm font-bold"
-                          aria-label="aumentar estoque"
-                        >
-                          +
-                        </button>
-                      </div>
+                      <Input
+                        type="number"
+                        step="1"
+                        value={t.estoqueAtual}
+                        onChange={(e) => updateTempero({ ...t, estoqueAtual: parseInt(e.target.value) || 0 })}
+                        className={`h-8 ${baixo ? "text-destructive font-semibold" : ""}`}
+                      />
                     </TableCell>
                     <TableCell className="text-sm font-semibold">{brl(c.custoTotal)}</TableCell>
                     <TableCell className="font-semibold text-primary">{brl(c.precoIndustria)}</TableCell>
