@@ -11,6 +11,7 @@ import Simulacao from "./pages/Simulacao";
 import Pedidos from "./pages/Pedidos";
 import Relatorios from "./pages/Relatorios";
 import Auth from "./pages/Auth";
+import Unsubscribe from "./pages/Unsubscribe";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
+          <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/produtos" element={<Produtos />} />
