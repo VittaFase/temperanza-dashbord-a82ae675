@@ -3,32 +3,47 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Download, Search, AlertTriangle } from "lucide-react";
+import { Trash2, Plus, Download, Search, AlertTriangle, Pencil } from "lucide-react";
 import { useState } from "react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { calcularTempero } from "@/lib/calc";
+import { ProdutoFoto } from "@/components/ProdutoFoto";
+import { ProdutoDetalhesDrawer } from "@/components/ProdutoDetalhesDrawer";
+import { Tempero } from "@/data/temperos";
 
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-const csvEscape = (s: string) => `"${s.replace(/"/g, '""')}"`;
+const csvEscape = (s: string) => `"${(s ?? "").replace(/"/g, '""')}"`;
 
 const Produtos = () => {
   const { temperos, variaveis, updateTempero, deleteTempero, addTempero } = useDashboard();
   const [q, setQ] = useState("");
+  const [editing, setEditing] = useState<Tempero | null>(null);
 
-  const filtrados = temperos.filter((t) => t.nome.toLowerCase().includes(q.toLowerCase()));
+  const filtrados = temperos.filter((t) => {
+    const s = q.toLowerCase();
+    return (
+      t.nome.toLowerCase().includes(s) ||
+      (t.sku ?? "").toLowerCase().includes(s) ||
+      (t.ean ?? "").includes(s)
+    );
+  });
+
+  // mantém o drawer sincronizado com o estado global
+  const editingSync = editing ? temperos.find((t) => t.id === editing.id) ?? null : null;
 
   const exportCsv = () => {
     const header = [
-      "Produto","Custo MP/kg","Gramas/pote","Estoque","Mínimo",
-      "Custo MP/pote","Custo direto","Custo c/ fabril","Custo total","Preço indústria","Preço atacado","Preço cliente","Margem %"
+      "SKU","EAN","Produto","Custo MP/kg","Gramas/pote","Estoque","Mínimo",
+      "Custo MP/pote","Custo direto","Custo total","Preço indústria","Preço atacado","Preço cliente","Margem %"
     ];
     const rows = temperos.map((t) => {
       const c = calcularTempero(t, variaveis);
       return [
-        csvEscape(t.nome), t.precoKg, t.gramasPote, t.estoqueAtual, t.estoqueMinimo,
-        c.custoMateriaPrima.toFixed(4), c.custoDireto.toFixed(4), c.custoComFabril.toFixed(4),
+        csvEscape(t.sku ?? ""), csvEscape(t.ean ?? ""), csvEscape(t.nome),
+        t.precoKg, t.gramasPote, t.estoqueAtual, t.estoqueMinimo,
+        c.custoMateriaPrima.toFixed(4), c.custoDireto.toFixed(4),
         c.custoTotal.toFixed(4), c.precoIndustria.toFixed(2), c.precoAtacado.toFixed(2),
         c.precoCliente.toFixed(2), c.margemPct.toFixed(2),
       ].join(",");
@@ -65,12 +80,12 @@ const Produtos = () => {
           <CardTitle className="font-display text-xl">
             {filtrados.length} de {temperos.length} produtos
           </CardTitle>
-          <div className="relative w-64">
+          <div className="relative w-72">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar produto..."
+              placeholder="Buscar por nome, SKU ou EAN..."
               className="pl-8 h-9"
             />
           </div>
@@ -79,19 +94,19 @@ const Produtos = () => {
           <Table>
             <TableHeader>
               <TableRow className="bg-secondary/60">
+                <TableHead className="w-14"></TableHead>
                 <TableHead className="min-w-[200px]">Produto</TableHead>
+                <TableHead className="w-32">SKU</TableHead>
+                <TableHead className="w-36">EAN</TableHead>
                 <TableHead className="w-24">R$/kg</TableHead>
                 <TableHead className="w-20">g/pote</TableHead>
                 <TableHead className="w-24">Estoque</TableHead>
-                <TableHead className="w-20">Mínimo</TableHead>
-                <TableHead className="w-28">Custo MP</TableHead>
-                <TableHead className="w-28">Custo direto</TableHead>
                 <TableHead className="w-28">Custo total</TableHead>
                 <TableHead className="w-28 text-primary">Indústria</TableHead>
                 <TableHead className="w-28 text-primary">Atacado</TableHead>
                 <TableHead className="w-28 text-primary">Cliente</TableHead>
                 <TableHead className="w-20">Margem</TableHead>
-                <TableHead className="w-10"></TableHead>
+                <TableHead className="w-20"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -101,6 +116,15 @@ const Produtos = () => {
                 return (
                   <TableRow key={t.id} className="hover:bg-secondary/30">
                     <TableCell>
+                      <button
+                        onClick={() => setEditing(t)}
+                        className="block hover:opacity-80 transition"
+                        title="Abrir detalhes"
+                      >
+                        <ProdutoFoto path={t.fotoPath} size={40} alt={t.nome} />
+                      </button>
+                    </TableCell>
+                    <TableCell>
                       <div className="flex items-center gap-2">
                         {baixo && <AlertTriangle className="h-3.5 w-3.5 text-destructive" />}
                         <Input
@@ -109,6 +133,23 @@ const Produtos = () => {
                           className="h-8 border-0 bg-transparent focus-visible:bg-background font-medium"
                         />
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={t.sku ?? ""}
+                        onChange={(e) => updateTempero({ ...t, sku: e.target.value })}
+                        placeholder="—"
+                        className="h-8 font-mono text-xs"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={t.ean ?? ""}
+                        onChange={(e) => updateTempero({ ...t, ean: e.target.value.replace(/\D/g, "").slice(0, 13) })}
+                        placeholder="—"
+                        inputMode="numeric"
+                        className="h-8 font-mono text-xs"
+                      />
                     </TableCell>
                     <TableCell>
                       <Input type="number" step="0.01" value={t.precoKg}
@@ -125,13 +166,6 @@ const Produtos = () => {
                         onChange={(e) => updateTempero({ ...t, estoqueAtual: parseInt(e.target.value) || 0 })}
                         className={`h-8 ${baixo ? "text-destructive font-semibold" : ""}`} />
                     </TableCell>
-                    <TableCell>
-                      <Input type="number" step="1" value={t.estoqueMinimo}
-                        onChange={(e) => updateTempero({ ...t, estoqueMinimo: parseInt(e.target.value) || 0 })}
-                        className="h-8" />
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{brl(c.custoMateriaPrima)}</TableCell>
-                    <TableCell className="text-sm">{brl(c.custoDireto)}</TableCell>
                     <TableCell className="text-sm font-semibold">{brl(c.custoTotal)}</TableCell>
                     <TableCell className="font-semibold text-primary">{brl(c.precoIndustria)}</TableCell>
                     <TableCell className="font-semibold text-primary">{brl(c.precoAtacado)}</TableCell>
@@ -142,10 +176,23 @@ const Produtos = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <button onClick={() => deleteTempero(t.id)}
-                        className="text-muted-foreground hover:text-destructive" aria-label="remover">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setEditing(t)}
+                          className="text-muted-foreground hover:text-primary p-1"
+                          aria-label="editar detalhes"
+                          title="Foto, SKU, EAN e tabela nutricional"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteTempero(t.id)}
+                          className="text-muted-foreground hover:text-destructive p-1"
+                          aria-label="remover"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -154,6 +201,13 @@ const Produtos = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <ProdutoDetalhesDrawer
+        tempero={editingSync}
+        open={!!editing}
+        onOpenChange={(o) => !o && setEditing(null)}
+        onSave={updateTempero}
+      />
     </div>
   );
 };
