@@ -49,7 +49,8 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
               <TableHead className="w-28">Custo Total</TableHead>
               <TableHead className="w-28 text-primary">Atacado</TableHead>
               <TableHead className="w-28 text-primary">Cliente Final</TableHead>
-              <TableHead className="w-20">Margem</TableHead>
+              <TableHead className="w-24">Margem Atac.</TableHead>
+              <TableHead className="w-24">Margem Cli.</TableHead>
               <TableHead className="w-10"></TableHead>
             </TableRow>
           </TableHeader>
