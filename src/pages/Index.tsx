@@ -179,7 +179,7 @@ const Index = () => {
         />
 
         <footer className="text-center text-xs text-muted-foreground py-6">
-          Temperanzza Gastronomia · Dashboard interno · Salvo automaticamente
+          Temperanzza Condimentos · Dashboard interno · Salvo automaticamente
         </footer>
       </main>
     </div>
