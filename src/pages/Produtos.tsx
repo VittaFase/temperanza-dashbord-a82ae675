@@ -103,7 +103,8 @@ const Produtos = () => {
                 <TableHead className="w-28">Custo total</TableHead>
                 <TableHead className="w-28 text-primary">Atacado</TableHead>
                 <TableHead className="w-28 text-primary">Cliente Final</TableHead>
-                <TableHead className="w-20">Margem</TableHead>
+                <TableHead className="w-24">Margem Atac.</TableHead>
+                <TableHead className="w-24">Margem Cli.</TableHead>
                 <TableHead className="w-20"></TableHead>
               </TableRow>
             </TableHeader>
@@ -157,7 +158,12 @@ const Produtos = () => {
                     <TableCell className="text-xs font-semibold text-primary tabular-nums">{brl(c.precoCliente)}</TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="text-herb-green text-xs">
-                        {c.margemPct.toFixed(0)}%
+                        {c.margemAtacadoPct.toFixed(0)}%
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="text-herb-green text-xs">
+                        {c.margemClientePct.toFixed(0)}%
                       </Badge>
                     </TableCell>
                     <TableCell>
