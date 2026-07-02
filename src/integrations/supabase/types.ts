@@ -17,37 +17,49 @@ export type Database = {
       temperos: {
         Row: {
           created_at: string
+          ean: string | null
           estoque_atual: number
           estoque_minimo: number
+          foto_path: string | null
           gramas_pote: number
           id: string
           nome: string
           ordem: number
           preco_kg: number
+          sku: string | null
+          tabela_nutricional: Json
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          ean?: string | null
           estoque_atual?: number
           estoque_minimo?: number
+          foto_path?: string | null
           gramas_pote?: number
           id?: string
           nome: string
           ordem?: number
           preco_kg?: number
+          sku?: string | null
+          tabela_nutricional?: Json
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          ean?: string | null
           estoque_atual?: number
           estoque_minimo?: number
+          foto_path?: string | null
           gramas_pote?: number
           id?: string
           nome?: string
           ordem?: number
           preco_kg?: number
+          sku?: string | null
+          tabela_nutricional?: Json
           updated_at?: string
           user_id?: string
         }
