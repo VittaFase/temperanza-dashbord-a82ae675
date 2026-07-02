@@ -136,12 +136,12 @@ const Produtos = () => {
                     <TableCell>
                       <Input type="number" step="0.01" value={t.precoKg}
                         onChange={(e) => updateTempero({ ...t, precoKg: parseFloat(e.target.value) || 0 })}
-                        className="h-8 no-spin text-right tabular-nums" />
+                        className="h-8 no-spin text-right tabular-nums text-xs" />
                     </TableCell>
                     <TableCell>
                       <Input type="number" step="1" value={t.gramasPote}
                         onChange={(e) => updateTempero({ ...t, gramasPote: parseFloat(e.target.value) || 0 })}
-                        className="h-8 no-spin text-right tabular-nums" />
+                        className="h-8 no-spin text-right tabular-nums text-xs" />
                     </TableCell>
 
                     <TableCell>
@@ -150,15 +150,15 @@ const Produtos = () => {
                         step="1"
                         value={t.estoqueAtual}
                         onChange={(e) => updateTempero({ ...t, estoqueAtual: parseInt(e.target.value) || 0 })}
-                        className={`h-8 no-spin text-right tabular-nums ${baixo ? "text-destructive font-semibold" : ""}`}
+                        className={`h-8 no-spin text-right tabular-nums text-xs ${baixo ? "text-destructive font-semibold" : ""}`}
                       />
                     </TableCell>
-                    <TableCell className="text-sm font-semibold">{brl(c.custoTotal)}</TableCell>
-                    <TableCell className="font-semibold text-primary">{brl(c.precoIndustria)}</TableCell>
-                    <TableCell className="font-semibold text-primary">{brl(c.precoAtacado)}</TableCell>
-                    <TableCell className="font-semibold text-primary">{brl(c.precoCliente)}</TableCell>
+                    <TableCell className="text-xs font-semibold tabular-nums">{brl(c.custoTotal)}</TableCell>
+                    <TableCell className="text-xs font-semibold text-primary tabular-nums">{brl(c.precoIndustria)}</TableCell>
+                    <TableCell className="text-xs font-semibold text-primary tabular-nums">{brl(c.precoAtacado)}</TableCell>
+                    <TableCell className="text-xs font-semibold text-primary tabular-nums">{brl(c.precoCliente)}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="text-herb-green">
+                      <Badge variant="secondary" className="text-herb-green text-xs">
                         {c.margemPct.toFixed(0)}%
                       </Badge>
                     </TableCell>
