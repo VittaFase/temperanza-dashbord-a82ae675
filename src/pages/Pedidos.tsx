@@ -202,7 +202,7 @@ export default function Pedidos() {
       toast.success(`Pedido #${String(p.numero).padStart(6, "0")} confirmado`);
       const novosPedidos = await fetchPedidos(user.id);
       setPedidos(novosPedidos);
-      abrirNota(p);
+      abrirPreview(p, "a4");
       setCarrinho([]);
       setObs("");
       setDescontoGeral("");
