@@ -99,7 +99,7 @@ const Produtos = () => {
                 <TableHead className="w-28 text-right">Preço/kg</TableHead>
                 <TableHead className="w-24 text-right">Gramas</TableHead>
 
-                <TableHead className="w-40">Estoque</TableHead>
+                <TableHead className="w-28 text-right">Estoque</TableHead>
                 <TableHead className="w-28">Custo total</TableHead>
                 <TableHead className="w-28 text-primary">Indústria</TableHead>
                 <TableHead className="w-28 text-primary">Atacado</TableHead>
@@ -150,7 +150,7 @@ const Produtos = () => {
                         step="1"
                         value={t.estoqueAtual}
                         onChange={(e) => updateTempero({ ...t, estoqueAtual: parseInt(e.target.value) || 0 })}
-                        className={`h-8 ${baixo ? "text-destructive font-semibold" : ""}`}
+                        className={`h-8 no-spin text-right tabular-nums ${baixo ? "text-destructive font-semibold" : ""}`}
                       />
                     </TableCell>
                     <TableCell className="text-sm font-semibold">{brl(c.custoTotal)}</TableCell>
