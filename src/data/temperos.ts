@@ -1,3 +1,17 @@
+export type TabelaNutricional = {
+  porcao?: string;
+  valorEnergetico?: string;
+  carboidratos?: string;
+  acucares?: string;
+  proteinas?: string;
+  gordurasTotais?: string;
+  gordurasSaturadas?: string;
+  gordurasTrans?: string;
+  fibras?: string;
+  sodio?: string;
+  observacoes?: string;
+};
+
 export type Tempero = {
   id: string;
   nome: string;
@@ -6,6 +20,10 @@ export type Tempero = {
   estoqueAtual: number;
   estoqueMinimo: number;
   ordem: number;
+  sku?: string;
+  ean?: string;
+  fotoPath?: string;
+  tabelaNutricional?: TabelaNutricional;
 };
 
 export const TEMPEROS_SEED: Omit<Tempero, "id">[] = [
