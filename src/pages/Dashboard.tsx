@@ -38,9 +38,6 @@ const Dashboard = () => {
   const potesTotal = linhas.reduce((a, l) => a + l.estoqueAtual, 0);
   const alertas = linhas.filter((l) => l.estoqueAtual < l.estoqueMinimo);
 
-  const chartData = [...linhas]
-    .sort((a, b) => a.estoqueAtual - b.estoqueAtual)
-    .map((l) => ({ nome: l.nome, estoque: l.estoqueAtual, minimo: l.estoqueMinimo }));
 
   return (
     <div className="container py-6 space-y-6">
