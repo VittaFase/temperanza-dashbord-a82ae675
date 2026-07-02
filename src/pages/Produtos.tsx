@@ -133,23 +133,6 @@ const Produtos = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Input
-                        value={t.sku ?? ""}
-                        onChange={(e) => updateTempero({ ...t, sku: e.target.value })}
-                        placeholder="—"
-                        className="h-8 font-mono text-xs"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        value={t.ean ?? ""}
-                        onChange={(e) => updateTempero({ ...t, ean: e.target.value.replace(/\D/g, "").slice(0, 13) })}
-                        placeholder="—"
-                        inputMode="numeric"
-                        className="h-8 font-mono text-xs"
-                      />
-                    </TableCell>
-                    <TableCell>
                       <Input type="number" step="0.01" value={t.precoKg}
                         onChange={(e) => updateTempero({ ...t, precoKg: parseFloat(e.target.value) || 0 })}
                         className="h-8" />
