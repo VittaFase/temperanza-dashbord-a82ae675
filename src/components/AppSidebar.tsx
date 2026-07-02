@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, Settings, Sliders, LogOut, ShoppingCart } from "lucide-react";
+import { LayoutDashboard, Package, Settings, Sliders, LogOut, ShoppingCart, BarChart3 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, SidebarFooter,
@@ -13,6 +13,7 @@ const items = [
   { title: "Resumo", url: "/", icon: LayoutDashboard },
   { title: "Produtos", url: "/produtos", icon: Package },
   { title: "Pedidos", url: "/pedidos", icon: ShoppingCart },
+  { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Simulação", url: "/simulacao", icon: Sliders },
 ];
