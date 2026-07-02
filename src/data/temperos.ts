@@ -3,30 +3,31 @@ export type Tempero = {
   nome: string;
   precoKg: number;
   gramasPote: number;
+  estoqueAtual: number;
+  estoqueMinimo: number;
   ordem: number;
 };
 
 export const TEMPEROS_SEED: Omit<Tempero, "id">[] = [
-  { nome: "Temperaflix Tradicional", precoKg: 7.0, gramasPote: 60, ordem: 1 },
-  { nome: "Temperaflix Ervas Finas", precoKg: 7.0, gramasPote: 75, ordem: 2 },
-  { nome: "Cebola em Pó", precoKg: 15.0, gramasPote: 35, ordem: 3 },
-  { nome: "Páprica Defumada", precoKg: 9.0, gramasPote: 60, ordem: 4 },
-  { nome: "Ana Maria", precoKg: 13.4, gramasPote: 55, ordem: 5 },
-  { nome: "Chimi Churri Picante", precoKg: 17.5, gramasPote: 39, ordem: 6 },
-  { nome: "Chimi Churri s/ Pimenta", precoKg: 16.0, gramasPote: 40, ordem: 7 },
-  { nome: "Alho em Pó", precoKg: 12.9, gramasPote: 45, ordem: 8 },
-  { nome: "Temperaflix Pipoca Bacon", precoKg: 7.3, gramasPote: 65, ordem: 9 },
-  { nome: "Tempero Chefe c/ Páprica", precoKg: 14.5, gramasPote: 45, ordem: 10 },
-  { nome: "Cúrcuma / Açafrão", precoKg: 9.0, gramasPote: 40, ordem: 11 },
-  { nome: "Lemon Pepper", precoKg: 13.0, gramasPote: 50, ordem: 12 },
-  { nome: "Salsa | Cebola | Alho", precoKg: 20.5, gramasPote: 30, ordem: 13 },
-  { nome: "Ervas Finas", precoKg: 10.35, gramasPote: 20, ordem: 14 },
-  { nome: "Páprica Picante", precoKg: 8.3, gramasPote: 60, ordem: 15 },
-  { nome: "Páprica Doce", precoKg: 7.3, gramasPote: 45, ordem: 16 },
-  { nome: "Tempero Mineiro Moído", precoKg: 15.3, gramasPote: 50, ordem: 17 },
-  { nome: "Edu Guedes", precoKg: 17.5, gramasPote: 45, ordem: 18 },
-  { nome: "Pimenta Moída", precoKg: 19.0, gramasPote: 50, ordem: 19 },
-  { nome: "Canela Moída", precoKg: 15.0, gramasPote: 30, ordem: 20 },
+  { nome: "Ervas Finas", precoKg: 10.35, gramasPote: 20, estoqueAtual: 253, estoqueMinimo: 50, ordem: 1 },
+  { nome: "Cebola em Pó", precoKg: 15.0, gramasPote: 35, estoqueAtual: 132, estoqueMinimo: 30, ordem: 2 },
+  { nome: "Chimi Churri", precoKg: 16.0, gramasPote: 40, estoqueAtual: 127, estoqueMinimo: 30, ordem: 3 },
+  { nome: "Lemon Pepper", precoKg: 13.0, gramasPote: 50, estoqueAtual: 100, estoqueMinimo: 20, ordem: 4 },
+  { nome: "Edu Guedes", precoKg: 17.5, gramasPote: 45, estoqueAtual: 112, estoqueMinimo: 20, ordem: 5 },
+  { nome: "Ana Maria", precoKg: 13.4, gramasPote: 55, estoqueAtual: 91, estoqueMinimo: 20, ordem: 6 },
+  { nome: "Páprica Picante", precoKg: 8.3, gramasPote: 60, estoqueAtual: 112, estoqueMinimo: 20, ordem: 7 },
+  { nome: "Páprica Defumada", precoKg: 9.0, gramasPote: 60, estoqueAtual: 85, estoqueMinimo: 20, ordem: 8 },
+  { nome: "Temperaflix Tradicional", precoKg: 7.0, gramasPote: 60, estoqueAtual: 169, estoqueMinimo: 30, ordem: 9 },
+  { nome: "Salsa, Cebola", precoKg: 20.5, gramasPote: 30, estoqueAtual: 170, estoqueMinimo: 30, ordem: 10 },
+  { nome: "Tuchef com Páprica", precoKg: 14.5, gramasPote: 45, estoqueAtual: 113, estoqueMinimo: 20, ordem: 11 },
+  { nome: "Tempero Mineiro", precoKg: 15.3, gramasPote: 50, estoqueAtual: 101, estoqueMinimo: 20, ordem: 12 },
+  { nome: "Temperaflix Sabor Bacon", precoKg: 7.3, gramasPote: 65, estoqueAtual: 75, estoqueMinimo: 20, ordem: 13 },
+  { nome: "Cúrcuma", precoKg: 9.0, gramasPote: 40, estoqueAtual: 124, estoqueMinimo: 20, ordem: 14 },
+  { nome: "Páprica Doce", precoKg: 7.3, gramasPote: 45, estoqueAtual: 113, estoqueMinimo: 20, ordem: 15 },
+  { nome: "Chimi com Pimenta", precoKg: 17.5, gramasPote: 39, estoqueAtual: 129, estoqueMinimo: 20, ordem: 16 },
+  { nome: "Temperaflix Ervas Finas", precoKg: 7.0, gramasPote: 75, estoqueAtual: 67, estoqueMinimo: 20, ordem: 17 },
+  { nome: "Pimenta Moída", precoKg: 19.0, gramasPote: 50, estoqueAtual: 1200, estoqueMinimo: 50, ordem: 18 },
+  { nome: "Canela Moída", precoKg: 15.0, gramasPote: 30, estoqueAtual: 5600, estoqueMinimo: 50, ordem: 19 },
 ];
 
 export type Variaveis = {
@@ -42,6 +43,8 @@ export type Variaveis = {
   markupIndustria: number;
   markupAtacado: number;
   markupCliente: number;
+  contabilidadeMensal: number;
+  producaoEstimada: number;
 };
 
 export const VARIAVEIS_INICIAIS: Variaveis = {
@@ -57,4 +60,6 @@ export const VARIAVEIS_INICIAIS: Variaveis = {
   markupIndustria: 2.3,
   markupAtacado: 2.3,
   markupCliente: 4.0,
+  contabilidadeMensal: 500,
+  producaoEstimada: 2000,
 };

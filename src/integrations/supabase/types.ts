@@ -17,6 +17,8 @@ export type Database = {
       temperos: {
         Row: {
           created_at: string
+          estoque_atual: number
+          estoque_minimo: number
           gramas_pote: number
           id: string
           nome: string
@@ -27,6 +29,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          estoque_atual?: number
+          estoque_minimo?: number
           gramas_pote?: number
           id?: string
           nome: string
@@ -37,6 +41,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          estoque_atual?: number
+          estoque_minimo?: number
           gramas_pote?: number
           id?: string
           nome?: string
@@ -51,12 +57,14 @@ export type Database = {
         Row: {
           caixa: number
           comissao: number
+          contabilidade_mensal: number
           custo_fabril: number
           lacre: number
           markup_atacado: number
           markup_cliente: number
           markup_industria: number
           pote: number
+          producao_estimada: number
           rotulo: number
           simples_nacional: number
           termoencolhivel: number
@@ -67,12 +75,14 @@ export type Database = {
         Insert: {
           caixa?: number
           comissao?: number
+          contabilidade_mensal?: number
           custo_fabril?: number
           lacre?: number
           markup_atacado?: number
           markup_cliente?: number
           markup_industria?: number
           pote?: number
+          producao_estimada?: number
           rotulo?: number
           simples_nacional?: number
           termoencolhivel?: number
@@ -83,12 +93,14 @@ export type Database = {
         Update: {
           caixa?: number
           comissao?: number
+          contabilidade_mensal?: number
           custo_fabril?: number
           lacre?: number
           markup_atacado?: number
           markup_cliente?: number
           markup_industria?: number
           pote?: number
+          producao_estimada?: number
           rotulo?: number
           simples_nacional?: number
           termoencolhivel?: number
