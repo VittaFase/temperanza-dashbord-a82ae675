@@ -20,10 +20,11 @@ const Simulacao = () => {
   const linhasAtuais = temperos.map((t) => calcularTempero(t, variaveis));
   const linhasSim = temperos.map((t) => calcularTempero(t, sim));
 
-  const margemAtual =
-    linhasAtuais.length ? linhasAtuais.reduce((a, l) => a + l.margemPct, 0) / linhasAtuais.length : 0;
-  const margemSim =
-    linhasSim.length ? linhasSim.reduce((a, l) => a + l.margemPct, 0) / linhasSim.length : 0;
+  const avg = (arr: number[]) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
+  const margemAtacadoAtual = avg(linhasAtuais.map((l) => l.margemAtacadoPct));
+  const margemAtacadoSim = avg(linhasSim.map((l) => l.margemAtacadoPct));
+  const margemClienteAtual = avg(linhasAtuais.map((l) => l.margemClientePct));
+  const margemClienteSim = avg(linhasSim.map((l) => l.margemClientePct));
 
   const aplicar = () => {
     setVariaveis({ ...variaveis, markupAtacado: mAtacado, markupCliente: mCliente });
