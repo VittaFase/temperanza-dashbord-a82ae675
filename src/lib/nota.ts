@@ -1,6 +1,8 @@
 import { PedidoComItens } from "./pedidos";
+import sealAsset from "@/assets/temperanzza-seal.png.asset.json";
 
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const LOGO_URL = `${window.location.origin}${sealAsset.url}`;
 
 // ============ NOTA A4 ============
 export const gerarNotaHTML = (p: PedidoComItens): string => {
@@ -56,9 +58,12 @@ export const gerarNotaHTML = (p: PedidoComItens): string => {
 </style>
 </head><body>
   <div class="header">
-    <div>
-      <h1>Temperanzza Gastronomia</h1>
-      <div class="muted">Comprovante não fiscal</div>
+    <div style="display:flex; align-items:center; gap:14px">
+      <img src="${LOGO_URL}" alt="Temperanzza" style="width:64px; height:64px; object-fit:contain; border-radius:50%; background:#f8f5ef; padding:4px" crossorigin="anonymous"/>
+      <div>
+        <h1>Temperanzza Condimentos</h1>
+        <div class="muted">Comprovante não fiscal</div>
+      </div>
     </div>
     <div style="text-align:right">
       <div class="badge">${canal}</div>
@@ -137,7 +142,8 @@ export const gerarCupom80mmHTML = (p: PedidoComItens): string => {
   @media print { .no-print { display: none; } body { padding: 0; } }
 </style>
 </head><body>
-  <h1>TEMPERANZZA</h1>
+  <div class="center"><img src="${LOGO_URL}" alt="Temperanzza" style="width:20mm; height:20mm; object-fit:contain" crossorigin="anonymous"/></div>
+  <h1>TEMPERANZZA CONDIMENTOS</h1>
   <div class="center muted">Comprovante não fiscal</div>
   <div class="center">${canal}</div>
   <div class="dashed"></div>
