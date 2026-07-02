@@ -142,7 +142,8 @@ export const gerarCupom80mmHTML = (p: PedidoComItens): string => {
   @media print { .no-print { display: none; } body { padding: 0; } }
 </style>
 </head><body>
-  <h1>TEMPERANZZA</h1>
+  <div class="center"><img src="${LOGO_URL}" alt="Temperanzza" style="width:20mm; height:20mm; object-fit:contain" crossorigin="anonymous"/></div>
+  <h1>TEMPERANZZA CONDIMENTOS</h1>
   <div class="center muted">Comprovante não fiscal</div>
   <div class="center">${canal}</div>
   <div class="dashed"></div>
