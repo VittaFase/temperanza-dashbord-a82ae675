@@ -16,13 +16,23 @@ const Dashboard = () => {
 
   const linhas = temperos.map((t) => {
     const c = calcularTempero(t, variaveis);
-    return { ...t, ...c, valorEstoqueCusto: c.custoTotal * t.estoqueAtual, valorEstoqueVenda: c.precoCliente * t.estoqueAtual };
+    return {
+      ...t,
+      ...c,
+      valorEstoqueCusto: c.custoTotal * t.estoqueAtual,
+      valorEstoqueAtacado: c.precoAtacado * t.estoqueAtual,
+      valorEstoqueCliente: c.precoCliente * t.estoqueAtual,
+    };
   });
 
   const totalCusto = linhas.reduce((a, l) => a + l.valorEstoqueCusto, 0);
-  const totalVenda = linhas.reduce((a, l) => a + l.valorEstoqueVenda, 0);
-  const margemMedia = linhas.length
-    ? linhas.reduce((a, l) => a + l.margemPct, 0) / linhas.length
+  const totalVendaAtacado = linhas.reduce((a, l) => a + l.valorEstoqueAtacado, 0);
+  const totalVendaCliente = linhas.reduce((a, l) => a + l.valorEstoqueCliente, 0);
+  const margemAtacadoMedia = linhas.length
+    ? linhas.reduce((a, l) => a + l.margemAtacadoPct, 0) / linhas.length
+    : 0;
+  const margemClienteMedia = linhas.length
+    ? linhas.reduce((a, l) => a + l.margemClientePct, 0) / linhas.length
     : 0;
   const potesTotal = linhas.reduce((a, l) => a + l.estoqueAtual, 0);
   const alertas = linhas.filter((l) => l.estoqueAtual < l.estoqueMinimo);
@@ -38,11 +48,25 @@ const Dashboard = () => {
         <h1 className="font-display text-3xl">Visão geral do negócio</h1>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2">
         <Stat label="Potes em estoque" value={potesTotal.toLocaleString("pt-BR")} />
         <Stat label="Valor estoque (custo)" value={brl(totalCusto)} />
-        <Stat label="Valor estoque (venda)" value={brl(totalVenda)} accent />
-        <Stat label="Margem média" value={`${margemMedia.toFixed(1)}%`} accent />
+      </section>
+
+      <section className="space-y-2">
+        <p className="text-xs uppercase tracking-[0.3em] text-gold">Canal Atacado</p>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Stat label="Valor estoque (venda atacado)" value={brl(totalVendaAtacado)} accent />
+          <Stat label="Margem média atacado" value={`${margemAtacadoMedia.toFixed(1)}%`} accent />
+        </div>
+      </section>
+
+      <section className="space-y-2">
+        <p className="text-xs uppercase tracking-[0.3em] text-gold">Canal Cliente Final</p>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Stat label="Valor estoque (venda cliente)" value={brl(totalVendaCliente)} accent />
+          <Stat label="Margem média cliente" value={`${margemClienteMedia.toFixed(1)}%`} accent />
+        </div>
       </section>
 
       <Card className="shadow-card">
