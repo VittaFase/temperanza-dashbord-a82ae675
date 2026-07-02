@@ -164,7 +164,7 @@ const Produtos = () => {
                           step="0.01"
                           value={t.precoKg}
                           onChange={(e) => updateTempero({ ...t, precoKg: parseFloat(e.target.value) || 0 })}
-                          className="h-8 text-center px-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          className="h-8 w-full min-w-0 text-center px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                         />
                         <button
                           type="button"
@@ -187,7 +187,7 @@ const Produtos = () => {
                           step="1"
                           value={t.gramasPote}
                           onChange={(e) => updateTempero({ ...t, gramasPote: parseFloat(e.target.value) || 0 })}
-                          className="h-8 text-center px-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          className="h-8 w-full min-w-0 text-center px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                         />
                         <button
                           type="button"
@@ -210,7 +210,7 @@ const Produtos = () => {
                           step="1"
                           value={t.estoqueAtual}
                           onChange={(e) => updateTempero({ ...t, estoqueAtual: parseInt(e.target.value) || 0 })}
-                          className={`h-8 text-center px-1 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${baixo ? "text-destructive font-semibold" : ""}`}
+                          className={`h-8 w-full min-w-0 text-center px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${baixo ? "text-destructive font-semibold" : ""}`}
                         />
                         <button
                           type="button"
