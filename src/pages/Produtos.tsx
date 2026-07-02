@@ -95,9 +95,7 @@ const Produtos = () => {
             <TableHeader>
               <TableRow className="bg-secondary/60">
                 <TableHead className="w-14"></TableHead>
-                <TableHead className="min-w-[200px]">Produto</TableHead>
-                <TableHead className="w-32">SKU</TableHead>
-                <TableHead className="w-36">EAN</TableHead>
+                <TableHead className="min-w-[220px]">Produto</TableHead>
                 <TableHead className="w-24">Valor/kg</TableHead>
                 <TableHead className="w-20">Gramas</TableHead>
                 <TableHead className="w-40">Estoque</TableHead>
