@@ -688,7 +688,7 @@ export default function Pedidos() {
                                 const msg = [
                                   `Olá, ${nome}! 👋`,
                                   ``,
-                                  `Segue o resumo do seu pedido *#${numero}* na *Temperanza Gastronomia*:`,
+                                  `Segue o resumo do seu pedido *#${numero}* na *Temperanzza Condimentos*:`,
                                   ``,
                                   ...linhas,
                                   ``,
