@@ -137,7 +137,7 @@ const Email = ({
 
         <Hr style={hr} />
         <Text style={footer}>
-          Obrigado pela sua compra! — Temperanzza Gastronomia
+          Obrigado pela sua compra! — Temperanzza Condimentos
         </Text>
       </Container>
     </Body>
