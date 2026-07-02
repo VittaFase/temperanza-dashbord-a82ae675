@@ -34,7 +34,9 @@ export const calcularTempero = (t: Tempero, v: Variaveis): CalculoTempero => {
   
   const precoAtacado = custoTotal * v.markupAtacado;
   const precoCliente = custoTotal * v.markupCliente;
-  const margemPct =
+  const margemAtacadoPct =
+    precoAtacado > 0 ? ((precoAtacado - custoTotal) / precoAtacado) * 100 : 0;
+  const margemClientePct =
     precoCliente > 0 ? ((precoCliente - custoTotal) / precoCliente) * 100 : 0;
 
   return {
@@ -44,9 +46,10 @@ export const calcularTempero = (t: Tempero, v: Variaveis): CalculoTempero => {
     custoDireto,
     custoComFabril,
     custoTotal,
-    
     precoAtacado,
     precoCliente,
-    margemPct,
+    margemPct: margemClientePct,
+    margemAtacadoPct,
+    margemClientePct,
   };
 };
