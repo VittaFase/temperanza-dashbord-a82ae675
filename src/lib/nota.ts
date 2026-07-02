@@ -1,6 +1,8 @@
 import { PedidoComItens } from "./pedidos";
+import sealAsset from "@/assets/temperanzza-seal.png.asset.json";
 
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const LOGO_URL = `${window.location.origin}${sealAsset.url}`;
 
 // ============ NOTA A4 ============
 export const gerarNotaHTML = (p: PedidoComItens): string => {
