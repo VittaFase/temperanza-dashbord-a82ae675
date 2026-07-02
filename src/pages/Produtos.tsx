@@ -99,7 +99,7 @@ const Produtos = () => {
                 <TableHead className="w-32">SKU</TableHead>
                 <TableHead className="w-36">EAN</TableHead>
                 <TableHead className="w-24">Valor/kg</TableHead>
-                <TableHead className="w-20">Gr</TableHead>
+                <TableHead className="w-20">Gramas</TableHead>
                 <TableHead className="w-40">Estoque</TableHead>
                 <TableHead className="w-28">Custo total</TableHead>
                 <TableHead className="w-28 text-primary">Indústria</TableHead>
