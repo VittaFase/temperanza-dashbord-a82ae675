@@ -524,76 +524,139 @@ export default function Pedidos() {
 
       {/* Histórico */}
       <Card className="p-4">
-        <h2 className="font-display text-sm tracking-widest uppercase mb-3">Últimos pedidos</h2>
-        {pedidos.length === 0 ? (
-          <p className="text-xs text-muted-foreground">Nenhum pedido registrado ainda.</p>
-        ) : (
-          <div className="overflow-auto">
-            <table className="w-full text-xs">
-              <thead className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                <tr className="border-b">
-                  <th className="text-left py-2">Nº</th>
-                  <th className="text-left">Data</th>
-                  <th className="text-left">Cliente</th>
-                  <th className="text-left">Canal</th>
-                  <th className="text-right">Itens</th>
-                  <th className="text-right">Total</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {pedidos.map((p) => (
-                  <tr key={p.id} className="border-b hover:bg-muted/40">
-                    <td className="py-2 font-mono">#{String(p.numero).padStart(6, "0")}</td>
-                    <td>{new Date(p.data_pedido).toLocaleString("pt-BR")}</td>
-                    <td>{p.cliente?.nome ?? <span className="text-muted-foreground">—</span>}</td>
-                    <td>
-                      <Badge variant="outline" className="text-[10px]">
-                        {p.canal === "atacado" ? "Atacado" : "Cliente Final"}
-                      </Badge>
-                    </td>
-                    <td className="text-right tabular-nums">
-                      {p.itens.reduce((s, i) => s + i.quantidade, 0)}
-                    </td>
-                    <td className="text-right tabular-nums font-display">{brl(p.total)}</td>
-                    <td className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button size="sm" variant="ghost" title="Nota A4" onClick={() => abrirPreview(p, "a4")}>
-                          <FileText className="h-3 w-3" />
-                        </Button>
-                        <Button size="sm" variant="ghost" title="Cupom 80mm" onClick={() => abrirPreview(p, "cupom")}>
-                          <Receipt className="h-3 w-3" />
-                        </Button>
-                        <Button size="sm" variant="ghost" title="Duplicar" onClick={() => duplicarPedido(p)}>
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          title="Cancelar"
-                          onClick={async () => {
-                            if (!confirm("Cancelar este pedido? O estoque será devolvido.")) return;
-                            try {
-                              await cancelarPedido(p.id);
-                              setPedidos((prev) => prev.filter((x) => x.id !== p.id));
-                              window.dispatchEvent(new Event("temperos:refresh"));
-                              toast.success("Pedido cancelado");
-                            } catch (e: any) {
-                              toast.error(e.message);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <h2 className="font-display text-sm tracking-widest uppercase">Histórico de pedidos</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Nº, cliente..."
+                value={histBusca}
+                onChange={(e) => setHistBusca(e.target.value)}
+                className="pl-7 h-9 w-56 text-xs"
+              />
+            </div>
+            <ToggleGroup
+              type="single"
+              value={histCanal}
+              onValueChange={(v) => v && setHistCanal(v as any)}
+              className="border rounded-md"
+            >
+              <ToggleGroupItem value="todos" className="h-9 px-3 text-xs">Todos</ToggleGroupItem>
+              <ToggleGroupItem value="cliente_final" className="h-9 px-3 text-xs">Cliente</ToggleGroupItem>
+              <ToggleGroupItem value="atacado" className="h-9 px-3 text-xs">Atacado</ToggleGroupItem>
+            </ToggleGroup>
+            <Select value={histPeriodo} onValueChange={(v) => setHistPeriodo(v as any)}>
+              <SelectTrigger className="h-9 w-32 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">Últimos 7 dias</SelectItem>
+                <SelectItem value="30">Últimos 30 dias</SelectItem>
+                <SelectItem value="90">Últimos 90 dias</SelectItem>
+                <SelectItem value="all">Todo o período</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        )}
+        </div>
+        {(() => {
+          const agora = Date.now();
+          const dias = histPeriodo === "all" ? Infinity : Number(histPeriodo);
+          const limite = agora - dias * 24 * 60 * 60 * 1000;
+          const q = histBusca.toLowerCase().trim();
+          const filtrados = pedidos.filter((p) => {
+            if (new Date(p.data_pedido).getTime() < limite) return false;
+            if (histCanal !== "todos" && p.canal !== histCanal) return false;
+            if (q) {
+              const num = String(p.numero).padStart(6, "0");
+              const nome = (p.cliente?.nome ?? "").toLowerCase();
+              if (!num.includes(q) && !nome.includes(q)) return false;
+            }
+            return true;
+          });
+          if (filtrados.length === 0) {
+            return <p className="text-xs text-muted-foreground">Nenhum pedido encontrado para o filtro selecionado.</p>;
+          }
+          const totalPeriodo = filtrados.reduce((s, p) => s + Number(p.total), 0);
+          return (
+            <>
+              <div className="text-[11px] text-muted-foreground mb-2">
+                {filtrados.length} pedido(s) · Total: <span className="font-display text-foreground">{brl(totalPeriodo)}</span>
+              </div>
+              <div className="overflow-auto">
+                <table className="w-full text-xs">
+                  <thead className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    <tr className="border-b">
+                      <th className="text-left py-2">Nº</th>
+                      <th className="text-left">Data</th>
+                      <th className="text-left">Cliente</th>
+                      <th className="text-left">Canal</th>
+                      <th className="text-right">Itens</th>
+                      <th className="text-right">Total</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtrados.map((p) => (
+                      <tr key={p.id} className="border-b hover:bg-muted/40">
+                        <td className="py-2 font-mono">#{String(p.numero).padStart(6, "0")}</td>
+                        <td>{new Date(p.data_pedido).toLocaleString("pt-BR")}</td>
+                        <td>{p.cliente?.nome ?? <span className="text-muted-foreground">—</span>}</td>
+                        <td>
+                          <Badge variant="outline" className="text-[10px]">
+                            {p.canal === "atacado" ? "Atacado" : "Cliente Final"}
+                          </Badge>
+                        </td>
+                        <td className="text-right tabular-nums">
+                          {p.itens.reduce((s, i) => s + i.quantidade, 0)}
+                        </td>
+                        <td className="text-right tabular-nums font-display">{brl(p.total)}</td>
+                        <td className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button size="sm" variant="ghost" title="Nota A4" onClick={() => abrirPreview(p, "a4")}>
+                              <FileText className="h-3 w-3" />
+                            </Button>
+                            <Button size="sm" variant="ghost" title="Cupom 80mm" onClick={() => abrirPreview(p, "cupom")}>
+                              <Receipt className="h-3 w-3" />
+                            </Button>
+                            <Button size="sm" variant="ghost" title="Duplicar" onClick={() => duplicarPedido(p)}>
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              title="Cancelar"
+                              onClick={async () => {
+                                if (!confirm("Cancelar este pedido? O estoque será devolvido.")) return;
+                                try {
+                                  await cancelarPedido(p.id);
+                                  setPedidos((prev) => prev.filter((x) => x.id !== p.id));
+                                  window.dispatchEvent(new Event("temperos:refresh"));
+                                  toast.success("Pedido cancelado");
+                                } catch (e: any) {
+                                  toast.error(e.message);
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          );
+        })()}
       </Card>
+
+      <NotaPreviewDialog
+        pedido={preview.pedido}
+        open={preview.open}
+        onOpenChange={(o) => setPreview((s) => ({ ...s, open: o }))}
+        formato={preview.formato}
+      />
+
 
       <ClienteDialog
         state={dlgCliente}
