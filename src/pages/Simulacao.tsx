@@ -12,11 +12,10 @@ const brl = (n: number) =>
 
 const Simulacao = () => {
   const { variaveis, setVariaveis, temperos } = useDashboard();
-  const [mIndustria, setMIndustria] = useState(variaveis.markupIndustria);
   const [mAtacado, setMAtacado] = useState(variaveis.markupAtacado);
   const [mCliente, setMCliente] = useState(variaveis.markupCliente);
 
-  const sim = { ...variaveis, markupIndustria: mIndustria, markupAtacado: mAtacado, markupCliente: mCliente };
+  const sim = { ...variaveis, markupAtacado: mAtacado, markupCliente: mCliente };
 
   const linhasAtuais = temperos.map((t) => calcularTempero(t, variaveis));
   const linhasSim = temperos.map((t) => calcularTempero(t, sim));
@@ -27,12 +26,11 @@ const Simulacao = () => {
     linhasSim.length ? linhasSim.reduce((a, l) => a + l.margemPct, 0) / linhasSim.length : 0;
 
   const aplicar = () => {
-    setVariaveis({ ...variaveis, markupIndustria: mIndustria, markupAtacado: mAtacado, markupCliente: mCliente });
+    setVariaveis({ ...variaveis, markupAtacado: mAtacado, markupCliente: mCliente });
     toast.success("Markups aplicados e salvos");
   };
 
   const restaurar = () => {
-    setMIndustria(variaveis.markupIndustria);
     setMAtacado(variaveis.markupAtacado);
     setMCliente(variaveis.markupCliente);
   };
@@ -49,8 +47,7 @@ const Simulacao = () => {
         </p>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <MarkupCard label="Markup Indústria" value={mIndustria} onChange={setMIndustria} />
+      <div className="grid gap-4 md:grid-cols-2">
         <MarkupCard label="Markup Atacado" value={mAtacado} onChange={setMAtacado} />
         <MarkupCard label="Markup Cliente Final" value={mCliente} onChange={setMCliente} />
       </div>

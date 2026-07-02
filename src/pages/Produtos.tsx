@@ -36,7 +36,7 @@ const Produtos = () => {
   const exportCsv = () => {
     const header = [
       "SKU","EAN","Produto","Custo MP/kg","Gramas/pote","Estoque","Mínimo",
-      "Custo MP/pote","Custo direto","Custo total","Preço indústria","Preço atacado","Preço cliente","Margem %"
+      "Custo MP/pote","Custo direto","Custo total","Preço atacado","Preço cliente","Margem %"
     ];
     const rows = temperos.map((t) => {
       const c = calcularTempero(t, variaveis);
@@ -44,7 +44,7 @@ const Produtos = () => {
         csvEscape(t.sku ?? ""), csvEscape(t.ean ?? ""), csvEscape(t.nome),
         t.precoKg, t.gramasPote, t.estoqueAtual, t.estoqueMinimo,
         c.custoMateriaPrima.toFixed(4), c.custoDireto.toFixed(4),
-        c.custoTotal.toFixed(4), c.precoIndustria.toFixed(2), c.precoAtacado.toFixed(2),
+        c.custoTotal.toFixed(4), c.precoAtacado.toFixed(2),
         c.precoCliente.toFixed(2), c.margemPct.toFixed(2),
       ].join(",");
     });
@@ -101,7 +101,6 @@ const Produtos = () => {
 
                 <TableHead className="w-28 text-right">Estoque</TableHead>
                 <TableHead className="w-28">Custo total</TableHead>
-                <TableHead className="w-28 text-primary">Indústria</TableHead>
                 <TableHead className="w-28 text-primary">Atacado</TableHead>
                 <TableHead className="w-28 text-primary">Cliente Final</TableHead>
                 <TableHead className="w-20">Margem</TableHead>
@@ -154,7 +153,6 @@ const Produtos = () => {
                       />
                     </TableCell>
                     <TableCell className="text-xs font-semibold tabular-nums">{brl(c.custoTotal)}</TableCell>
-                    <TableCell className="text-xs font-semibold text-primary tabular-nums">{brl(c.precoIndustria)}</TableCell>
                     <TableCell className="text-xs font-semibold text-primary tabular-nums">{brl(c.precoAtacado)}</TableCell>
                     <TableCell className="text-xs font-semibold text-primary tabular-nums">{brl(c.precoCliente)}</TableCell>
                     <TableCell>

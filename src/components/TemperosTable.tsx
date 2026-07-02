@@ -22,12 +22,11 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
     (acc, t) => {
       const c = calcularTempero(t, variaveis);
       acc.custo += c.custoTotal;
-      acc.industria += c.precoIndustria;
       acc.atacado += c.precoAtacado;
       acc.cliente += c.precoCliente;
       return acc;
     },
-    { custo: 0, industria: 0, atacado: 0, cliente: 0 }
+    { custo: 0, atacado: 0, cliente: 0 }
   );
 
   return (
@@ -48,9 +47,8 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
               <TableHead className="w-24">g/pote</TableHead>
               <TableHead className="w-28">Matéria-prima</TableHead>
               <TableHead className="w-28">Custo Total</TableHead>
-              <TableHead className="w-28 text-primary">Indústria</TableHead>
               <TableHead className="w-28 text-primary">Atacado</TableHead>
-              <TableHead className="w-28 text-primary">Cliente</TableHead>
+              <TableHead className="w-28 text-primary">Cliente Final</TableHead>
               <TableHead className="w-20">Margem</TableHead>
               <TableHead className="w-10"></TableHead>
             </TableRow>
@@ -88,7 +86,6 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{brl(c.custoMateriaPrima)}</TableCell>
                   <TableCell className="text-sm font-semibold">{brl(c.custoTotal)}</TableCell>
-                  <TableCell className="font-semibold text-primary">{brl(c.precoIndustria)}</TableCell>
                   <TableCell className="font-semibold text-primary">{brl(c.precoAtacado)}</TableCell>
                   <TableCell className="font-semibold text-primary">{brl(c.precoCliente)}</TableCell>
                   <TableCell className="text-sm text-herb-green font-medium">
@@ -109,7 +106,6 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
             <TableRow className="bg-accent/10 font-semibold">
               <TableCell colSpan={5} className="text-right">Totais ({temperos.length} itens)</TableCell>
               <TableCell>{brl(totais.custo)}</TableCell>
-              <TableCell className="text-primary">{brl(totais.industria)}</TableCell>
               <TableCell className="text-primary">{brl(totais.atacado)}</TableCell>
               <TableCell className="text-primary">{brl(totais.cliente)}</TableCell>
               <TableCell colSpan={2}></TableCell>

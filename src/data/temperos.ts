@@ -58,7 +58,7 @@ export type Variaveis = {
   custoFabril: number;
   comissao: number;
   transporte: number;
-  markupIndustria: number;
+  
   markupAtacado: number;
   markupCliente: number;
   contabilidadeMensal: number;
@@ -75,7 +75,7 @@ export const VARIAVEIS_INICIAIS: Variaveis = {
   custoFabril: 6,
   comissao: 5,
   transporte: 3,
-  markupIndustria: 2.3,
+  
   markupAtacado: 2.3,
   markupCliente: 4.0,
   contabilidadeMensal: 500,
