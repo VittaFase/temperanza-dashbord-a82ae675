@@ -136,12 +136,12 @@ const Produtos = () => {
                     <TableCell>
                       <Input type="number" step="0.01" value={t.precoKg}
                         onChange={(e) => updateTempero({ ...t, precoKg: parseFloat(e.target.value) || 0 })}
-                        className="h-8 no-spin text-right tabular-nums text-xs" />
+                        className="h-8 no-spin text-right tabular-nums text-[11px]" />
                     </TableCell>
                     <TableCell>
                       <Input type="number" step="1" value={t.gramasPote}
                         onChange={(e) => updateTempero({ ...t, gramasPote: parseFloat(e.target.value) || 0 })}
-                        className="h-8 no-spin text-right tabular-nums text-xs" />
+                        className="h-8 no-spin text-right tabular-nums text-[11px]" />
                     </TableCell>
 
                     <TableCell>
@@ -150,7 +150,7 @@ const Produtos = () => {
                         step="1"
                         value={t.estoqueAtual}
                         onChange={(e) => updateTempero({ ...t, estoqueAtual: parseInt(e.target.value) || 0 })}
-                        className={`h-8 no-spin text-right tabular-nums text-xs ${baixo ? "text-destructive font-semibold" : ""}`}
+                        className={`h-8 no-spin text-right tabular-nums text-[11px] ${baixo ? "text-destructive font-semibold" : ""}`}
                       />
                     </TableCell>
                     <TableCell className="text-xs font-semibold tabular-nums">{brl(c.custoTotal)}</TableCell>
