@@ -558,10 +558,10 @@ export default function Pedidos() {
                     <td className="text-right tabular-nums font-display">{brl(p.total)}</td>
                     <td className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button size="sm" variant="ghost" title="Nota A4" onClick={() => abrirNota(p)}>
+                        <Button size="sm" variant="ghost" title="Nota A4" onClick={() => abrirPreview(p, "a4")}>
                           <FileText className="h-3 w-3" />
                         </Button>
-                        <Button size="sm" variant="ghost" title="Cupom 80mm" onClick={() => abrirCupom80mm(p)}>
+                        <Button size="sm" variant="ghost" title="Cupom 80mm" onClick={() => abrirPreview(p, "cupom")}>
                           <Receipt className="h-3 w-3" />
                         </Button>
                         <Button size="sm" variant="ghost" title="Duplicar" onClick={() => duplicarPedido(p)}>
