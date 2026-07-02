@@ -156,11 +156,4 @@ const MarkupCard = ({ label, value, onChange }: { label: string; value: number; 
   </Card>
 );
 
-const Stat = ({ label, value, accent }: { label: string; value: string; accent?: boolean }) => (
-  <div>
-    <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
-    <p className={`font-display text-3xl mt-1 ${accent ? "text-primary" : ""}`}>{value}</p>
-  </div>
-);
-
 export default Simulacao;
