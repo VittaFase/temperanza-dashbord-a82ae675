@@ -31,7 +31,7 @@ export const calcularTempero = (t: Tempero, v: Variaveis): CalculoTempero => {
 
   const precoIndustria = custoTotal * v.markupIndustria;
   const precoAtacado = custoTotal * v.markupAtacado;
-  const precoCliente = t.nome === "Ervas Finas" ? 20.00 : custoTotal * v.markupCliente;
+  const precoCliente = t.nome === "Ervas Finas" ? 15.00 : custoTotal * v.markupCliente;
   const margemPct =
     precoCliente > 0 ? ((precoCliente - custoTotal) / precoCliente) * 100 : 0;
 
