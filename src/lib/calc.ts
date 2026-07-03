@@ -18,7 +18,13 @@ export type CalculoTempero = {
 // Fórmula Manus: impostos e comissão incidem "por dentro" sobre o preço de venda.
 export const calcularTempero = (t: Tempero, v: Variaveis): CalculoTempero => {
   const custoMateriaPrima = (t.precoKg * t.gramasPote) / 1000;
-  const custosFixos = v.pote + v.lacre + v.rotulo + v.caixa + v.termoencolhivel;
+  const ov = t.custosFixosOverride ?? {};
+  const custosFixos =
+    (ov.pote ?? v.pote) +
+    (ov.lacre ?? v.lacre) +
+    (ov.rotulo ?? v.rotulo) +
+    (ov.caixa ?? v.caixa) +
+    (ov.termoencolhivel ?? v.termoencolhivel);
   const rateioContabilidade =
     v.producaoEstimada > 0 ? v.contabilidadeMensal / v.producaoEstimada : 0;
 
