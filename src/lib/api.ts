@@ -13,6 +13,7 @@ type DbTempero = {
   ean: string | null;
   foto_path: string | null;
   tabela_nutricional: TabelaNutricional | null;
+  custos_fixos_override: CustosFixosOverride | null;
 };
 
 type DbVariaveis = {
