@@ -342,6 +342,7 @@ export type Database = {
       temperos: {
         Row: {
           created_at: string
+          custos_fixos_override: Json | null
           ean: string | null
           estoque_atual: number
           estoque_minimo: number
@@ -358,6 +359,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custos_fixos_override?: Json | null
           ean?: string | null
           estoque_atual?: number
           estoque_minimo?: number
@@ -374,6 +376,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custos_fixos_override?: Json | null
           ean?: string | null
           estoque_atual?: number
           estoque_minimo?: number

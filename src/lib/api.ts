@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Tempero, Variaveis, VARIAVEIS_INICIAIS, TEMPEROS_SEED, TabelaNutricional } from "@/data/temperos";
+import { Tempero, Variaveis, VARIAVEIS_INICIAIS, TEMPEROS_SEED, TabelaNutricional, CustosFixosOverride } from "@/data/temperos";
 
 type DbTempero = {
   id: string;
@@ -13,6 +13,7 @@ type DbTempero = {
   ean: string | null;
   foto_path: string | null;
   tabela_nutricional: TabelaNutricional | null;
+  custos_fixos_override: CustosFixosOverride | null;
 };
 
 type DbVariaveis = {
@@ -45,6 +46,7 @@ const toTempero = (r: DbTempero): Tempero => ({
   ean: r.ean ?? undefined,
   fotoPath: r.foto_path ?? undefined,
   tabelaNutricional: (r.tabela_nutricional as TabelaNutricional) ?? {},
+  custosFixosOverride: (r.custos_fixos_override as CustosFixosOverride) ?? undefined,
 });
 
 const toVariaveis = (r: DbVariaveis): Variaveis => ({
@@ -105,6 +107,7 @@ export const upsertTempero = async (userId: string, t: Tempero) => {
     ean: t.ean ?? null,
     foto_path: t.fotoPath ?? null,
     tabela_nutricional: t.tabelaNutricional ?? {},
+    custos_fixos_override: t.custosFixosOverride ?? null,
   });
   if (error) throw error;
 };

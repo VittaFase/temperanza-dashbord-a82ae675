@@ -195,6 +195,7 @@ const Produtos = () => {
 
       <ProdutoDetalhesDrawer
         tempero={editingSync}
+        variaveis={variaveis}
         open={!!editing}
         onOpenChange={(o) => !o && setEditing(null)}
         onSave={updateTempero}

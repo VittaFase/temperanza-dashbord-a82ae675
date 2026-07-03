@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Tempero, TabelaNutricional } from "@/data/temperos";
+import { Tempero, TabelaNutricional, Variaveis, CustoFixoKey, CustosFixosOverride } from "@/data/temperos";
 import { useAuth } from "@/hooks/useAuth";
 import { uploadFotoTempero, removeFotoTempero } from "@/lib/api";
 import { ProdutoFoto } from "./ProdutoFoto";
@@ -9,6 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, Trash2, Loader2 } from "lucide-react";
@@ -16,10 +17,19 @@ import { toast } from "sonner";
 
 type Props = {
   tempero: Tempero | null;
+  variaveis: Variaveis;
   open: boolean;
   onOpenChange: (o: boolean) => void;
   onSave: (t: Tempero) => void;
 };
+
+const CUSTO_FIXO_ITENS: { key: CustoFixoKey; label: string }[] = [
+  { key: "pote", label: "Pote + Tampa" },
+  { key: "lacre", label: "Lacre" },
+  { key: "rotulo", label: "Rótulo" },
+  { key: "caixa", label: "Caixa (rateio)" },
+  { key: "termoencolhivel", label: "Termoencolhível" },
+];
 
 const NUTRI_FIELDS: { key: keyof TabelaNutricional; label: string; unit?: string }[] = [
   { key: "porcao", label: "Porção", unit: "g" },
@@ -65,7 +75,7 @@ const comprimir = (file: File): Promise<File> =>
     reader.readAsDataURL(file);
   });
 
-export const ProdutoDetalhesDrawer = ({ tempero, open, onOpenChange, onSave }: Props) => {
+export const ProdutoDetalhesDrawer = ({ tempero, variaveis, open, onOpenChange, onSave }: Props) => {
   const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -170,6 +180,74 @@ export const ProdutoDetalhesDrawer = ({ tempero, open, onOpenChange, onSave }: P
                 placeholder="7891234567890"
                 inputMode="numeric"
               />
+            </div>
+          </section>
+
+          <Separator />
+
+          {/* Custo Fixo por Produto */}
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                  Custo fixo por produto
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Marque "usar global" para herdar da tabela de variáveis, ou defina um valor próprio (use 0 quando o item não se aplica).
+                </p>
+              </div>
+              {tempero.custosFixosOverride && Object.keys(tempero.custosFixosOverride).length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => setField({ custosFixosOverride: undefined })}
+                >
+                  Restaurar global
+                </Button>
+              )}
+            </div>
+            <div className="space-y-2">
+              {CUSTO_FIXO_ITENS.map(({ key, label }) => {
+                const override = tempero.custosFixosOverride ?? {};
+                const usaGlobal = override[key] === undefined;
+                const valor = usaGlobal ? variaveis[key] : override[key]!;
+                const setOverride = (next: CustosFixosOverride) => {
+                  const clean = Object.fromEntries(
+                    Object.entries(next).filter(([, v]) => v !== undefined)
+                  ) as CustosFixosOverride;
+                  setField({
+                    custosFixosOverride: Object.keys(clean).length ? clean : undefined,
+                  });
+                };
+                return (
+                  <div key={key} className="grid grid-cols-[1fr_auto_110px] items-center gap-3">
+                    <span className="text-sm">{label}</span>
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Checkbox
+                        checked={usaGlobal}
+                        onCheckedChange={(c) => {
+                          const next = { ...override };
+                          if (c) delete next[key];
+                          else next[key] = variaveis[key];
+                          setOverride(next);
+                        }}
+                      />
+                      usar global
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={valor}
+                      disabled={usaGlobal}
+                      onChange={(e) =>
+                        setOverride({ ...override, [key]: parseFloat(e.target.value) || 0 })
+                      }
+                      className="h-9"
+                    />
+                  </div>
+                );
+              })}
             </div>
           </section>
 

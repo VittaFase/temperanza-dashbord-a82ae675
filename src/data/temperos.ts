@@ -12,6 +12,10 @@ export type TabelaNutricional = {
   observacoes?: string;
 };
 
+export type CustoFixoKey = "pote" | "lacre" | "rotulo" | "caixa" | "termoencolhivel";
+
+export type CustosFixosOverride = Partial<Record<CustoFixoKey, number>>;
+
 export type Tempero = {
   id: string;
   nome: string;
@@ -24,6 +28,7 @@ export type Tempero = {
   ean?: string;
   fotoPath?: string;
   tabelaNutricional?: TabelaNutricional;
+  custosFixosOverride?: CustosFixosOverride;
 };
 
 export const TEMPEROS_SEED: Omit<Tempero, "id">[] = [
