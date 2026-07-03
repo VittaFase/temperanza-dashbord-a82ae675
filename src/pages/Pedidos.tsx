@@ -706,7 +706,15 @@ export default function Pedidos() {
                                   .filter(Boolean)
                                   .join("\n");
                                 const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-                                window.open(url, "_blank", "noopener,noreferrer");
+                                // Usa âncora com target=_blank para escapar do iframe do preview
+                                // (evita ERR_BLOCKED_BY_RESPONSE do api.whatsapp.com dentro de iframes)
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.target = "_blank";
+                                a.rel = "noopener noreferrer";
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
                               }}
                             >
                               <MessageCircle className="h-3 w-3" />
