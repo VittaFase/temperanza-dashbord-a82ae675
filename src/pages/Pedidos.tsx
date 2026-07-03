@@ -680,22 +680,28 @@ export default function Pedidos() {
                                 }
                                 // Normaliza para E.164 sem '+': se não começar com código país, prefixa Brasil (55)
                                 const phone = raw.length <= 11 ? `55${raw}` : raw;
-                                const nome = p.cliente?.nome?.split(" ")[0] ?? "Olá";
                                 const numero = String(p.numero).padStart(6, "0");
+                                const dataFmt = new Date(p.data_pedido).toLocaleDateString("pt-BR");
+                                const nomeCliente = p.cliente?.nome ?? "Consumidor não identificado";
+                                const subtotalCalc = p.itens.reduce((s, i) => s + i.preco_unitario * i.quantidade, 0);
+                                const descontoVal = (p as any).desconto ?? 0;
                                 const linhas = p.itens.map(
-                                  (i) => `• ${i.quantidade}x ${i.nome_produto} — ${brl(i.subtotal)}`
+                                  (i) => `• ${i.nome_produto}  ${i.quantidade}× ${brl(i.preco_unitario)} = ${brl(i.subtotal)}`
                                 );
                                 const msg = [
-                                  `Olá, ${nome}! 👋`,
+                                  `*Temperanzza Condimentos*`,
+                                  `Nota #${numero} — ${dataFmt}`,
                                   ``,
-                                  `Segue o resumo do seu pedido *#${numero}* na *Temperanzza Condimentos*:`,
-                                  ``,
+                                  `Cliente: ${nomeCliente}`,
+                                  `—`,
                                   ...linhas,
-                                  ``,
+                                  `—`,
+                                  `Subtotal: ${brl(subtotalCalc)}`,
+                                  descontoVal > 0 ? `Desconto: ${brl(descontoVal)}` : ``,
                                   `*Total: ${brl(p.total)}*`,
                                   (p as any).observacoes ? `\nObs.: ${(p as any).observacoes}` : ``,
                                   ``,
-                                  `Agradecemos a preferência! 🌿`,
+                                  `"Bem vindo a Família Temperanzza" 🌿`,
                                 ]
                                   .filter(Boolean)
                                   .join("\n");
