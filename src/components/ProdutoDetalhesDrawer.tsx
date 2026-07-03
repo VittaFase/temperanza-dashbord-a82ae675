@@ -75,7 +75,7 @@ const comprimir = (file: File): Promise<File> =>
     reader.readAsDataURL(file);
   });
 
-export const ProdutoDetalhesDrawer = ({ tempero, open, onOpenChange, onSave }: Props) => {
+export const ProdutoDetalhesDrawer = ({ tempero, variaveis, open, onOpenChange, onSave }: Props) => {
   const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
