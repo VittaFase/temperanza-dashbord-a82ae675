@@ -46,6 +46,7 @@ const toTempero = (r: DbTempero): Tempero => ({
   ean: r.ean ?? undefined,
   fotoPath: r.foto_path ?? undefined,
   tabelaNutricional: (r.tabela_nutricional as TabelaNutricional) ?? {},
+  custosFixosOverride: (r.custos_fixos_override as CustosFixosOverride) ?? undefined,
 });
 
 const toVariaveis = (r: DbVariaveis): Variaveis => ({
