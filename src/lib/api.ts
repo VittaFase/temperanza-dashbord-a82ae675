@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Tempero, Variaveis, VARIAVEIS_INICIAIS, TEMPEROS_SEED, TabelaNutricional } from "@/data/temperos";
+import { Tempero, Variaveis, VARIAVEIS_INICIAIS, TEMPEROS_SEED, TabelaNutricional, CustosFixosOverride } from "@/data/temperos";
 
 type DbTempero = {
   id: string;
