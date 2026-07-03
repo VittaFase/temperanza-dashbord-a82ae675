@@ -107,6 +107,7 @@ export const upsertTempero = async (userId: string, t: Tempero) => {
     ean: t.ean ?? null,
     foto_path: t.fotoPath ?? null,
     tabela_nutricional: t.tabelaNutricional ?? {},
+    custos_fixos_override: t.custosFixosOverride ?? null,
   });
   if (error) throw error;
 };
