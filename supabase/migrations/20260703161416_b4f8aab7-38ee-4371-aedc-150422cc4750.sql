@@ -1,0 +1,1 @@
+ALTER TABLE public.temperos ADD COLUMN IF NOT EXISTS custos_fixos_override jsonb;
