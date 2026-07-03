@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Tempero, TabelaNutricional } from "@/data/temperos";
+import { Tempero, TabelaNutricional, Variaveis, CustoFixoKey, CustosFixosOverride } from "@/data/temperos";
 import { useAuth } from "@/hooks/useAuth";
 import { uploadFotoTempero, removeFotoTempero } from "@/lib/api";
 import { ProdutoFoto } from "./ProdutoFoto";
@@ -9,6 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, Trash2, Loader2 } from "lucide-react";
@@ -16,10 +17,19 @@ import { toast } from "sonner";
 
 type Props = {
   tempero: Tempero | null;
+  variaveis: Variaveis;
   open: boolean;
   onOpenChange: (o: boolean) => void;
   onSave: (t: Tempero) => void;
 };
+
+const CUSTO_FIXO_ITENS: { key: CustoFixoKey; label: string }[] = [
+  { key: "pote", label: "Pote + Tampa" },
+  { key: "lacre", label: "Lacre" },
+  { key: "rotulo", label: "Rótulo" },
+  { key: "caixa", label: "Caixa (rateio)" },
+  { key: "termoencolhivel", label: "Termoencolhível" },
+];
 
 const NUTRI_FIELDS: { key: keyof TabelaNutricional; label: string; unit?: string }[] = [
   { key: "porcao", label: "Porção", unit: "g" },
