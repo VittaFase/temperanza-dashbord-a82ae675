@@ -246,10 +246,13 @@ export default function Pedidos() {
     }
     setSalvando(true);
     try {
+      const obsCompleta = cupomValido
+        ? `${obs ? obs + "\n" : ""}Cupom aplicado: ${cupomAtivo!.codigo} (-${cupomAtivo!.percentual}%)`
+        : obs;
       const p = await criarPedido(user.id, {
         cliente_id: clienteSel?.id ?? null,
         canal,
-        observacoes: obs || undefined,
+        observacoes: obsCompleta || undefined,
         desconto: descontoAplicado,
         itens: carrinho,
       });
@@ -260,6 +263,7 @@ export default function Pedidos() {
       setCarrinho([]);
       setObs("");
       setDescontoGeral("");
+      setCupomInput("");
       setClienteSel(null);
       window.dispatchEvent(new Event("temperos:refresh"));
     } catch (e: any) {
