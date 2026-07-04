@@ -315,6 +315,113 @@ export default function Pedidos() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // ---------- Ações de um pedido no histórico (reuso: tabela plana e agrupado) ----------
+  const acoesPedido = (p: PedidoComItens) => (
+    <div className="flex justify-end gap-1">
+      <Button size="sm" variant="ghost" title="Nota A4" onClick={() => abrirPreview(p, "a4")}>
+        <FileText className="h-3 w-3" />
+      </Button>
+      <Button size="sm" variant="ghost" title="Cupom 80mm" onClick={() => abrirPreview(p, "cupom")}>
+        <Receipt className="h-3 w-3" />
+      </Button>
+      <Button size="sm" variant="ghost" title="Duplicar" onClick={() => duplicarPedido(p)}>
+        <Copy className="h-3 w-3" />
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        title="Enviar por e-mail"
+        disabled={!p.cliente?.email}
+        onClick={async () => {
+          if (!p.cliente?.email) { toast.error("Cliente sem e-mail cadastrado"); return; }
+          try {
+            const { error } = await supabase.functions.invoke("send-transactional-email", {
+              body: {
+                templateName: "nota-pedido",
+                recipientEmail: p.cliente.email,
+                idempotencyKey: `nota-${p.id}`,
+                templateData: {
+                  numero: p.numero,
+                  data: new Date(p.data_pedido).toLocaleString("pt-BR"),
+                  clienteNome: p.cliente?.nome ?? "Cliente",
+                  canal: p.canal === "atacado" ? "Atacado" : "Cliente Final",
+                  itens: p.itens.map((i) => ({
+                    nome_produto: i.nome_produto,
+                    quantidade: i.quantidade,
+                    preco_unitario: i.preco_unitario,
+                    subtotal: i.subtotal,
+                  })),
+                  subtotal: p.itens.reduce((s, i) => s + i.preco_unitario * i.quantidade, 0),
+                  desconto: (p as any).desconto ?? 0,
+                  total: p.total,
+                  observacoes: (p as any).observacoes,
+                },
+              },
+            });
+            if (error) throw error;
+            toast.success(`Nota enviada para ${p.cliente.email}`);
+          } catch (e: any) { toast.error(e.message ?? "Falha ao enviar"); }
+        }}
+      >
+        <Mail className="h-3 w-3" />
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        title={p.cliente?.telefone ? "Enviar por WhatsApp" : "Cliente sem telefone cadastrado"}
+        disabled={!p.cliente?.telefone}
+        onClick={() => {
+          const raw = (p.cliente?.telefone ?? "").replace(/\D/g, "");
+          if (!raw) { toast.error("Cliente sem telefone cadastrado"); return; }
+          const phone = raw.length <= 11 ? `55${raw}` : raw;
+          const numero = String(p.numero).padStart(6, "0");
+          const dataFmt = new Date(p.data_pedido).toLocaleDateString("pt-BR");
+          const nomeCliente = p.cliente?.nome ?? "Consumidor não identificado";
+          const subtotalCalc = p.itens.reduce((s, i) => s + i.preco_unitario * i.quantidade, 0);
+          const descontoVal = (p as any).desconto ?? 0;
+          const linhas = p.itens.map((i) => `• ${i.nome_produto}  ${i.quantidade}× ${brl(i.preco_unitario)} = ${brl(i.subtotal)}`);
+          const msg = [
+            `*Temperanzza Condimentos*`,
+            `Nota #${numero} — ${dataFmt}`,
+            ``,
+            `Cliente: ${nomeCliente}`,
+            `—`,
+            ...linhas,
+            `—`,
+            `Subtotal: ${brl(subtotalCalc)}`,
+            descontoVal > 0 ? `Desconto: ${brl(descontoVal)}` : ``,
+            `*Total: ${brl(p.total)}*`,
+            (p as any).observacoes ? `\nObs.: ${(p as any).observacoes}` : ``,
+            ``,
+            `"Bem vindo a Família Temperanzza" 🌿`,
+          ].filter(Boolean).join("\n");
+          const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+          const a = document.createElement("a");
+          a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer";
+          document.body.appendChild(a); a.click(); a.remove();
+        }}
+      >
+        <MessageCircle className="h-3 w-3" />
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        title="Cancelar"
+        onClick={async () => {
+          if (!confirm("Cancelar este pedido? O estoque será devolvido.")) return;
+          try {
+            await cancelarPedido(p.id);
+            setPedidos((prev) => prev.filter((x) => x.id !== p.id));
+            window.dispatchEvent(new Event("temperos:refresh"));
+            toast.success("Pedido cancelado");
+          } catch (e: any) { toast.error(e.message); }
+        }}
+      >
+        <Trash2 className="h-3 w-3" />
+      </Button>
+    </div>
+  );
+
   return (
     <div className="p-4 md:p-6 space-y-4">
       <div className="flex items-center justify-between gap-4 flex-wrap">
