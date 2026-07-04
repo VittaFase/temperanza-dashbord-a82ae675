@@ -53,6 +53,9 @@ export default function Pedidos() {
 
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [pedidos, setPedidos] = useState<PedidoComItens[]>([]);
+  const [blends, setBlends] = useState<Blend[]>([]);
+  const [cupons, setCupons] = useState<CupomBlend[]>([]);
+  const [cupomInput, setCupomInput] = useState("");
   const [busca, setBusca] = useState("");
   const [buscaProd, setBuscaProd] = useState("");
   const [clienteSel, setClienteSel] = useState<Cliente | null>(null);
@@ -75,6 +78,8 @@ export default function Pedidos() {
     if (!user) return;
     fetchClientes(user.id).then(setClientes).catch((e) => toast.error(e.message));
     fetchPedidos(user.id).then(setPedidos).catch((e) => toast.error(e.message));
+    fetchBlends(user.id).then(setBlends).catch((e) => toast.error(e.message));
+    fetchCupons(user.id).then(setCupons).catch((e) => toast.error(e.message));
   }, [user]);
 
   const precoDoProduto = (id: string) => {
