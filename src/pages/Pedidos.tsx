@@ -582,15 +582,39 @@ export default function Pedidos() {
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+              <Ticket className="h-3 w-3" /> Cupom de desconto
+            </Label>
+            <Input
+              value={cupomInput}
+              placeholder={canal === "atacado" ? "BLEND05" : "BLEND10"}
+              onChange={(e) => setCupomInput(e.target.value.toUpperCase())}
+              className={`h-8 text-xs uppercase ${cupomValido ? "border-herb-green" : cupomErro ? "border-destructive" : ""}`}
+            />
+            {cupomValido && (
+              <p className="text-[10px] text-herb-green">
+                ✓ {cupomAtivo!.codigo} aplicado (-{cupomAtivo!.percentual}%)
+              </p>
+            )}
+            {cupomErro && <p className="text-[10px] text-destructive">{cupomErro}</p>}
+          </div>
+
           <div className="space-y-1 text-sm">
             <div className="flex justify-between text-muted-foreground text-xs">
               <span>{totalItens} unidades · {carrinho.length} produto(s)</span>
               <span>{brl(subtotal)}</span>
             </div>
-            {descontoAplicado > 0 && (
+            {descontoManual > 0 && (
               <div className="flex justify-between text-destructive text-xs">
-                <span>Desconto</span>
-                <span>-{brl(descontoAplicado)}</span>
+                <span>Desconto manual</span>
+                <span>-{brl(descontoManual)}</span>
+              </div>
+            )}
+            {descontoCupom > 0 && (
+              <div className="flex justify-between text-destructive text-xs">
+                <span>Cupom {cupomAtivo!.codigo}</span>
+                <span>-{brl(descontoCupom)}</span>
               </div>
             )}
             <div className="flex justify-between items-baseline">
