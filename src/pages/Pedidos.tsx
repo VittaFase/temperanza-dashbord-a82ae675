@@ -74,6 +74,8 @@ export default function Pedidos() {
   const [histBusca, setHistBusca] = useState("");
   const [histPeriodo, setHistPeriodo] = useState<"7" | "30" | "90" | "all">("30");
   const [histCanal, setHistCanal] = useState<"todos" | Canal>("todos");
+  const [clienteExpandido, setClienteExpandido] = useState<Set<string>>(new Set());
+  const [rangePorCliente, setRangePorCliente] = useState<Record<string, { from?: Date; to?: Date }>>({});
 
   const abrirPreview = (p: PedidoComItens, formato: "a4" | "cupom" = "a4") =>
     setPreview({ open: true, pedido: p, formato });
