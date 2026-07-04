@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      blend_itens: {
+        Row: {
+          blend_id: string
+          created_at: string
+          id: string
+          quantidade: number
+          tempero_id: string
+          user_id: string
+        }
+        Insert: {
+          blend_id: string
+          created_at?: string
+          id?: string
+          quantidade?: number
+          tempero_id: string
+          user_id: string
+        }
+        Update: {
+          blend_id?: string
+          created_at?: string
+          id?: string
+          quantidade?: number
+          tempero_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blend_itens_blend_id_fkey"
+            columns: ["blend_id"]
+            isOneToOne: false
+            referencedRelation: "blends"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blend_itens_tempero_id_fkey"
+            columns: ["tempero_id"]
+            isOneToOne: false
+            referencedRelation: "temperos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blends: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          foto_path: string | null
+          id: string
+          nome: string
+          ordem: number
+          sku: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          foto_path?: string | null
+          id?: string
+          nome: string
+          ordem?: number
+          sku: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          foto_path?: string | null
+          id?: string
+          nome?: string
+          ordem?: number
+          sku?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clientes: {
         Row: {
           cep: string | null
@@ -60,6 +141,39 @@ export type Database = {
           observacoes?: string | null
           telefone?: string | null
           tipo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      cupons_blend: {
+        Row: {
+          ativo: boolean
+          canal: string
+          codigo: string
+          created_at: string
+          id: string
+          percentual: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          canal: string
+          codigo: string
+          created_at?: string
+          id?: string
+          percentual: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean
+          canal?: string
+          codigo?: string
+          created_at?: string
+          id?: string
+          percentual?: number
           updated_at?: string
           user_id?: string
         }
@@ -264,6 +378,8 @@ export type Database = {
           canal: string
           cliente_id: string | null
           created_at: string
+          cupom_codigo: string | null
+          cupom_percentual: number | null
           data_pedido: string
           desconto: number
           id: string
@@ -279,6 +395,8 @@ export type Database = {
           canal?: string
           cliente_id?: string | null
           created_at?: string
+          cupom_codigo?: string | null
+          cupom_percentual?: number | null
           data_pedido?: string
           desconto?: number
           id?: string
@@ -294,6 +412,8 @@ export type Database = {
           canal?: string
           cliente_id?: string | null
           created_at?: string
+          cupom_codigo?: string | null
+          cupom_percentual?: number | null
           data_pedido?: string
           desconto?: number
           id?: string

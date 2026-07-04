@@ -1,54 +1,85 @@
-# Custos fixos individualizados por produto
+# Plano: Módulo de Blends (Kits de 12 potes)
 
-## Objetivo
-Hoje todos os produtos usam os mesmos 5 custos fixos globais (Pote+Tampa, Lacre, Rótulo, Caixa, Termoencolhível). Produtos como Canela Moída (sem lacre e sem rótulo, pote diferente) e o futuro Pote de Milho para Pipoca (só pote + matéria-prima) precisam de estrutura própria.
+## Visão geral
+Adicionar 6 SKUs de **Blends** — kits com 12 potes divididos em 3 sabores (4 de cada). O preço de cada blend é calculado automaticamente como a **soma dos 12 potes individuais**, usando o preço vigente do canal (atacado ou cliente final) já calculado em `src/lib/calc.ts`. Dois cupons fixos:
+- `BLEND05` → 5% desconto (canal atacado)
+- `BLEND10` → 10% desconto (canal cliente final)
 
-Vamos permitir que **cada produto** defina se usa o valor global ou um valor próprio para cada um dos 5 custos fixos, podendo inclusive **desligar** um item (valor = 0).
+O canal já é definido no pedido (`canal: "atacado" | "cliente_final"`), então o sistema **valida automaticamente** se o cupom aplicado corresponde ao canal do cliente.
 
-Encargos %, Custo Fabril, Comissão, Transporte, Contabilidade e Markups permanecem globais — não muda nada neles.
+## Os 6 Blends (composição confirmada)
 
-## Como o usuário vai enxergar
-No drawer de detalhes do produto, uma nova seção **"Custo Fixo por Produto"** com uma linha por item:
+| SKU | Blend | Sabores (4 potes cada) |
+|---|---|---|
+| BLEND-BRA | Brasil | Cúrcuma, Tempero Mineiro, Tuchef com Páprica |
+| BLEND-CHU | Churrasco | Páprica Picante, Chimi com Pimenta, Salsa/Cebola |
+| BLEND-ESS | Essenza | Chimi Churri, Ervas Finas, Edu Guedes |
+| BLEND-GOU | Gourmet | Ervas Finas, Lemon Pepper, Páprica Doce |
+| BLEND-SUP | Supremo | Páprica Defumada, Cebola em Pó, Ana Maria |
+| BLEND-TFX | Temperaflix | Temperaflix Tradicional, Temperaflix Ervas Finas, Temperaflix Sabor Bacon |
+
+> **Confirmar antes de implementar:** o item "Chimi Churri" do Essenza é o "Chimi Churri" (sem pimenta) já cadastrado, correto? E o "Tempero do Edu" = "Edu Guedes" do catálogo?
+
+## Arquitetura (respeitando a estrutura atual)
+
+Os blends **não são novos produtos no `temperos`** — são uma camada de composição por cima. Isso preserva:
+- Ficha técnica e precificação individual continuam intocadas
+- Estoque continua sendo por pote (vender 1 blend = baixa 4 unidades de cada um dos 3 temperos)
+- Cálculo do preço reaproveita `calcularTempero()` sem duplicação
+
+### Modelo de dados
 
 ```text
-                  [ usar global ]   valor
-Pote + Tampa       [x]              R$ 0,95   (do global)
-Lacre              [ ]              R$ 0,00   (desativado neste produto)
-Rótulo             [ ]              R$ 0,00
-Caixa (rateio)     [x]              R$ 0,12
-Termoencolhível    [x]              R$ 0,10
+blends                    blend_itens
+─────────                 ───────────
+id (uuid)                 blend_id → blends.id
+sku (BLEND-XXX)           tempero_id → temperos.id
+nome                      quantidade (int, ex: 4)
+descricao
+foto_path
+ativo (bool)
+ordem (int)
 ```
 
-- Checkbox marcado → usa o valor global (padrão para todos os produtos existentes, nada muda).
-- Checkbox desmarcado → habilita o input do valor próprio (pode ser 0 para "não tem").
-- Um botão "Restaurar padrão global" volta tudo para marcado.
+Grants + RLS por `user_id` como nas outras tabelas. Blends são **globais do usuário** (mesmo padrão de `temperos`).
 
-## Impacto na precificação
-`calcularTempero` passa a montar os 5 custos fixos assim: para cada item, se o produto tiver override, usa o override; senão, usa o global. O resto da fórmula (matéria-prima, contabilidade, encargos, markups) fica idêntico.
+### Cupons
+Tabela leve `cupons_blend` com `codigo`, `canal`, `percentual`. Já semeado com BLEND05/BLEND10, mas editável em Configurações no futuro.
 
-## Compatibilidade
-- Coluna nova é opcional; produtos existentes ficam sem override e continuam usando os globais → **zero mudança de preço** ao aplicar.
-- Painel global de Variáveis continua funcionando como hoje (afeta todos que não têm override).
-- Notas, pedidos, relatórios: nenhum é afetado, pois só consomem o preço final calculado.
+## UI
 
-## Detalhes técnicos
+1. **Nova página `/blends`** no sidebar (ícone Package2):
+   - Grid de cards com foto, nome, composição e **preço atacado / preço cliente** calculados em tempo real
+   - Botão "Editar composição" (drawer) para ajustar itens/quantidades
+   - Alerta se algum tempero componente tem estoque < 4
 
-**Banco (`temperos`)** — 1 coluna nova:
-- `custos_fixos_override jsonb null` no formato `{ "pote": 1.20, "lacre": 0, "rotulo": 0 }`. Chaves ausentes = usar global.
+2. **Integração no `/pedidos`:**
+   - Ao adicionar item, aba "Produtos" | "**Blends**"
+   - Selecionar blend → gera 3 linhas de itens (4 potes cada) com preço do canal
+   - Campo "Cupom" no rodapé do pedido: valida canal, aplica % sobre subtotal dos blends
+   - Se cliente é atacado e digitar BLEND10 → rejeita com mensagem clara
 
-**Types/API** (`src/data/temperos.ts`, `src/lib/api.ts`):
-- Adicionar `custosFixosOverride?: Partial<Record<'pote'|'lacre'|'rotulo'|'caixa'|'termoencolhivel', number>>` no tipo `Tempero`.
-- Mapear no `toTempero` / `upsertTempero`.
+3. **Nota não-fiscal:** o blend aparece como cabeçalho agrupador ("Blend Brasil - R$ XX,XX") com os 3 sabores listados abaixo, mantendo o layout atual.
 
-**Cálculo** (`src/lib/calc.ts`):
-- Substituir a soma fixa por: `['pote','lacre','rotulo','caixa','termoencolhivel'].reduce((s,k) => s + (t.custosFixosOverride?.[k] ?? v[k]), 0)`.
+## Regras de negócio
 
-**UI** (`src/components/ProdutoDetalhesDrawer.tsx`):
-- Nova seção "Custo Fixo por Produto" com 5 linhas (checkbox "usar global" + Input numérico habilitado quando desmarcado) + botão restaurar. Salva via `onUpdate` no mesmo fluxo já existente (debounced auto-save).
+- **Preço do blend = Σ (preço_canal_do_pote × quantidade)** — recalculado a cada render (sempre atual)
+- **Desconto do cupom** incide só sobre o subtotal dos blends do pedido (não sobre itens avulsos), somado a qualquer desconto manual
+- **Baixa de estoque** continua no trigger `tg_baixar_estoque` — como cada blend gera itens_pedido individuais, funciona sem alteração
+- Se um tempero componente for excluído, o blend fica marcado como "inativo" (não quebra pedidos antigos)
 
-**Fora do escopo**: nenhuma alteração em Pedidos, Notas, Dashboard, Relatórios, Configurações ou variáveis globais.
+## Etapas de implementação
 
-## Riscos
-Muito baixos. Mudança aditiva, retrocompatível (campo opcional, fallback para global), isolada em 4 arquivos + 1 migração.
+1. Migration: tabelas `blends`, `blend_itens`, `cupons_blend` + grants + RLS + seed dos 6 blends e 2 cupons
+2. Upload das 6 imagens ao bucket `produtos` (você me envia ou uso placeholders?)
+3. `src/lib/blends.ts` — fetch/CRUD + `calcularPrecoBlend(blend, temperos, variaveis, canal)`
+4. Página `src/pages/Blends.tsx` + rota + item no sidebar
+5. Extensão de `src/pages/Pedidos.tsx` — aba Blends + campo cupom
+6. Ajuste em `src/components/NotaPreviewDialog.tsx` para agrupar itens de blend
+7. Teste manual: criar pedido atacado com BLEND05, verificar baixa de estoque e preço
 
-Posso implementar?
+## Perguntas antes de começar
+
+1. Confirmo os mapeamentos "Tempero do Edu → Edu Guedes" e "Chimi Churri (sem pimenta) → Chimi Churri" do catálogo?
+2. As 6 imagens dos blends — você anexa nesta conversa para eu subir ao bucket, ou começo com placeholder e você substitui depois?
+3. Os cupons devem ser **editáveis** em Configurações desde já, ou fixos por enquanto (hardcoded seed)?

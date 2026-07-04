@@ -6,6 +6,7 @@ import {
   Cliente, PedidoComItens, ItemPedido,
   fetchClientes, upsertCliente, criarPedido, fetchPedidos, cancelarPedido,
 } from "@/lib/pedidos";
+import { Blend, CupomBlend, fetchBlends, fetchCupons, blendsDisponiveis } from "@/lib/blends";
 import { NotaPreviewDialog } from "@/components/NotaPreviewDialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { toast } from "sonner";
 import {
   Plus, Minus, Trash2, Search, UserPlus, FileText, ShoppingCart, X,
-  Pencil, Copy, Receipt, Mail, MessageCircle,
+  Pencil, Copy, Receipt, Mail, MessageCircle, Package2, Ticket,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -52,6 +53,9 @@ export default function Pedidos() {
 
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [pedidos, setPedidos] = useState<PedidoComItens[]>([]);
+  const [blends, setBlends] = useState<Blend[]>([]);
+  const [cupons, setCupons] = useState<CupomBlend[]>([]);
+  const [cupomInput, setCupomInput] = useState("");
   const [busca, setBusca] = useState("");
   const [buscaProd, setBuscaProd] = useState("");
   const [clienteSel, setClienteSel] = useState<Cliente | null>(null);
@@ -74,6 +78,8 @@ export default function Pedidos() {
     if (!user) return;
     fetchClientes(user.id).then(setClientes).catch((e) => toast.error(e.message));
     fetchPedidos(user.id).then(setPedidos).catch((e) => toast.error(e.message));
+    fetchBlends(user.id).then(setBlends).catch((e) => toast.error(e.message));
+    fetchCupons(user.id).then(setCupons).catch((e) => toast.error(e.message));
   }, [user]);
 
   const precoDoProduto = (id: string) => {
@@ -177,12 +183,59 @@ export default function Pedidos() {
   const removerItem = (id: string) =>
     setCarrinho((prev) => prev.filter((i) => i.tempero_id !== id));
 
+  const adicionarBlend = (blend: Blend) => {
+    const disp = blendsDisponiveis(blend, temperos);
+    if (disp <= 0) {
+      toast.error(`${blend.nome}: estoque insuficiente`);
+      return;
+    }
+    setCarrinho((prev) => {
+      let next = [...prev];
+      for (const it of blend.itens) {
+        const t = temperos.find((x) => x.id === it.tempero_id);
+        if (!t) continue;
+        const preco = precoDoProduto(it.tempero_id);
+        const idx = next.findIndex((x) => x.tempero_id === it.tempero_id);
+        if (idx >= 0) {
+          const novaQtd = Math.min(t.estoqueAtual, next[idx].quantidade + it.quantidade);
+          next[idx] = recalcSubtotal({ ...next[idx], quantidade: novaQtd });
+        } else {
+          next.push(recalcSubtotal({
+            tempero_id: it.tempero_id,
+            nome_produto: t.nome,
+            quantidade: it.quantidade,
+            preco_unitario: preco,
+            desconto: 0,
+            subtotal: 0,
+          }));
+        }
+      }
+      return next;
+    });
+    toast.success(`${blend.nome} adicionado (12 potes)`);
+  };
+
+  // Cupom
+  const cupomAtivo = useMemo(() => {
+    const code = cupomInput.trim().toUpperCase();
+    if (!code) return null;
+    return cupons.find((c) => c.codigo.toUpperCase() === code && c.ativo) ?? null;
+  }, [cupomInput, cupons]);
+  const cupomValido = cupomAtivo && cupomAtivo.canal === canal;
+  const cupomErro = cupomAtivo && cupomAtivo.canal !== canal
+    ? `Cupom ${cupomAtivo.codigo} é válido apenas para ${cupomAtivo.canal === "atacado" ? "Atacado" : "Cliente Final"}`
+    : cupomInput.trim() && !cupomAtivo
+      ? "Cupom inválido"
+      : "";
+
   const subtotal = carrinho.reduce((s, i) => s + i.subtotal, 0);
   const totalItens = carrinho.reduce((s, i) => s + i.quantidade, 0);
   const descontoNum = Number(descontoGeral.replace(",", ".")) || 0;
-  const descontoAplicado = descontoTipo === "percent"
+  const descontoManual = descontoTipo === "percent"
     ? Math.min(subtotal, subtotal * (descontoNum / 100))
     : Math.min(subtotal, descontoNum);
+  const descontoCupom = cupomValido ? subtotal * (cupomAtivo!.percentual / 100) : 0;
+  const descontoAplicado = Math.min(subtotal, descontoManual + descontoCupom);
   const total = Math.max(0, subtotal - descontoAplicado);
 
   const confirmar = async () => {
@@ -193,10 +246,13 @@ export default function Pedidos() {
     }
     setSalvando(true);
     try {
+      const obsCompleta = cupomValido
+        ? `${obs ? obs + "\n" : ""}Cupom aplicado: ${cupomAtivo!.codigo} (-${cupomAtivo!.percentual}%)`
+        : obs;
       const p = await criarPedido(user.id, {
         cliente_id: clienteSel?.id ?? null,
         canal,
-        observacoes: obs || undefined,
+        observacoes: obsCompleta || undefined,
         desconto: descontoAplicado,
         itens: carrinho,
       });
@@ -207,6 +263,7 @@ export default function Pedidos() {
       setCarrinho([]);
       setObs("");
       setDescontoGeral("");
+      setCupomInput("");
       setClienteSel(null);
       window.dispatchEvent(new Event("temperos:refresh"));
     } catch (e: any) {
@@ -362,6 +419,35 @@ export default function Pedidos() {
               className="pl-8 h-9"
             />
           </div>
+          {blends.length > 0 && (
+            <div className="border rounded-md bg-primary/5 p-2 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+                <Package2 className="h-3 w-3" /> Blends (kit 12 potes)
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {blends.map((b) => {
+                  const disp = blendsDisponiveis(b, temperos);
+                  const preco = b.itens.reduce(
+                    (s, i) => s + precoDoProduto(i.tempero_id) * i.quantidade,
+                    0
+                  );
+                  return (
+                    <button
+                      key={b.id}
+                      disabled={disp <= 0}
+                      onClick={() => adicionarBlend(b)}
+                      title={`${disp} disponível(is) · ${brl(preco)}`}
+                      className="text-[11px] px-2 py-1 rounded border bg-background hover:border-primary hover:bg-primary/10 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                    >
+                      <span className="font-medium">{b.nome.replace("Blend ", "")}</span>
+                      <span className="text-primary tabular-nums">{brl(preco)}</span>
+                      {disp <= 0 && <span className="text-destructive text-[9px]">esgotado</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div className="flex-1 overflow-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {produtosFiltrados.map((t) => {
@@ -496,15 +582,39 @@ export default function Pedidos() {
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+              <Ticket className="h-3 w-3" /> Cupom de desconto
+            </Label>
+            <Input
+              value={cupomInput}
+              placeholder={canal === "atacado" ? "BLEND05" : "BLEND10"}
+              onChange={(e) => setCupomInput(e.target.value.toUpperCase())}
+              className={`h-8 text-xs uppercase ${cupomValido ? "border-herb-green" : cupomErro ? "border-destructive" : ""}`}
+            />
+            {cupomValido && (
+              <p className="text-[10px] text-herb-green">
+                ✓ {cupomAtivo!.codigo} aplicado (-{cupomAtivo!.percentual}%)
+              </p>
+            )}
+            {cupomErro && <p className="text-[10px] text-destructive">{cupomErro}</p>}
+          </div>
+
           <div className="space-y-1 text-sm">
             <div className="flex justify-between text-muted-foreground text-xs">
               <span>{totalItens} unidades · {carrinho.length} produto(s)</span>
               <span>{brl(subtotal)}</span>
             </div>
-            {descontoAplicado > 0 && (
+            {descontoManual > 0 && (
               <div className="flex justify-between text-destructive text-xs">
-                <span>Desconto</span>
-                <span>-{brl(descontoAplicado)}</span>
+                <span>Desconto manual</span>
+                <span>-{brl(descontoManual)}</span>
+              </div>
+            )}
+            {descontoCupom > 0 && (
+              <div className="flex justify-between text-destructive text-xs">
+                <span>Cupom {cupomAtivo!.codigo}</span>
+                <span>-{brl(descontoCupom)}</span>
               </div>
             )}
             <div className="flex justify-between items-baseline">
