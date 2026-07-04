@@ -72,24 +72,38 @@ export default function Blends() {
               </div>
 
               <div className="space-y-1 text-xs">
-                {b.itens.map((i) => (
-                  <div key={i.tempero_id} className="flex justify-between border-b border-dashed border-border/60 py-1">
-                    <span>{i.quantidade}× {nomePote(i.tempero_id)}</span>
-                    <span className="tabular-nums text-muted-foreground">
-                      {brl(
-                        (variaveis && temperos.find((t) => t.id === i.tempero_id)
-                          ? calcularPrecoBlend(
-                              { ...b, itens: [{ tempero_id: i.tempero_id, quantidade: i.quantidade }] },
-                              temperos,
-                              variaveis,
-                              "cliente_final"
-                            )
-                          : 0)
-                      )}
-                    </span>
-                  </div>
-                ))}
+                <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground pb-0.5">
+                  <span>Sabor</span>
+                  <span className="flex gap-4">
+                    <span className="w-20 text-right">Atacado</span>
+                    <span className="w-20 text-right">Cliente</span>
+                  </span>
+                </div>
+                {b.itens.map((i) => {
+                  const subAtac = variaveis && temperos.find((t) => t.id === i.tempero_id)
+                    ? calcularPrecoBlend(
+                        { ...b, itens: [{ tempero_id: i.tempero_id, quantidade: i.quantidade }] },
+                        temperos, variaveis, "atacado"
+                      )
+                    : 0;
+                  const subCli = variaveis && temperos.find((t) => t.id === i.tempero_id)
+                    ? calcularPrecoBlend(
+                        { ...b, itens: [{ tempero_id: i.tempero_id, quantidade: i.quantidade }] },
+                        temperos, variaveis, "cliente_final"
+                      )
+                    : 0;
+                  return (
+                    <div key={i.tempero_id} className="flex justify-between items-center border-b border-dashed border-border/60 py-1 gap-2">
+                      <span className="flex-1 min-w-0 truncate">{i.quantidade}× {nomePote(i.tempero_id)}</span>
+                      <span className="flex gap-4 shrink-0">
+                        <span className="w-20 text-right tabular-nums text-muted-foreground">{brl(subAtac)}</span>
+                        <span className="w-20 text-right tabular-nums text-foreground">{brl(subCli)}</span>
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
+
 
               <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                 <div>
