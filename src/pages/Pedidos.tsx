@@ -183,12 +183,59 @@ export default function Pedidos() {
   const removerItem = (id: string) =>
     setCarrinho((prev) => prev.filter((i) => i.tempero_id !== id));
 
+  const adicionarBlend = (blend: Blend) => {
+    const disp = blendsDisponiveis(blend, temperos);
+    if (disp <= 0) {
+      toast.error(`${blend.nome}: estoque insuficiente`);
+      return;
+    }
+    setCarrinho((prev) => {
+      let next = [...prev];
+      for (const it of blend.itens) {
+        const t = temperos.find((x) => x.id === it.tempero_id);
+        if (!t) continue;
+        const preco = precoDoProduto(it.tempero_id);
+        const idx = next.findIndex((x) => x.tempero_id === it.tempero_id);
+        if (idx >= 0) {
+          const novaQtd = Math.min(t.estoqueAtual, next[idx].quantidade + it.quantidade);
+          next[idx] = recalcSubtotal({ ...next[idx], quantidade: novaQtd });
+        } else {
+          next.push(recalcSubtotal({
+            tempero_id: it.tempero_id,
+            nome_produto: t.nome,
+            quantidade: it.quantidade,
+            preco_unitario: preco,
+            desconto: 0,
+            subtotal: 0,
+          }));
+        }
+      }
+      return next;
+    });
+    toast.success(`${blend.nome} adicionado (12 potes)`);
+  };
+
+  // Cupom
+  const cupomAtivo = useMemo(() => {
+    const code = cupomInput.trim().toUpperCase();
+    if (!code) return null;
+    return cupons.find((c) => c.codigo.toUpperCase() === code && c.ativo) ?? null;
+  }, [cupomInput, cupons]);
+  const cupomValido = cupomAtivo && cupomAtivo.canal === canal;
+  const cupomErro = cupomAtivo && cupomAtivo.canal !== canal
+    ? `Cupom ${cupomAtivo.codigo} é válido apenas para ${cupomAtivo.canal === "atacado" ? "Atacado" : "Cliente Final"}`
+    : cupomInput.trim() && !cupomAtivo
+      ? "Cupom inválido"
+      : "";
+
   const subtotal = carrinho.reduce((s, i) => s + i.subtotal, 0);
   const totalItens = carrinho.reduce((s, i) => s + i.quantidade, 0);
   const descontoNum = Number(descontoGeral.replace(",", ".")) || 0;
-  const descontoAplicado = descontoTipo === "percent"
+  const descontoManual = descontoTipo === "percent"
     ? Math.min(subtotal, subtotal * (descontoNum / 100))
     : Math.min(subtotal, descontoNum);
+  const descontoCupom = cupomValido ? subtotal * (cupomAtivo!.percentual / 100) : 0;
+  const descontoAplicado = Math.min(subtotal, descontoManual + descontoCupom);
   const total = Math.max(0, subtotal - descontoAplicado);
 
   const confirmar = async () => {
