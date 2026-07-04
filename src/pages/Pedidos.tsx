@@ -419,6 +419,35 @@ export default function Pedidos() {
               className="pl-8 h-9"
             />
           </div>
+          {blends.length > 0 && (
+            <div className="border rounded-md bg-primary/5 p-2 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+                <Package2 className="h-3 w-3" /> Blends (kit 12 potes)
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {blends.map((b) => {
+                  const disp = blendsDisponiveis(b, temperos);
+                  const preco = b.itens.reduce(
+                    (s, i) => s + precoDoProduto(i.tempero_id) * i.quantidade,
+                    0
+                  );
+                  return (
+                    <button
+                      key={b.id}
+                      disabled={disp <= 0}
+                      onClick={() => adicionarBlend(b)}
+                      title={`${disp} disponível(is) · ${brl(preco)}`}
+                      className="text-[11px] px-2 py-1 rounded border bg-background hover:border-primary hover:bg-primary/10 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                    >
+                      <span className="font-medium">{b.nome.replace("Blend ", "")}</span>
+                      <span className="text-primary tabular-nums">{brl(preco)}</span>
+                      {disp <= 0 && <span className="text-destructive text-[9px]">esgotado</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div className="flex-1 overflow-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {produtosFiltrados.map((t) => {
