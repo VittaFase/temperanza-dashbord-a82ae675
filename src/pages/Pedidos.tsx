@@ -6,6 +6,7 @@ import {
   Cliente, PedidoComItens, ItemPedido,
   fetchClientes, upsertCliente, criarPedido, fetchPedidos, cancelarPedido,
 } from "@/lib/pedidos";
+import { Blend, CupomBlend, fetchBlends, fetchCupons, blendsDisponiveis } from "@/lib/blends";
 import { NotaPreviewDialog } from "@/components/NotaPreviewDialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { toast } from "sonner";
 import {
   Plus, Minus, Trash2, Search, UserPlus, FileText, ShoppingCart, X,
-  Pencil, Copy, Receipt, Mail, MessageCircle,
+  Pencil, Copy, Receipt, Mail, MessageCircle, Package2, Ticket,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
