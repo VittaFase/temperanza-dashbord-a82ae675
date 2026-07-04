@@ -800,6 +800,167 @@ export default function Pedidos() {
             return <p className="text-xs text-muted-foreground">Nenhum pedido encontrado para o filtro selecionado.</p>;
           }
           const totalPeriodo = filtrados.reduce((s, p) => s + Number(p.total), 0);
+
+          // Modo agrupado: quando há busca por nome e há pelo menos um pedido com cliente vinculado
+          const buscaEhNome = q.length > 0 && !/^\d+$/.test(q);
+          const temCliente = filtrados.some((p) => p.cliente);
+          const modoAgrupado = buscaEhNome && temCliente;
+
+          if (modoAgrupado) {
+            const grupos = new Map<string, { cliente: Cliente; pedidos: PedidoComItens[] }>();
+            const semCliente: PedidoComItens[] = [];
+            for (const p of filtrados) {
+              if (!p.cliente) { semCliente.push(p); continue; }
+              const g = grupos.get(p.cliente.id);
+              if (g) g.pedidos.push(p);
+              else grupos.set(p.cliente.id, { cliente: p.cliente, pedidos: [p] });
+            }
+            const listaGrupos = Array.from(grupos.values()).sort((a, b) => {
+              const da = Math.max(...a.pedidos.map((p) => new Date(p.data_pedido).getTime()));
+              const db = Math.max(...b.pedidos.map((p) => new Date(p.data_pedido).getTime()));
+              return db - da;
+            });
+
+            return (
+              <>
+                <div className="text-[11px] text-muted-foreground mb-3">
+                  {listaGrupos.length} cliente(s) · {filtrados.length} pedido(s) ·
+                  Total: <span className="font-display text-foreground">{brl(totalPeriodo)}</span>
+                </div>
+                <div className="space-y-3">
+                  {listaGrupos.map(({ cliente, pedidos: pedidosCli }) => {
+                    const rng = rangePorCliente[cliente.id];
+                    const pedidosFiltradosCli = pedidosCli.filter((p) => {
+                      if (!rng?.from && !rng?.to) return true;
+                      const t = new Date(p.data_pedido).getTime();
+                      if (rng.from && t < rng.from.getTime()) return false;
+                      if (rng.to && t > rng.to.getTime() + 24 * 60 * 60 * 1000 - 1) return false;
+                      return true;
+                    }).sort((a, b) => new Date(b.data_pedido).getTime() - new Date(a.data_pedido).getTime());
+                    const totalCli = pedidosFiltradosCli.reduce((s, p) => s + Number(p.total), 0);
+                    const ticket = pedidosFiltradosCli.length ? totalCli / pedidosFiltradosCli.length : 0;
+                    const ultima = pedidosFiltradosCli[0]?.data_pedido;
+                    const expandido = clienteExpandido.has(cliente.id) || listaGrupos.length === 1;
+                    const rangeLabel = rng?.from && rng?.to
+                      ? `${rng.from.toLocaleDateString("pt-BR")} — ${rng.to.toLocaleDateString("pt-BR")}`
+                      : rng?.from ? `desde ${rng.from.toLocaleDateString("pt-BR")}`
+                      : "Todas as datas";
+                    return (
+                      <div key={cliente.id} className="border rounded-md overflow-hidden">
+                        <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-muted/40">
+                          <button
+                            className="flex items-center gap-2 min-w-0 text-left"
+                            onClick={() => {
+                              setClienteExpandido((prev) => {
+                                const s = new Set(prev);
+                                if (s.has(cliente.id)) s.delete(cliente.id); else s.add(cliente.id);
+                                return s;
+                              });
+                            }}
+                          >
+                            {expandido ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
+                            <User className="h-4 w-4 text-primary shrink-0" />
+                            <div className="min-w-0">
+                              <div className="font-medium text-sm truncate">{cliente.nome}</div>
+                              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                                {cliente.tipo === "atacado" ? "Atacado" : "Cliente Final"}
+                                {cliente.telefone ? ` · ${cliente.telefone}` : ""}
+                                {ultima ? ` · última: ${new Date(ultima).toLocaleDateString("pt-BR")}` : ""}
+                              </div>
+                            </div>
+                          </button>
+                          <div className="flex items-center gap-2">
+                            <div className="text-right text-[11px] text-muted-foreground">
+                              <div>{pedidosFiltradosCli.length} pedido(s) · ticket {brl(ticket)}</div>
+                              <div className="font-display text-foreground text-sm">{brl(totalCli)}</div>
+                            </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button size="sm" variant="outline" className="h-8 text-[11px]">
+                                  <CalendarIcon className="h-3 w-3 mr-1" /> {rangeLabel}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="end">
+                                <div className="p-2 border-b flex items-center justify-between gap-2">
+                                  <span className="text-[11px] text-muted-foreground">Filtrar por datas</span>
+                                  <Button
+                                    size="sm" variant="ghost" className="h-7 text-[11px]"
+                                    onClick={() => setRangePorCliente((prev) => {
+                                      const c = { ...prev }; delete c[cliente.id]; return c;
+                                    })}
+                                  >
+                                    Limpar
+                                  </Button>
+                                </div>
+                                <Calendar
+                                  mode="range"
+                                  selected={rng as any}
+                                  onSelect={(v: any) => setRangePorCliente((prev) => ({ ...prev, [cliente.id]: v ?? {} }))}
+                                  numberOfMonths={2}
+                                  className={cn("p-3 pointer-events-auto")}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        </div>
+                        {expandido && (
+                          <div className="divide-y">
+                            {pedidosFiltradosCli.length === 0 && (
+                              <p className="text-xs text-muted-foreground p-3">Nenhum pedido no intervalo selecionado.</p>
+                            )}
+                            {pedidosFiltradosCli.map((p) => (
+                              <div
+                                key={p.id}
+                                className="flex flex-wrap items-center gap-2 p-2 hover:bg-muted/40 cursor-pointer"
+                                onClick={() => abrirPreview(p, "a4")}
+                              >
+                                <span className="font-mono text-xs w-20">#{String(p.numero).padStart(6, "0")}</span>
+                                <span className="text-xs text-muted-foreground w-36 tabular-nums">
+                                  {new Date(p.data_pedido).toLocaleString("pt-BR")}
+                                </span>
+                                <Badge variant="outline" className="text-[10px]">
+                                  {p.canal === "atacado" ? "Atacado" : "Cliente Final"}
+                                </Badge>
+                                <span className="text-[11px] text-muted-foreground">
+                                  {p.itens.reduce((s, i) => s + i.quantidade, 0)} un.
+                                </span>
+                                <span className="ml-auto font-display text-sm tabular-nums">{brl(p.total)}</span>
+                                <div onClick={(e) => e.stopPropagation()}>
+                                  {acoesPedido(p)}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {semCliente.length > 0 && (
+                    <div className="border rounded-md p-3">
+                      <div className="text-[11px] uppercase tracking-widest text-muted-foreground mb-2">
+                        Sem cliente vinculado ({semCliente.length})
+                      </div>
+                      <div className="divide-y">
+                        {semCliente.map((p) => (
+                          <div key={p.id} className="flex flex-wrap items-center gap-2 p-2 hover:bg-muted/40 cursor-pointer"
+                            onClick={() => abrirPreview(p, "a4")}>
+                            <span className="font-mono text-xs w-20">#{String(p.numero).padStart(6, "0")}</span>
+                            <span className="text-xs text-muted-foreground w-36 tabular-nums">
+                              {new Date(p.data_pedido).toLocaleString("pt-BR")}
+                            </span>
+                            <span className="ml-auto font-display text-sm tabular-nums">{brl(p.total)}</span>
+                            <div onClick={(e) => e.stopPropagation()}>{acoesPedido(p)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            );
+          }
+
+          // Modo padrão: tabela plana
           return (
             <>
               <div className="text-[11px] text-muted-foreground mb-2">
@@ -833,135 +994,7 @@ export default function Pedidos() {
                           {p.itens.reduce((s, i) => s + i.quantidade, 0)}
                         </td>
                         <td className="text-right tabular-nums font-display">{brl(p.total)}</td>
-                        <td className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button size="sm" variant="ghost" title="Nota A4" onClick={() => abrirPreview(p, "a4")}>
-                              <FileText className="h-3 w-3" />
-                            </Button>
-                            <Button size="sm" variant="ghost" title="Cupom 80mm" onClick={() => abrirPreview(p, "cupom")}>
-                              <Receipt className="h-3 w-3" />
-                            </Button>
-                            <Button size="sm" variant="ghost" title="Duplicar" onClick={() => duplicarPedido(p)}>
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              title="Enviar por e-mail"
-                              disabled={!p.cliente?.email}
-                              onClick={async () => {
-                                if (!p.cliente?.email) {
-                                  toast.error("Cliente sem e-mail cadastrado");
-                                  return;
-                                }
-                                try {
-                                  const { error } = await supabase.functions.invoke(
-                                    "send-transactional-email",
-                                    {
-                                      body: {
-                                        templateName: "nota-pedido",
-                                        recipientEmail: p.cliente.email,
-                                        idempotencyKey: `nota-${p.id}`,
-                                        templateData: {
-                                          numero: p.numero,
-                                          data: new Date(p.data_pedido).toLocaleString("pt-BR"),
-                                          clienteNome: p.cliente?.nome ?? "Cliente",
-                                          canal: p.canal === "atacado" ? "Atacado" : "Cliente Final",
-                                          itens: p.itens.map((i) => ({
-                                            nome_produto: i.nome_produto,
-                                            quantidade: i.quantidade,
-                                            preco_unitario: i.preco_unitario,
-                                            subtotal: i.subtotal,
-                                          })),
-                                          subtotal: p.itens.reduce((s, i) => s + i.preco_unitario * i.quantidade, 0),
-                                          desconto: (p as any).desconto ?? 0,
-                                          total: p.total,
-                                          observacoes: (p as any).observacoes,
-                                        },
-                                      },
-                                    }
-                                  );
-                                  if (error) throw error;
-                                  toast.success(`Nota enviada para ${p.cliente.email}`);
-                                } catch (e: any) {
-                                  toast.error(e.message ?? "Falha ao enviar");
-                                }
-                              }}
-                            >
-                              <Mail className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              title={p.cliente?.telefone ? "Enviar por WhatsApp" : "Cliente sem telefone cadastrado"}
-                              disabled={!p.cliente?.telefone}
-                              onClick={() => {
-                                const raw = (p.cliente?.telefone ?? "").replace(/\D/g, "");
-                                if (!raw) {
-                                  toast.error("Cliente sem telefone cadastrado");
-                                  return;
-                                }
-                                // Normaliza para E.164 sem '+': se não começar com código país, prefixa Brasil (55)
-                                const phone = raw.length <= 11 ? `55${raw}` : raw;
-                                const numero = String(p.numero).padStart(6, "0");
-                                const dataFmt = new Date(p.data_pedido).toLocaleDateString("pt-BR");
-                                const nomeCliente = p.cliente?.nome ?? "Consumidor não identificado";
-                                const subtotalCalc = p.itens.reduce((s, i) => s + i.preco_unitario * i.quantidade, 0);
-                                const descontoVal = (p as any).desconto ?? 0;
-                                const linhas = p.itens.map(
-                                  (i) => `• ${i.nome_produto}  ${i.quantidade}× ${brl(i.preco_unitario)} = ${brl(i.subtotal)}`
-                                );
-                                const msg = [
-                                  `*Temperanzza Condimentos*`,
-                                  `Nota #${numero} — ${dataFmt}`,
-                                  ``,
-                                  `Cliente: ${nomeCliente}`,
-                                  `—`,
-                                  ...linhas,
-                                  `—`,
-                                  `Subtotal: ${brl(subtotalCalc)}`,
-                                  descontoVal > 0 ? `Desconto: ${brl(descontoVal)}` : ``,
-                                  `*Total: ${brl(p.total)}*`,
-                                  (p as any).observacoes ? `\nObs.: ${(p as any).observacoes}` : ``,
-                                  ``,
-                                  `"Bem vindo a Família Temperanzza" 🌿`,
-                                ]
-                                  .filter(Boolean)
-                                  .join("\n");
-                                const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-                                // Usa âncora com target=_blank para escapar do iframe do preview
-                                // (evita ERR_BLOCKED_BY_RESPONSE do api.whatsapp.com dentro de iframes)
-                                const a = document.createElement("a");
-                                a.href = url;
-                                a.target = "_blank";
-                                a.rel = "noopener noreferrer";
-                                document.body.appendChild(a);
-                                a.click();
-                                a.remove();
-                              }}
-                            >
-                              <MessageCircle className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              title="Cancelar"
-                              onClick={async () => {
-                                if (!confirm("Cancelar este pedido? O estoque será devolvido.")) return;
-                                try {
-                                  await cancelarPedido(p.id);
-                                  setPedidos((prev) => prev.filter((x) => x.id !== p.id));
-                                  window.dispatchEvent(new Event("temperos:refresh"));
-                                  toast.success("Pedido cancelado");
-                                } catch (e: any) {
-                                  toast.error(e.message);
-                                }
-                              }}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </td>
+                        <td className="text-right">{acoesPedido(p)}</td>
                       </tr>
                     ))}
                   </tbody>
