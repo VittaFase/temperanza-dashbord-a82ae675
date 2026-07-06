@@ -468,10 +468,13 @@ export type Database = {
           estoque_minimo: number
           foto_path: string | null
           gramas_pote: number
+          handle_site: string | null
           id: string
           nome: string
           ordem: number
           preco_kg: number
+          shopify_product_id: string | null
+          shopify_variant_id: string | null
           sku: string | null
           tabela_nutricional: Json
           updated_at: string
@@ -485,10 +488,13 @@ export type Database = {
           estoque_minimo?: number
           foto_path?: string | null
           gramas_pote?: number
+          handle_site?: string | null
           id?: string
           nome: string
           ordem?: number
           preco_kg?: number
+          shopify_product_id?: string | null
+          shopify_variant_id?: string | null
           sku?: string | null
           tabela_nutricional?: Json
           updated_at?: string
@@ -502,10 +508,13 @@ export type Database = {
           estoque_minimo?: number
           foto_path?: string | null
           gramas_pote?: number
+          handle_site?: string | null
           id?: string
           nome?: string
           ordem?: number
           preco_kg?: number
+          shopify_product_id?: string | null
+          shopify_variant_id?: string | null
           sku?: string | null
           tabela_nutricional?: Json
           updated_at?: string
