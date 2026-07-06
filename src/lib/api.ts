@@ -83,11 +83,19 @@ export const fetchTemperos = async (userId: string): Promise<Tempero[]> => {
       estoque_minimo: t.estoqueMinimo,
       ordem: t.ordem,
     }));
-    const { data: seeded, error: e2 } = await supabase
+    // upsert com ignoreDuplicates evita reseed em corridas concorrentes
+    // (StrictMode duplo-mount, listener de refresh, etc.). Depende do índice
+    // UNIQUE(user_id, nome) em public.temperos.
+    const { error: e2 } = await supabase
       .from("temperos")
-      .insert(insertRows)
-      .select("*");
+      .upsert(insertRows, { onConflict: "user_id,nome", ignoreDuplicates: true });
     if (e2) throw e2;
+    const { data: seeded, error: e3 } = await supabase
+      .from("temperos")
+      .select("*")
+      .eq("user_id", userId)
+      .order("ordem", { ascending: true });
+    if (e3) throw e3;
     return (seeded as DbTempero[]).map(toTempero);
   }
   return (data as DbTempero[]).map(toTempero);
