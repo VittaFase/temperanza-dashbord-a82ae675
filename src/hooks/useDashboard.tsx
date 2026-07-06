@@ -44,22 +44,32 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     if (!authLoading && !user) nav("/auth", { replace: true });
   }, [user, authLoading, nav]);
 
+  const seedingRef = useRef(false);
+
   useEffect(() => {
     if (!user) return;
     const load = async () => {
+      // Guard contra corridas: StrictMode dupla-monta o efeito e o
+      // listener "temperos:refresh" também dispara fetchTemperos, o que
+      // já causou seed duplicado. Um único fetch por ciclo de user.
+      if (seedingRef.current) return;
+      seedingRef.current = true;
       try {
         setLoading(true);
         const [t, v] = await Promise.all([fetchTemperos(user.id), fetchVariaveis(user.id)]);
         setTemperos(t);
         setVars(v);
+        try { localStorage.setItem(`temperanzza:seeded:${user.id}`, "1"); } catch {}
       } catch (e: any) {
         toast.error("Erro ao carregar: " + e.message);
       } finally {
         setLoading(false);
+        seedingRef.current = false;
       }
     };
     load();
     const refresh = () => {
+      if (seedingRef.current) return;
       fetchTemperos(user.id).then(setTemperos).catch(() => {});
     };
     window.addEventListener("temperos:refresh", refresh);
