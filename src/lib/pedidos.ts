@@ -1,9 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export type CanalVenda = "distribuidor" | "atacado" | "cliente_final";
+
 export type Cliente = {
   id: string;
   nome: string;
-  tipo: "atacado" | "cliente_final";
+  tipo: CanalVenda;
   documento?: string | null;
   email?: string | null;
   telefone?: string | null;
