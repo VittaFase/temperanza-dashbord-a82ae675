@@ -104,9 +104,9 @@ const Produtos = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         <KpiCard icon={<Package className="h-4 w-4" />} label="Produtos" value={String(resumo.total)} />
         <KpiCard icon={<Coins className="h-4 w-4" />} label="Custo médio" value={brl(resumo.custoMedio)} />
-        <KpiCard icon={<Truck className="h-4 w-4" />} label="Distribuidor médio" value={brl(resumo.distribMedio)} accent />
-        <KpiCard icon={<Store className="h-4 w-4" />} label="Atacado médio" value={brl(resumo.atacadoMedio)} accent />
-        <KpiCard icon={<Users className="h-4 w-4" />} label="Cliente médio" value={brl(resumo.clienteMedio)} accent />
+        <KpiCard icon={<Truck className="h-4 w-4" />} label="DIST. MÉDIO" value={brl(resumo.distribMedio)} accent />
+        <KpiCard icon={<Store className="h-4 w-4" />} label="ATACADO MÉDIO" value={brl(resumo.atacadoMedio)} accent />
+        <KpiCard icon={<Users className="h-4 w-4" />} label="CLIENTE MÉDIO" value={brl(resumo.clienteMedio)} accent />
         <KpiCard icon={<TrendingUp className="h-4 w-4" />} label="Margem média" value={`${resumo.margemMedia.toFixed(1)}%`} sub={formatMarkupFromMargem(resumo.margemMedia)} />
         <KpiCard icon={<Warehouse className="h-4 w-4" />} label="Valor do estoque" value={brl(resumo.valorEstoque)} />
       </div>
