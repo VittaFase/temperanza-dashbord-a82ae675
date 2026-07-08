@@ -36,7 +36,7 @@ import { cn } from "@/lib/utils";
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-type Canal = "atacado" | "cliente_final";
+type Canal = CanalBlend;
 type ClienteForm = {
   nome: string; tipo: Canal; documento: string; telefone: string;
   email: string; endereco: string; cidade: string; estado: string; cep: string;
