@@ -169,9 +169,9 @@ export const fetchVariaveis = async (userId: string): Promise<Variaveis> => {
         politica_comercial: v.politicaComercial as any,
       }).select("*").single();
     if (e2) throw e2;
-    return toVariaveis(created as DbVariaveis);
+    return toVariaveis(created as unknown as DbVariaveis);
   }
-  return toVariaveis(data as DbVariaveis);
+  return toVariaveis(data as unknown as DbVariaveis);
 };
 
 export const saveVariaveis = async (userId: string, v: Variaveis) => {
