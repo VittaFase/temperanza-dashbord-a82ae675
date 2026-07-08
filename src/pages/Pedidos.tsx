@@ -231,7 +231,7 @@ export default function Pedidos() {
   }, [cupomInput, cupons]);
   const cupomValido = cupomAtivo && cupomAtivo.canal === canal;
   const cupomErro = cupomAtivo && cupomAtivo.canal !== canal
-    ? `Cupom ${cupomAtivo.codigo} é válido apenas para ${cupomAtivo.canal === "atacado" ? "Atacado" : "Cliente Final"}`
+    ? `Cupom ${cupomAtivo.codigo} é válido apenas para ${labelCanal(cupomAtivo.canal)}`
     : cupomInput.trim() && !cupomAtivo
       ? "Cupom inválido"
       : "";
