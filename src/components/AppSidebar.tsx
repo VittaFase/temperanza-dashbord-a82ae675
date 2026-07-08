@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, Package2, Settings, Sliders, LogOut, ShoppingCart, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Package, Package2, Settings, Sliders, LogOut, ShoppingCart, BarChart3, Calculator } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, SidebarFooter,
