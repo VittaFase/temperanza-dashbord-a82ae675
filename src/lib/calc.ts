@@ -7,10 +7,12 @@ export type CalculoTempero = {
   custoDireto: number;
   custoComFabril: number;
   custoTotal: number;
-  
+
+  precoDistribuidor: number;
   precoAtacado: number;
   precoCliente: number;
   margemPct: number;
+  margemDistribuidorPct: number;
   margemAtacadoPct: number;
   margemClientePct: number;
 };
@@ -37,13 +39,16 @@ export const calcularTempero = (t: Tempero, v: Variaveis): CalculoTempero => {
   );
   const custoTotal = custoComFabril / divisor;
 
-  
+  const precoDistribuidor = custoTotal * v.markupDistribuidor;
   const precoAtacado = custoTotal * v.markupAtacado;
   const precoCliente = custoTotal * v.markupCliente;
-  const margemAtacadoPct =
-    precoAtacado > 0 ? ((precoAtacado - custoTotal) / precoAtacado) * 100 : 0;
-  const margemClientePct =
-    precoCliente > 0 ? ((precoCliente - custoTotal) / precoCliente) * 100 : 0;
+
+  const margem = (preco: number) =>
+    preco > 0 ? ((preco - custoTotal) / preco) * 100 : 0;
+
+  const margemDistribuidorPct = margem(precoDistribuidor);
+  const margemAtacadoPct = margem(precoAtacado);
+  const margemClientePct = margem(precoCliente);
 
   return {
     custoMateriaPrima,
@@ -52,9 +57,11 @@ export const calcularTempero = (t: Tempero, v: Variaveis): CalculoTempero => {
     custoDireto,
     custoComFabril,
     custoTotal,
+    precoDistribuidor,
     precoAtacado,
     precoCliente,
     margemPct: margemClientePct,
+    margemDistribuidorPct,
     margemAtacadoPct,
     margemClientePct,
   };
