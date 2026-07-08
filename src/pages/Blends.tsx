@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboard } from "@/hooks/useDashboard";
-import { Blend, fetchBlends, calcularPrecoBlend, blendsDisponiveis } from "@/lib/blends";
+import {
+  Blend, fetchBlends, calcularPrecoBlend, blendsDisponiveis, CanalBlend,
+} from "@/lib/blends";
+import { calcularTempero, formatMarkupFromMargem } from "@/lib/calc";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +14,21 @@ import { useNavigate } from "react-router-dom";
 
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+type ColConfig = {
+  key: CanalBlend;
+  label: string;
+  short: string;
+  cupom: string;
+  cupomPct: number;
+  margemKey: "margemDistribuidorPct" | "margemAtacadoPct" | "margemClientePct";
+};
+
+const COLS: ColConfig[] = [
+  { key: "distribuidor",  label: "Distribuidor",  short: "Distrib.", cupom: "BLEND03", cupomPct: 0.03, margemKey: "margemDistribuidorPct" },
+  { key: "atacado",       label: "Atacado",       short: "Atacado",  cupom: "BLEND05", cupomPct: 0.05, margemKey: "margemAtacadoPct" },
+  { key: "cliente_final", label: "Cliente Final", short: "Cliente",  cupom: "BLEND10", cupomPct: 0.10, margemKey: "margemClientePct" },
+];
 
 export default function Blends() {
   const { user } = useAuth();
@@ -30,14 +48,34 @@ export default function Blends() {
   const nomePote = (id: string) =>
     temperos.find((t) => t.id === id)?.nome ?? "—";
 
+  /** Markup Nx médio ponderado do blend no canal (usa a margem de cada pote pelo peso do subtotal). */
+  const markupPonderado = (blend: Blend, col: ColConfig): string => {
+    let somaPreco = 0;
+    let somaMargemPonderada = 0;
+    for (const it of blend.itens) {
+      const t = temperos.find((x) => x.id === it.tempero_id);
+      if (!t) continue;
+      const c = calcularTempero(t, variaveis);
+      const preco =
+        col.key === "distribuidor" ? c.precoDistribuidor :
+        col.key === "atacado" ? c.precoAtacado : c.precoCliente;
+      const sub = preco * it.quantidade;
+      somaPreco += sub;
+      somaMargemPonderada += sub * c[col.margemKey];
+    }
+    if (somaPreco <= 0) return "—";
+    return formatMarkupFromMargem(somaMargemPonderada / somaPreco);
+  };
+
   return (
     <div className="container py-6 space-y-6">
       <header>
         <p className="text-gold text-xs tracking-[0.3em] uppercase">Blends</p>
         <h1 className="font-display text-3xl">Kits de 12 potes</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Preço calculado em tempo real como a soma dos potes individuais.
-          Cupons: <strong>BLEND05</strong> (5% atacado) · <strong>BLEND10</strong> (10% cliente final).
+          Preço calculado em tempo real como a soma dos potes individuais. Cupons:{" "}
+          <strong>BLEND03</strong> (3% distribuidor) · <strong>BLEND05</strong> (5% atacado) ·{" "}
+          <strong>BLEND10</strong> (10% cliente final).
         </p>
       </header>
 
@@ -45,8 +83,11 @@ export default function Blends() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {blends.map((b) => {
-          const precoAtacado = calcularPrecoBlend(b, temperos, variaveis, "atacado");
-          const precoCliente = calcularPrecoBlend(b, temperos, variaveis, "cliente_final");
+          const precos = COLS.map((col) => ({
+            col,
+            preco: calcularPrecoBlend(b, temperos, variaveis, col.key),
+            markup: markupPonderado(b, col),
+          }));
           const disp = blendsDisponiveis(b, temperos);
           return (
             <Card key={b.id} className="p-4 flex flex-col gap-3 shadow-card">
@@ -71,51 +112,57 @@ export default function Blends() {
                 )}
               </div>
 
+              {/* Tabela de sabores × canais */}
               <div className="space-y-1 text-xs">
-                <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground pb-0.5">
+                <div className="grid grid-cols-[1fr_repeat(3,minmax(0,72px))] gap-2 text-[10px] uppercase tracking-widest text-muted-foreground pb-0.5">
                   <span>Sabor</span>
-                  <span className="flex gap-4">
-                    <span className="w-20 text-right">Atacado</span>
-                    <span className="w-20 text-right">Cliente</span>
-                  </span>
+                  {COLS.map((c) => (
+                    <span key={c.key} className="text-right">{c.short}</span>
+                  ))}
                 </div>
                 {b.itens.map((i) => {
-                  const subAtac = variaveis && temperos.find((t) => t.id === i.tempero_id)
-                    ? calcularPrecoBlend(
-                        { ...b, itens: [{ tempero_id: i.tempero_id, quantidade: i.quantidade }] },
-                        temperos, variaveis, "atacado"
-                      )
-                    : 0;
-                  const subCli = variaveis && temperos.find((t) => t.id === i.tempero_id)
-                    ? calcularPrecoBlend(
-                        { ...b, itens: [{ tempero_id: i.tempero_id, quantidade: i.quantidade }] },
-                        temperos, variaveis, "cliente_final"
-                      )
-                    : 0;
+                  const t = temperos.find((x) => x.id === i.tempero_id);
+                  if (!t) return null;
+                  const c = calcularTempero(t, variaveis);
+                  const subs = {
+                    distribuidor: c.precoDistribuidor * i.quantidade,
+                    atacado: c.precoAtacado * i.quantidade,
+                    cliente_final: c.precoCliente * i.quantidade,
+                  };
                   return (
-                    <div key={i.tempero_id} className="flex justify-between items-center border-b border-dashed border-border/60 py-1 gap-2">
-                      <span className="flex-1 min-w-0 truncate">{i.quantidade}× {nomePote(i.tempero_id)}</span>
-                      <span className="flex gap-4 shrink-0">
-                        <span className="w-20 text-right tabular-nums text-muted-foreground">{brl(subAtac)}</span>
-                        <span className="w-20 text-right tabular-nums text-foreground">{brl(subCli)}</span>
-                      </span>
+                    <div
+                      key={i.tempero_id}
+                      className="grid grid-cols-[1fr_repeat(3,minmax(0,72px))] gap-2 items-center border-b border-dashed border-border/60 py-1"
+                    >
+                      <span className="min-w-0 truncate">{i.quantidade}× {nomePote(i.tempero_id)}</span>
+                      {COLS.map((col) => (
+                        <span key={col.key} className="text-right tabular-nums text-muted-foreground">
+                          {brl(subs[col.key])}
+                        </span>
+                      ))}
                     </div>
                   );
                 })}
               </div>
 
-
-              <div className="grid grid-cols-2 gap-2 pt-2 border-t">
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Atacado</div>
-                  <div className="font-display text-xl text-primary tabular-nums">{brl(precoAtacado)}</div>
-                  <div className="text-[10px] text-herb-green">c/ BLEND05: {brl(precoAtacado * 0.95)}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Cliente Final</div>
-                  <div className="font-display text-xl text-primary tabular-nums">{brl(precoCliente)}</div>
-                  <div className="text-[10px] text-herb-green">c/ BLEND10: {brl(precoCliente * 0.9)}</div>
-                </div>
+              {/* Totais por canal */}
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t">
+                {precos.map(({ col, preco, markup }) => (
+                  <div key={col.key}>
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                      {col.short}
+                    </div>
+                    <div className="font-display text-lg text-primary tabular-nums leading-tight">
+                      {brl(preco)}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground tabular-nums">
+                      Markup {markup}
+                    </div>
+                    <div className="text-[10px] text-herb-green tabular-nums">
+                      c/ {col.cupom}: {brl(preco * (1 - col.cupomPct))}
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <Button
