@@ -1112,6 +1112,7 @@ function ClienteDialog({
               <SelectContent>
                 <SelectItem value="cliente_final">Cliente Final</SelectItem>
                 <SelectItem value="atacado">Atacado</SelectItem>
+                <SelectItem value="distribuidor">Distribuidor</SelectItem>
               </SelectContent>
             </Select>
           </div>
