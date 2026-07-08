@@ -2,6 +2,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tempero, Variaveis } from "@/data/temperos";
 import { calcularTempero } from "@/lib/calc";
 
+export type CanalBlend = "distribuidor" | "atacado" | "cliente_final";
+
 export type BlendItem = {
   tempero_id: string;
   quantidade: number;
@@ -21,7 +23,7 @@ export type Blend = {
 export type CupomBlend = {
   id: string;
   codigo: string;
-  canal: "atacado" | "cliente_final";
+  canal: CanalBlend;
   percentual: number;
   ativo: boolean;
 };
@@ -57,7 +59,7 @@ export const fetchCupons = async (userId: string): Promise<CupomBlend[]> => {
   return (data ?? []).map((c: any) => ({
     id: c.id,
     codigo: c.codigo,
-    canal: c.canal,
+    canal: c.canal as CanalBlend,
     percentual: Number(c.percentual),
     ativo: c.ativo,
   }));
@@ -68,12 +70,14 @@ export const precoUnitarioPote = (
   temperoId: string,
   temperos: Tempero[],
   variaveis: Variaveis,
-  canal: "atacado" | "cliente_final"
+  canal: CanalBlend
 ): number => {
   const t = temperos.find((x) => x.id === temperoId);
   if (!t) return 0;
   const c = calcularTempero(t, variaveis);
-  return canal === "atacado" ? c.precoAtacado : c.precoCliente;
+  if (canal === "distribuidor") return c.precoDistribuidor;
+  if (canal === "atacado") return c.precoAtacado;
+  return c.precoCliente;
 };
 
 /** Preço total do blend = soma (preço_pote × quantidade) para os 3 sabores. */
@@ -81,7 +85,7 @@ export const calcularPrecoBlend = (
   blend: Blend,
   temperos: Tempero[],
   variaveis: Variaveis,
-  canal: "atacado" | "cliente_final"
+  canal: CanalBlend
 ): number => {
   return blend.itens.reduce(
     (s, i) => s + precoUnitarioPote(i.tempero_id, temperos, variaveis, canal) * i.quantidade,
@@ -99,3 +103,11 @@ export const blendsDisponiveis = (blend: Blend, temperos: Tempero[]): number => 
     })
   );
 };
+
+/** Rótulo humano do canal. */
+export const labelCanal = (c: CanalBlend): string =>
+  c === "distribuidor" ? "Distribuidor" : c === "atacado" ? "Atacado" : "Cliente Final";
+
+/** Cupom padrão sugerido para cada canal. */
+export const cupomPadrao = (c: CanalBlend): string =>
+  c === "distribuidor" ? "BLEND03" : c === "atacado" ? "BLEND05" : "BLEND10";
