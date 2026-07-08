@@ -995,7 +995,7 @@ export default function Pedidos() {
                         <td>{p.cliente?.nome ?? <span className="text-muted-foreground">—</span>}</td>
                         <td>
                           <Badge variant="outline" className="text-[10px]">
-                            {p.canal === "atacado" ? "Atacado" : "Cliente Final"}
+                            {labelCanal(p.canal)}
                           </Badge>
                         </td>
                         <td className="text-right tabular-nums">
