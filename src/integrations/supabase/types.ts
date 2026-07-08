@@ -531,7 +531,9 @@ export type Database = {
           lacre: number
           markup_atacado: number
           markup_cliente: number
+          markup_distribuidor: number
           markup_industria: number
+          politica_comercial: Json
           pote: number
           producao_estimada: number
           rotulo: number
@@ -549,7 +551,9 @@ export type Database = {
           lacre?: number
           markup_atacado?: number
           markup_cliente?: number
+          markup_distribuidor?: number
           markup_industria?: number
+          politica_comercial?: Json
           pote?: number
           producao_estimada?: number
           rotulo?: number
@@ -567,7 +571,9 @@ export type Database = {
           lacre?: number
           markup_atacado?: number
           markup_cliente?: number
+          markup_distribuidor?: number
           markup_industria?: number
+          politica_comercial?: Json
           pote?: number
           producao_estimada?: number
           rotulo?: number

@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Tempero, Variaveis, VARIAVEIS_INICIAIS, TEMPEROS_SEED, TabelaNutricional, CustosFixosOverride } from "@/data/temperos";
+import { Tempero, Variaveis, VARIAVEIS_INICIAIS, TEMPEROS_SEED, TabelaNutricional, CustosFixosOverride, PoliticaComercial, POLITICA_INICIAL } from "@/data/temperos";
 
 type DbTempero = {
   id: string;
@@ -27,11 +27,13 @@ type DbVariaveis = {
   custo_fabril: number;
   comissao: number;
   transporte: number;
-  
+
+  markup_distribuidor: number | null;
   markup_atacado: number;
   markup_cliente: number;
   contabilidade_mensal: number;
   producao_estimada: number;
+  politica_comercial: PoliticaComercial | null;
 };
 
 const toTempero = (r: DbTempero): Tempero => ({
@@ -59,11 +61,13 @@ const toVariaveis = (r: DbVariaveis): Variaveis => ({
   custoFabril: Number(r.custo_fabril),
   comissao: Number(r.comissao),
   transporte: Number(r.transporte),
-  
+
+  markupDistribuidor: Number(r.markup_distribuidor ?? 1.4),
   markupAtacado: Number(r.markup_atacado),
   markupCliente: Number(r.markup_cliente),
   contabilidadeMensal: Number(r.contabilidade_mensal ?? 500),
   producaoEstimada: Number(r.producao_estimada ?? 2000),
+  politicaComercial: (r.politica_comercial as PoliticaComercial) ?? POLITICA_INICIAL,
 });
 
 export const fetchTemperos = async (userId: string): Promise<Tempero[]> => {
@@ -156,15 +160,18 @@ export const fetchVariaveis = async (userId: string): Promise<Variaveis> => {
         termoencolhivel: v.termoencolhivel,
         simples_nacional: v.simplesNacional, custo_fabril: v.custoFabril,
         comissao: v.comissao, transporte: v.transporte,
-        markup_industria: v.markupAtacado, markup_atacado: v.markupAtacado,
+        markup_industria: v.markupAtacado,
+        markup_distribuidor: v.markupDistribuidor,
+        markup_atacado: v.markupAtacado,
         markup_cliente: v.markupCliente,
         contabilidade_mensal: v.contabilidadeMensal,
         producao_estimada: v.producaoEstimada,
+        politica_comercial: v.politicaComercial as any,
       }).select("*").single();
     if (e2) throw e2;
-    return toVariaveis(created as DbVariaveis);
+    return toVariaveis(created as unknown as DbVariaveis);
   }
-  return toVariaveis(data as DbVariaveis);
+  return toVariaveis(data as unknown as DbVariaveis);
 };
 
 export const saveVariaveis = async (userId: string, v: Variaveis) => {
@@ -174,10 +181,13 @@ export const saveVariaveis = async (userId: string, v: Variaveis) => {
     termoencolhivel: v.termoencolhivel,
     simples_nacional: v.simplesNacional, custo_fabril: v.custoFabril,
     comissao: v.comissao, transporte: v.transporte,
-    markup_industria: v.markupAtacado, markup_atacado: v.markupAtacado,
+    markup_industria: v.markupAtacado,
+    markup_distribuidor: v.markupDistribuidor,
+    markup_atacado: v.markupAtacado,
     markup_cliente: v.markupCliente,
     contabilidade_mensal: v.contabilidadeMensal,
     producao_estimada: v.producaoEstimada,
+    politica_comercial: v.politicaComercial as any,
   });
   if (error) throw error;
 };

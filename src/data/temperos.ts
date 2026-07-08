@@ -53,6 +53,44 @@ export const TEMPEROS_SEED: Omit<Tempero, "id">[] = [
   { nome: "Canela Moída", precoKg: 15.0, gramasPote: 30, estoqueAtual: 5600, estoqueMinimo: 50, ordem: 19 },
 ];
 
+// -------- Política Comercial --------
+export type CanalKey = "distribuidor" | "atacado" | "marketplace";
+
+export type FaixaCanal = {
+  min: number;         // markup mínimo (%)
+  recomendado: number; // markup recomendado (%)
+  padrao: number;      // markup padrão aplicado (%)
+  max: number;         // markup máximo (%)
+};
+
+export type AlertasPolitica = {
+  margemBaixaAte: number;        // % (sobre venda)
+  margemAceitavelAte: number;
+  margemBoaAte: number;          // acima → excelente
+  conflitoAlertaAbaixoDe: number;  // diferença entre canais
+  conflitoAtencaoAbaixoDe: number;
+};
+
+export type PoliticaComercial = {
+  canais: Record<CanalKey, FaixaCanal>;
+  alertas: AlertasPolitica;
+};
+
+export const POLITICA_INICIAL: PoliticaComercial = {
+  canais: {
+    distribuidor: { min: 30, recomendado: 40, padrao: 40, max: 45 },
+    atacado:      { min: 50, recomendado: 60, padrao: 60, max: 70 },
+    marketplace:  { min: 90, recomendado: 120, padrao: 120, max: 150 },
+  },
+  alertas: {
+    margemBaixaAte: 35,
+    margemAceitavelAte: 50,
+    margemBoaAte: 65,
+    conflitoAlertaAbaixoDe: 10,
+    conflitoAtencaoAbaixoDe: 15,
+  },
+};
+
 export type Variaveis = {
   pote: number;
   lacre: number;
@@ -63,11 +101,13 @@ export type Variaveis = {
   custoFabril: number;
   comissao: number;
   transporte: number;
-  
+
+  markupDistribuidor: number;
   markupAtacado: number;
   markupCliente: number;
   contabilidadeMensal: number;
   producaoEstimada: number;
+  politicaComercial: PoliticaComercial;
 };
 
 export const VARIAVEIS_INICIAIS: Variaveis = {
@@ -80,9 +120,23 @@ export const VARIAVEIS_INICIAIS: Variaveis = {
   custoFabril: 6,
   comissao: 5,
   transporte: 3,
-  
-  markupAtacado: 2.3,
-  markupCliente: 4.0,
+
+  markupDistribuidor: 1.4,
+  markupAtacado: 1.6,
+  markupCliente: 2.2,
   contabilidadeMensal: 500,
   producaoEstimada: 2000,
+  politicaComercial: POLITICA_INICIAL,
+};
+
+// Utilitário: classifica margem sobre venda de acordo com política.
+export type FaixaMargem = "baixa" | "aceitavel" | "boa" | "excelente";
+export const classificarMargem = (
+  margemPct: number,
+  a: AlertasPolitica
+): FaixaMargem => {
+  if (margemPct <= a.margemBaixaAte) return "baixa";
+  if (margemPct <= a.margemAceitavelAte) return "aceitavel";
+  if (margemPct <= a.margemBoaAte) return "boa";
+  return "excelente";
 };
