@@ -708,7 +708,7 @@ export default function Pedidos() {
             </Label>
             <Input
               value={cupomInput}
-              placeholder={canal === "atacado" ? "BLEND05" : "BLEND10"}
+              placeholder={cupomPadrao(canal)}
               onChange={(e) => setCupomInput(e.target.value.toUpperCase())}
               className={`h-8 text-xs uppercase ${cupomValido ? "border-herb-green" : cupomErro ? "border-destructive" : ""}`}
             />
