@@ -293,7 +293,9 @@ export default function Pedidos() {
       if (qtd < item.quantidade) ajustou = true;
       const preco = (() => {
         const c = calcularTempero(t, variaveis);
-        return p.canal === "atacado" ? c.precoAtacado : c.precoCliente;
+        if (p.canal === "distribuidor") return c.precoDistribuidor;
+        if (p.canal === "atacado") return c.precoAtacado;
+        return c.precoCliente;
       })();
       novos.push(recalcSubtotal({
         tempero_id: item.tempero_id,
