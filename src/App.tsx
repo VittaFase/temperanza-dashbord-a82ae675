@@ -11,6 +11,7 @@ import Simulacao from "./pages/Simulacao";
 import Pedidos from "./pages/Pedidos";
 import Blends from "./pages/Blends";
 import Relatorios from "./pages/Relatorios";
+import EstudoMarkup from "./pages/EstudoMarkup";
 import Auth from "./pages/Auth";
 import Unsubscribe from "./pages/Unsubscribe";
 import NotFound from "./pages/NotFound";
