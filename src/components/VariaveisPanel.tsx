@@ -9,28 +9,34 @@ type Props = {
   onReset: () => void;
 };
 
-const CAMPOS_FIXOS: { key: keyof Variaveis; label: string; suffix?: string }[] = [
-  { key: "pote", label: "Pote + Tampa", suffix: "R$" },
-  { key: "lacre", label: "Lacre", suffix: "R$" },
-  { key: "rotulo", label: "Rótulo", suffix: "R$" },
-  { key: "caixa", label: "Caixa (rateio)", suffix: "R$" },
-  { key: "termoencolhivel", label: "Termoencolhível", suffix: "R$" },
+// Apenas chaves numéricas de Variaveis
+type NumKey = {
+  [K in keyof Variaveis]: Variaveis[K] extends number ? K : never;
+}[keyof Variaveis];
+
+const CAMPOS_FIXOS: { key: NumKey; label: string }[] = [
+  { key: "pote", label: "Pote + Tampa" },
+  { key: "lacre", label: "Lacre" },
+  { key: "rotulo", label: "Rótulo" },
+  { key: "caixa", label: "Caixa (rateio)" },
+  { key: "termoencolhivel", label: "Termoencolhível" },
 ];
 
-const CAMPOS_PERC: { key: keyof Variaveis; label: string }[] = [
+const CAMPOS_PERC: { key: NumKey; label: string }[] = [
   { key: "simplesNacional", label: "Simples Nacional" },
   { key: "custoFabril", label: "Custo Fabril" },
   { key: "comissao", label: "Comissão Representante" },
   { key: "transporte", label: "Transporte" },
 ];
 
-const MARKUPS: { key: keyof Variaveis; label: string }[] = [
+const MARKUPS: { key: NumKey; label: string }[] = [
+  { key: "markupDistribuidor", label: "Markup Distribuidor" },
   { key: "markupAtacado", label: "Markup Atacado" },
   { key: "markupCliente", label: "Markup Cliente Final" },
 ];
 
 export const VariaveisPanel = ({ variaveis, onChange, onReset }: Props) => {
-  const upd = (k: keyof Variaveis, v: string) =>
+  const upd = (k: NumKey, v: string) =>
     onChange({ ...variaveis, [k]: parseFloat(v) || 0 });
 
   return (
@@ -83,13 +89,13 @@ export const VariaveisPanel = ({ variaveis, onChange, onReset }: Props) => {
 
         <section>
           <h3 className="text-sm font-semibold mb-3 text-accent">Markups de Venda (multiplicador)</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {MARKUPS.map(({ key, label }) => (
               <div key={key} className="space-y-1">
                 <Label className="text-xs">{label}</Label>
                 <Input
                   type="number"
-                  step="0.1"
+                  step="0.05"
                   value={variaveis[key]}
                   onChange={(e) => upd(key, e.target.value)}
                   className="h-9 font-semibold text-primary"
