@@ -1,5 +1,19 @@
 import { Tempero, Variaveis } from "@/data/temperos";
 
+/** Multiplicador de markup: preco / custo (ex.: 1.91). Retorna 0 se custo inválido. */
+export const markupMultiplier = (preco: number, custo: number): number =>
+  custo > 0 ? preco / custo : 0;
+
+/** Formata markup como "1,91x" no padrão pt-BR. */
+export const formatMarkupX = (preco: number, custo: number): string => {
+  const m = markupMultiplier(preco, custo);
+  return `${m.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}x`;
+};
+
+/** Formata um multiplicador direto (ex.: 1.9 → "1,90x"). */
+export const formatMultiplierX = (mult: number): string =>
+  `${mult.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}x`;
+
 export type CalculoTempero = {
   custoMateriaPrima: number;
   custosFixos: number;

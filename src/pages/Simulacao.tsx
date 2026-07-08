@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useDashboard } from "@/hooks/useDashboard";
-import { calcularTempero } from "@/lib/calc";
+import { calcularTempero, formatMultiplierX } from "@/lib/calc";
 import { CanalKey } from "@/data/temperos";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -158,6 +158,8 @@ const Simulacao = () => {
 const MargemCanal = ({ titulo, atual, simulada }: { titulo: string; atual: number; simulada: number }) => {
   const delta = simulada - atual;
   const up = delta >= 0;
+  // markup a partir da margem: markup = 1 / (1 - margem/100)
+  const markupFromMargem = (m: number) => (m < 100 ? 1 / (1 - m / 100) : 0);
   return (
     <Card className="shadow-card bg-card-gradient">
       <CardContent className="p-5 space-y-3">
@@ -165,11 +167,17 @@ const MargemCanal = ({ titulo, atual, simulada }: { titulo: string; atual: numbe
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Atual</p>
-            <p className="font-display text-2xl mt-1">{atual.toFixed(1)}%</p>
+            <div className="flex items-baseline gap-2 mt-1">
+              <p className="font-display text-2xl">{atual.toFixed(1)}%</p>
+              <span className="text-xs font-mono text-accent tabular-nums">{formatMultiplierX(markupFromMargem(atual))}</span>
+            </div>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Simulada</p>
-            <p className="font-display text-2xl mt-1 text-primary">{simulada.toFixed(1)}%</p>
+            <div className="flex items-baseline gap-2 mt-1">
+              <p className="font-display text-2xl text-primary">{simulada.toFixed(1)}%</p>
+              <span className="text-xs font-mono text-accent tabular-nums">{formatMultiplierX(markupFromMargem(simulada))}</span>
+            </div>
             <p className={`text-xs font-mono mt-0.5 ${up ? "text-emerald-500" : "text-destructive"}`}>
               {up ? "▲ +" : "▼ "}{delta.toFixed(1)} p.p.
             </p>
@@ -208,13 +216,18 @@ const MarkupCard = ({
               <Settings2 className="h-3.5 w-3.5" />
             </Link>
           </div>
-          <span className="font-display text-2xl text-primary">{pct.toFixed(0)}%</span>
+          <div className="flex items-baseline gap-2">
+            <span className="font-display text-2xl text-primary">{pct.toFixed(0)}%</span>
+            <span className="text-xs font-mono text-accent tabular-nums">{formatMultiplierX(value)}</span>
+          </div>
         </div>
         <Slider value={[value]} min={min} max={max} step={0.01} onValueChange={([v]) => onChange(v)} />
         <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-          <span>min {faixa.min}%</span>
-          <Badge variant="outline" className="text-[10px]">rec {faixa.recomendado}%</Badge>
-          <span>max {faixa.max}%</span>
+          <span>min {faixa.min}% <span className="text-muted-foreground/60">({formatMultiplierX(1 + faixa.min / 100)})</span></span>
+          <Badge variant="outline" className="text-[10px]">
+            rec {faixa.recomendado}% · {formatMultiplierX(1 + faixa.recomendado / 100)}
+          </Badge>
+          <span>max {faixa.max}% <span className="text-muted-foreground/60">({formatMultiplierX(1 + faixa.max / 100)})</span></span>
         </div>
         {foraFaixa && (
           <p className="text-[11px] text-amber-600 flex items-center gap-1">

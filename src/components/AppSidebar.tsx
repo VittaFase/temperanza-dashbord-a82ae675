@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, Package2, Settings, Sliders, LogOut, ShoppingCart, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Package, Package2, Settings, Sliders, LogOut, ShoppingCart, BarChart3, Calculator } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, SidebarFooter,
@@ -17,6 +17,7 @@ const items = [
   { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Simulação", url: "/simulacao", icon: Sliders },
+  { title: "Estudo de Markup", url: "/estudo-markup", icon: Calculator },
 ];
 
 export const AppSidebar = () => {
