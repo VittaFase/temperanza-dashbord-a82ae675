@@ -527,7 +527,7 @@ export default function Pedidos() {
           <div className="flex items-center justify-between gap-2">
             <h2 className="font-display text-sm tracking-widest uppercase">Produtos</h2>
             <div className="text-[11px] text-muted-foreground">
-              Preços em <strong>{canal === "atacado" ? "Atacado" : "Cliente Final"}</strong>
+              Preços em <strong>{labelCanal(canal)}</strong>
             </div>
           </div>
           <div className="relative">
