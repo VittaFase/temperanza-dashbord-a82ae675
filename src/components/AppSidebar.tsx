@@ -17,6 +17,7 @@ const items = [
   { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
   { title: "Simulação", url: "/simulacao", icon: Sliders },
+  { title: "Estudo de Markup", url: "/estudo-markup", icon: Calculator },
 ];
 
 export const AppSidebar = () => {
