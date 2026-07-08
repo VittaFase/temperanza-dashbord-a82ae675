@@ -348,7 +348,7 @@ export default function Pedidos() {
                   numero: p.numero,
                   data: new Date(p.data_pedido).toLocaleString("pt-BR"),
                   clienteNome: p.cliente?.nome ?? "Cliente",
-                  canal: p.canal === "atacado" ? "Atacado" : "Cliente Final",
+                  canal: labelCanal(p.canal),
                   itens: p.itens.map((i) => ({
                     nome_produto: i.nome_produto,
                     quantidade: i.quantidade,
