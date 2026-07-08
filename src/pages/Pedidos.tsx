@@ -441,11 +441,14 @@ export default function Pedidos() {
           onValueChange={(v) => v && setCanal(v as Canal)}
           className="border rounded-md"
         >
-          <ToggleGroupItem value="cliente_final" className="px-4">
+          <ToggleGroupItem value="cliente_final" className="px-3">
             Cliente Final
           </ToggleGroupItem>
-          <ToggleGroupItem value="atacado" className="px-4">
+          <ToggleGroupItem value="atacado" className="px-3">
             Atacado
+          </ToggleGroupItem>
+          <ToggleGroupItem value="distribuidor" className="px-3">
+            Distribuidor
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
