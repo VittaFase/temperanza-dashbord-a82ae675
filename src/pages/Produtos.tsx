@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trash2, Plus, Download, Search, AlertTriangle, Pencil, Package, Coins, TrendingUp, Truck, Store, Users, Warehouse } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useDashboard } from "@/hooks/useDashboard";
-import { calcularTempero } from "@/lib/calc";
+import { calcularTempero, formatMarkupFromMargem } from "@/lib/calc";
 import { classificarMargem, FaixaMargem } from "@/data/temperos";
 import { ProdutoFoto } from "@/components/ProdutoFoto";
 import { ProdutoDetalhesDrawer } from "@/components/ProdutoDetalhesDrawer";
@@ -107,7 +107,7 @@ const Produtos = () => {
         <KpiCard icon={<Truck className="h-4 w-4" />} label="Distribuidor médio" value={brl(resumo.distribMedio)} accent />
         <KpiCard icon={<Store className="h-4 w-4" />} label="Atacado médio" value={brl(resumo.atacadoMedio)} accent />
         <KpiCard icon={<Users className="h-4 w-4" />} label="Cliente médio" value={brl(resumo.clienteMedio)} accent />
-        <KpiCard icon={<TrendingUp className="h-4 w-4" />} label="Margem média" value={`${resumo.margemMedia.toFixed(1)}%`} />
+        <KpiCard icon={<TrendingUp className="h-4 w-4" />} label="Margem média" value={`${resumo.margemMedia.toFixed(1)}%`} sub={formatMarkupFromMargem(resumo.margemMedia)} />
         <KpiCard icon={<Warehouse className="h-4 w-4" />} label="Valor do estoque" value={brl(resumo.valorEstoque)} />
       </div>
 
@@ -198,19 +198,22 @@ const Produtos = () => {
                     <TableCell className="text-xs font-semibold text-primary tabular-nums">{brl(c.precoAtacado)}</TableCell>
                     <TableCell className="text-xs font-semibold text-primary tabular-nums">{brl(c.precoCliente)}</TableCell>
                     <TableCell className="text-center border-l">
-                      <Badge variant="outline" className={`text-[10px] ${MARGEM_CLASSES[fD]}`}>
+                      <Badge variant="outline" className={`text-[10px] ${MARGEM_CLASSES[fD]}`} title={`Markup ${formatMarkupFromMargem(c.margemDistribuidorPct)}`}>
                         {c.margemDistribuidorPct.toFixed(0)}%
                       </Badge>
+                      <div className="text-[9px] font-mono text-muted-foreground tabular-nums mt-0.5">{formatMarkupFromMargem(c.margemDistribuidorPct)}</div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="outline" className={`text-[10px] ${MARGEM_CLASSES[fA]}`}>
+                      <Badge variant="outline" className={`text-[10px] ${MARGEM_CLASSES[fA]}`} title={`Markup ${formatMarkupFromMargem(c.margemAtacadoPct)}`}>
                         {c.margemAtacadoPct.toFixed(0)}%
                       </Badge>
+                      <div className="text-[9px] font-mono text-muted-foreground tabular-nums mt-0.5">{formatMarkupFromMargem(c.margemAtacadoPct)}</div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="outline" className={`text-[10px] ${MARGEM_CLASSES[fC]}`}>
+                      <Badge variant="outline" className={`text-[10px] ${MARGEM_CLASSES[fC]}`} title={`Markup ${formatMarkupFromMargem(c.margemClientePct)}`}>
                         {c.margemClientePct.toFixed(0)}%
                       </Badge>
+                      <div className="text-[9px] font-mono text-muted-foreground tabular-nums mt-0.5">{formatMarkupFromMargem(c.margemClientePct)}</div>
                     </TableCell>
                     <TableCell className="border-l">
                       <div className="flex items-center gap-1">
@@ -258,14 +261,17 @@ const Produtos = () => {
   );
 };
 
-const KpiCard = ({ icon, label, value, accent = false }: { icon: React.ReactNode; label: string; value: string; accent?: boolean }) => (
+const KpiCard = ({ icon, label, value, accent = false, sub }: { icon: React.ReactNode; label: string; value: string; accent?: boolean; sub?: string }) => (
   <Card className="shadow-card bg-card-gradient">
     <CardContent className="p-3 space-y-1">
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
         <span className="text-gold">{icon}</span>
         <span>{label}</span>
       </div>
-      <p className={`font-display text-lg tabular-nums ${accent ? "text-primary" : ""}`}>{value}</p>
+      <div className="flex items-baseline gap-2">
+        <p className={`font-display text-lg tabular-nums ${accent ? "text-primary" : ""}`}>{value}</p>
+        {sub && <span className="text-[10px] font-mono text-accent tabular-nums">{sub}</span>}
+      </div>
     </CardContent>
   </Card>
 );

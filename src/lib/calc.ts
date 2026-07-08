@@ -14,6 +14,14 @@ export const formatMarkupX = (preco: number, custo: number): string => {
 export const formatMultiplierX = (mult: number): string =>
   `${mult.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}x`;
 
+/** Converte margem% (lucro sobre preço) em markup Nx: 1 / (1 - m/100). */
+export const markupFromMargem = (margemPct: number): number =>
+  margemPct < 100 && margemPct > -Infinity ? 1 / (1 - margemPct / 100) : 0;
+
+/** Formata margem como "Nx" a partir do percentual de margem. */
+export const formatMarkupFromMargem = (margemPct: number): string =>
+  formatMultiplierX(markupFromMargem(margemPct));
+
 export type CalculoTempero = {
   custoMateriaPrima: number;
   custosFixos: number;
