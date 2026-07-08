@@ -216,13 +216,18 @@ const MarkupCard = ({
               <Settings2 className="h-3.5 w-3.5" />
             </Link>
           </div>
-          <span className="font-display text-2xl text-primary">{pct.toFixed(0)}%</span>
+          <div className="flex items-baseline gap-2">
+            <span className="font-display text-2xl text-primary">{pct.toFixed(0)}%</span>
+            <span className="text-xs font-mono text-accent tabular-nums">{formatMultiplierX(value)}</span>
+          </div>
         </div>
         <Slider value={[value]} min={min} max={max} step={0.01} onValueChange={([v]) => onChange(v)} />
         <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-          <span>min {faixa.min}%</span>
-          <Badge variant="outline" className="text-[10px]">rec {faixa.recomendado}%</Badge>
-          <span>max {faixa.max}%</span>
+          <span>min {faixa.min}% <span className="text-muted-foreground/60">({formatMultiplierX(1 + faixa.min / 100)})</span></span>
+          <Badge variant="outline" className="text-[10px]">
+            rec {faixa.recomendado}% · {formatMultiplierX(1 + faixa.recomendado / 100)}
+          </Badge>
+          <span>max {faixa.max}% <span className="text-muted-foreground/60">({formatMultiplierX(1 + faixa.max / 100)})</span></span>
         </div>
         {foraFaixa && (
           <p className="text-[11px] text-amber-600 flex items-center gap-1">
