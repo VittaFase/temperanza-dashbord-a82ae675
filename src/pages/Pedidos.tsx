@@ -773,9 +773,10 @@ export default function Pedidos() {
               onValueChange={(v) => v && setHistCanal(v as any)}
               className="border rounded-md"
             >
-              <ToggleGroupItem value="todos" className="h-9 px-3 text-xs">Todos</ToggleGroupItem>
-              <ToggleGroupItem value="cliente_final" className="h-9 px-3 text-xs">Cliente</ToggleGroupItem>
-              <ToggleGroupItem value="atacado" className="h-9 px-3 text-xs">Atacado</ToggleGroupItem>
+              <ToggleGroupItem value="todos" className="h-9 px-2.5 text-xs">Todos</ToggleGroupItem>
+              <ToggleGroupItem value="cliente_final" className="h-9 px-2.5 text-xs">Cliente</ToggleGroupItem>
+              <ToggleGroupItem value="atacado" className="h-9 px-2.5 text-xs">Atacado</ToggleGroupItem>
+              <ToggleGroupItem value="distribuidor" className="h-9 px-2.5 text-xs">Distrib.</ToggleGroupItem>
             </ToggleGroup>
             <Select value={histPeriodo} onValueChange={(v) => setHistPeriodo(v as any)}>
               <SelectTrigger className="h-9 w-32 text-xs"><SelectValue /></SelectTrigger>
