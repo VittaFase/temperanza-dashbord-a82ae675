@@ -503,7 +503,7 @@ export default function Pedidos() {
                     <div className="min-w-0">
                       <div className="font-medium truncate">{c.nome}</div>
                       <div className="text-muted-foreground text-[10px] uppercase tracking-wider">
-                        {c.tipo === "atacado" ? "Atacado" : "Cliente final"}
+                        {labelCanal(c.tipo)}
                         {c.telefone ? ` · ${c.telefone}` : ""}
                       </div>
                     </div>
