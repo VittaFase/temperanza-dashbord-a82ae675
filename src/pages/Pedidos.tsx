@@ -927,7 +927,7 @@ export default function Pedidos() {
                                   {new Date(p.data_pedido).toLocaleString("pt-BR")}
                                 </span>
                                 <Badge variant="outline" className="text-[10px]">
-                                  {p.canal === "atacado" ? "Atacado" : "Cliente Final"}
+                                  {labelCanal(p.canal)}
                                 </Badge>
                                 <span className="text-[11px] text-muted-foreground">
                                   {p.itens.reduce((s, i) => s + i.quantidade, 0)} un.
