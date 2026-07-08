@@ -110,7 +110,7 @@ export const gerarNotaHTML = (p: PedidoComItens): string => {
 export const gerarCupom80mmHTML = (p: PedidoComItens): string => {
   const data = new Date(p.data_pedido).toLocaleString("pt-BR");
   const numero = String(p.numero).padStart(6, "0");
-  const canal = p.canal === "atacado" ? "ATACADO" : "CLIENTE FINAL";
+  const canal = p.canal === "atacado" ? "ATACADO" : p.canal === "distribuidor" ? "DISTRIBUIDOR" : "CLIENTE FINAL";
   const subtotal = p.subtotal || p.itens.reduce((s, i) => s + i.subtotal, 0);
 
   const linhas = p.itens.map((i) => `
