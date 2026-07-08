@@ -108,7 +108,7 @@ const Produtos = () => {
         <KpiCard icon={<Store className="h-4 w-4" />} label="ATACADO MÉDIO" value={brl(resumo.atacadoMedio)} accent />
         <KpiCard icon={<Users className="h-4 w-4" />} label="CLIENTE MÉDIO" value={brl(resumo.clienteMedio)} accent />
         <KpiCard icon={<TrendingUp className="h-4 w-4" />} label="Margem média" value={`${resumo.margemMedia.toFixed(1)}%`} sub={formatMarkupFromMargem(resumo.margemMedia)} />
-        <KpiCard icon={<Warehouse className="h-4 w-4" />} label="Valor do estoque" value={brl(resumo.valorEstoque)} />
+        <KpiCard icon={<Warehouse className="h-4 w-4" />} label="VALOR ESTOQUE" value={brl(resumo.valorEstoque)} />
       </div>
 
       <Card className="shadow-card">
