@@ -6,7 +6,7 @@ import {
   Cliente, PedidoComItens, ItemPedido,
   fetchClientes, upsertCliente, criarPedido, fetchPedidos, cancelarPedido,
 } from "@/lib/pedidos";
-import { Blend, CupomBlend, fetchBlends, fetchCupons, blendsDisponiveis } from "@/lib/blends";
+import { Blend, CupomBlend, fetchBlends, fetchCupons, blendsDisponiveis, labelCanal, cupomPadrao, CanalBlend } from "@/lib/blends";
 import { NotaPreviewDialog } from "@/components/NotaPreviewDialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
