@@ -92,7 +92,9 @@ export default function Pedidos() {
     const t = temperos.find((x) => x.id === id);
     if (!t) return 0;
     const c = calcularTempero(t, variaveis);
-    return canal === "atacado" ? c.precoAtacado : c.precoCliente;
+    if (canal === "distribuidor") return c.precoDistribuidor;
+    if (canal === "atacado") return c.precoAtacado;
+    return c.precoCliente;
   };
 
   useEffect(() => {
