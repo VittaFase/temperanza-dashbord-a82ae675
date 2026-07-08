@@ -6,7 +6,7 @@ import {
   Cliente, PedidoComItens, ItemPedido,
   fetchClientes, upsertCliente, criarPedido, fetchPedidos, cancelarPedido,
 } from "@/lib/pedidos";
-import { Blend, CupomBlend, fetchBlends, fetchCupons, blendsDisponiveis } from "@/lib/blends";
+import { Blend, CupomBlend, fetchBlends, fetchCupons, blendsDisponiveis, labelCanal, cupomPadrao, CanalBlend } from "@/lib/blends";
 import { NotaPreviewDialog } from "@/components/NotaPreviewDialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ import { cn } from "@/lib/utils";
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-type Canal = "atacado" | "cliente_final";
+type Canal = CanalBlend;
 type ClienteForm = {
   nome: string; tipo: Canal; documento: string; telefone: string;
   email: string; endereco: string; cidade: string; estado: string; cep: string;
@@ -92,7 +92,9 @@ export default function Pedidos() {
     const t = temperos.find((x) => x.id === id);
     if (!t) return 0;
     const c = calcularTempero(t, variaveis);
-    return canal === "atacado" ? c.precoAtacado : c.precoCliente;
+    if (canal === "distribuidor") return c.precoDistribuidor;
+    if (canal === "atacado") return c.precoAtacado;
+    return c.precoCliente;
   };
 
   useEffect(() => {
@@ -229,7 +231,7 @@ export default function Pedidos() {
   }, [cupomInput, cupons]);
   const cupomValido = cupomAtivo && cupomAtivo.canal === canal;
   const cupomErro = cupomAtivo && cupomAtivo.canal !== canal
-    ? `Cupom ${cupomAtivo.codigo} é válido apenas para ${cupomAtivo.canal === "atacado" ? "Atacado" : "Cliente Final"}`
+    ? `Cupom ${cupomAtivo.codigo} é válido apenas para ${labelCanal(cupomAtivo.canal)}`
     : cupomInput.trim() && !cupomAtivo
       ? "Cupom inválido"
       : "";
@@ -291,7 +293,9 @@ export default function Pedidos() {
       if (qtd < item.quantidade) ajustou = true;
       const preco = (() => {
         const c = calcularTempero(t, variaveis);
-        return p.canal === "atacado" ? c.precoAtacado : c.precoCliente;
+        if (p.canal === "distribuidor") return c.precoDistribuidor;
+        if (p.canal === "atacado") return c.precoAtacado;
+        return c.precoCliente;
       })();
       novos.push(recalcSubtotal({
         tempero_id: item.tempero_id,
@@ -344,7 +348,7 @@ export default function Pedidos() {
                   numero: p.numero,
                   data: new Date(p.data_pedido).toLocaleString("pt-BR"),
                   clienteNome: p.cliente?.nome ?? "Cliente",
-                  canal: p.canal === "atacado" ? "Atacado" : "Cliente Final",
+                  canal: labelCanal(p.canal),
                   itens: p.itens.map((i) => ({
                     nome_produto: i.nome_produto,
                     quantidade: i.quantidade,
@@ -437,11 +441,14 @@ export default function Pedidos() {
           onValueChange={(v) => v && setCanal(v as Canal)}
           className="border rounded-md"
         >
-          <ToggleGroupItem value="cliente_final" className="px-4">
+          <ToggleGroupItem value="cliente_final" className="px-3">
             Cliente Final
           </ToggleGroupItem>
-          <ToggleGroupItem value="atacado" className="px-4">
+          <ToggleGroupItem value="atacado" className="px-3">
             Atacado
+          </ToggleGroupItem>
+          <ToggleGroupItem value="distribuidor" className="px-3">
+            Distribuidor
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
@@ -496,7 +503,7 @@ export default function Pedidos() {
                     <div className="min-w-0">
                       <div className="font-medium truncate">{c.nome}</div>
                       <div className="text-muted-foreground text-[10px] uppercase tracking-wider">
-                        {c.tipo === "atacado" ? "Atacado" : "Cliente final"}
+                        {labelCanal(c.tipo)}
                         {c.telefone ? ` · ${c.telefone}` : ""}
                       </div>
                     </div>
@@ -520,7 +527,7 @@ export default function Pedidos() {
           <div className="flex items-center justify-between gap-2">
             <h2 className="font-display text-sm tracking-widest uppercase">Produtos</h2>
             <div className="text-[11px] text-muted-foreground">
-              Preços em <strong>{canal === "atacado" ? "Atacado" : "Cliente Final"}</strong>
+              Preços em <strong>{labelCanal(canal)}</strong>
             </div>
           </div>
           <div className="relative">
@@ -701,7 +708,7 @@ export default function Pedidos() {
             </Label>
             <Input
               value={cupomInput}
-              placeholder={canal === "atacado" ? "BLEND05" : "BLEND10"}
+              placeholder={cupomPadrao(canal)}
               onChange={(e) => setCupomInput(e.target.value.toUpperCase())}
               className={`h-8 text-xs uppercase ${cupomValido ? "border-herb-green" : cupomErro ? "border-destructive" : ""}`}
             />
@@ -766,9 +773,10 @@ export default function Pedidos() {
               onValueChange={(v) => v && setHistCanal(v as any)}
               className="border rounded-md"
             >
-              <ToggleGroupItem value="todos" className="h-9 px-3 text-xs">Todos</ToggleGroupItem>
-              <ToggleGroupItem value="cliente_final" className="h-9 px-3 text-xs">Cliente</ToggleGroupItem>
-              <ToggleGroupItem value="atacado" className="h-9 px-3 text-xs">Atacado</ToggleGroupItem>
+              <ToggleGroupItem value="todos" className="h-9 px-2.5 text-xs">Todos</ToggleGroupItem>
+              <ToggleGroupItem value="cliente_final" className="h-9 px-2.5 text-xs">Cliente</ToggleGroupItem>
+              <ToggleGroupItem value="atacado" className="h-9 px-2.5 text-xs">Atacado</ToggleGroupItem>
+              <ToggleGroupItem value="distribuidor" className="h-9 px-2.5 text-xs">Distrib.</ToggleGroupItem>
             </ToggleGroup>
             <Select value={histPeriodo} onValueChange={(v) => setHistPeriodo(v as any)}>
               <SelectTrigger className="h-9 w-32 text-xs"><SelectValue /></SelectTrigger>
@@ -863,7 +871,7 @@ export default function Pedidos() {
                             <div className="min-w-0">
                               <div className="font-medium text-sm truncate">{cliente.nome}</div>
                               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                                {cliente.tipo === "atacado" ? "Atacado" : "Cliente Final"}
+                                {labelCanal(cliente.tipo)}
                                 {cliente.telefone ? ` · ${cliente.telefone}` : ""}
                                 {ultima ? ` · última: ${new Date(ultima).toLocaleDateString("pt-BR")}` : ""}
                               </div>
@@ -919,7 +927,7 @@ export default function Pedidos() {
                                   {new Date(p.data_pedido).toLocaleString("pt-BR")}
                                 </span>
                                 <Badge variant="outline" className="text-[10px]">
-                                  {p.canal === "atacado" ? "Atacado" : "Cliente Final"}
+                                  {labelCanal(p.canal)}
                                 </Badge>
                                 <span className="text-[11px] text-muted-foreground">
                                   {p.itens.reduce((s, i) => s + i.quantidade, 0)} un.
@@ -987,7 +995,7 @@ export default function Pedidos() {
                         <td>{p.cliente?.nome ?? <span className="text-muted-foreground">—</span>}</td>
                         <td>
                           <Badge variant="outline" className="text-[10px]">
-                            {p.canal === "atacado" ? "Atacado" : "Cliente Final"}
+                            {labelCanal(p.canal)}
                           </Badge>
                         </td>
                         <td className="text-right tabular-nums">
@@ -1104,6 +1112,7 @@ function ClienteDialog({
               <SelectContent>
                 <SelectItem value="cliente_final">Cliente Final</SelectItem>
                 <SelectItem value="atacado">Atacado</SelectItem>
+                <SelectItem value="distribuidor">Distribuidor</SelectItem>
               </SelectContent>
             </Select>
           </div>

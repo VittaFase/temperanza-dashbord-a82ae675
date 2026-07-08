@@ -1,9 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 
+export type CanalVenda = "distribuidor" | "atacado" | "cliente_final";
+
 export type Cliente = {
   id: string;
   nome: string;
-  tipo: "atacado" | "cliente_final";
+  tipo: CanalVenda;
   documento?: string | null;
   email?: string | null;
   telefone?: string | null;
@@ -27,7 +29,7 @@ export type Pedido = {
   id: string;
   numero: number;
   cliente_id: string | null;
-  canal: "atacado" | "cliente_final";
+  canal: CanalVenda;
   status: "rascunho" | "confirmado" | "cancelado";
   subtotal: number;
   desconto: number;
@@ -54,7 +56,7 @@ export const fetchClientes = async (userId: string): Promise<Cliente[]> => {
 
 export const upsertCliente = async (
   userId: string,
-  c: Partial<Cliente> & { nome: string; tipo: "atacado" | "cliente_final" }
+  c: Partial<Cliente> & { nome: string; tipo: CanalVenda }
 ): Promise<Cliente> => {
   const payload = { ...c, user_id: userId };
   const { data, error } = await supabase
@@ -76,7 +78,7 @@ export const criarPedido = async (
   userId: string,
   input: {
     cliente_id: string | null;
-    canal: "atacado" | "cliente_final";
+    canal: CanalVenda;
     observacoes?: string;
     desconto?: number;
     itens: ItemPedido[];
