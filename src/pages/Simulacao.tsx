@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useDashboard } from "@/hooks/useDashboard";
-import { calcularTempero } from "@/lib/calc";
+import { calcularTempero, formatMultiplierX } from "@/lib/calc";
 import { CanalKey } from "@/data/temperos";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
