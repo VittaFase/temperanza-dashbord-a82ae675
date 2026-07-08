@@ -29,7 +29,7 @@ export type Pedido = {
   id: string;
   numero: number;
   cliente_id: string | null;
-  canal: "atacado" | "cliente_final";
+  canal: CanalVenda;
   status: "rascunho" | "confirmado" | "cancelado";
   subtotal: number;
   desconto: number;
