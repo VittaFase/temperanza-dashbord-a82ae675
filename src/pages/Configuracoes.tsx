@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Variaveis, CanalKey, PoliticaComercial } from "@/data/temperos";
+import { formatMultiplierX, formatMarkupFromMargem } from "@/lib/calc";
 
 const CANAIS: { key: CanalKey; label: string }[] = [
   { key: "distribuidor", label: "Distribuidor" },
@@ -85,14 +86,15 @@ const Configuracoes = () => {
         <CardContent className="space-y-6">
           {CANAIS.map(({ key, label }) => {
             const f = variaveis.politicaComercial.canais[key];
+            const mk = (p: number) => formatMultiplierX(1 + p / 100);
             return (
               <div key={key} className="space-y-2">
                 <h3 className="text-sm font-semibold text-accent">{label}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <FaixaInput label="Mínimo (%)" value={f.min} onChange={(v) => updFaixa(key, "min", v)} />
-                  <FaixaInput label="Recomendado (%)" value={f.recomendado} onChange={(v) => updFaixa(key, "recomendado", v)} />
-                  <FaixaInput label="Padrão (%)" value={f.padrao} onChange={(v) => updFaixa(key, "padrao", v)} />
-                  <FaixaInput label="Máximo (%)" value={f.max} onChange={(v) => updFaixa(key, "max", v)} />
+                  <FaixaInput label="Mínimo (%)" value={f.min} onChange={(v) => updFaixa(key, "min", v)} hint={mk(f.min)} />
+                  <FaixaInput label="Recomendado (%)" value={f.recomendado} onChange={(v) => updFaixa(key, "recomendado", v)} hint={mk(f.recomendado)} />
+                  <FaixaInput label="Padrão (%)" value={f.padrao} onChange={(v) => updFaixa(key, "padrao", v)} hint={mk(f.padrao)} />
+                  <FaixaInput label="Máximo (%)" value={f.max} onChange={(v) => updFaixa(key, "max", v)} hint={mk(f.max)} />
                 </div>
               </div>
             );
@@ -109,9 +111,9 @@ const Configuracoes = () => {
           </p>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
-          <FaixaInput label="Margem baixa até (%)" value={variaveis.politicaComercial.alertas.margemBaixaAte} onChange={(v) => updAlerta("margemBaixaAte", v)} />
-          <FaixaInput label="Margem aceitável até (%)" value={variaveis.politicaComercial.alertas.margemAceitavelAte} onChange={(v) => updAlerta("margemAceitavelAte", v)} />
-          <FaixaInput label="Margem boa até (%)" value={variaveis.politicaComercial.alertas.margemBoaAte} onChange={(v) => updAlerta("margemBoaAte", v)} />
+          <FaixaInput label="Margem baixa até (%)" value={variaveis.politicaComercial.alertas.margemBaixaAte} onChange={(v) => updAlerta("margemBaixaAte", v)} hint={formatMarkupFromMargem(variaveis.politicaComercial.alertas.margemBaixaAte)} />
+          <FaixaInput label="Margem aceitável até (%)" value={variaveis.politicaComercial.alertas.margemAceitavelAte} onChange={(v) => updAlerta("margemAceitavelAte", v)} hint={formatMarkupFromMargem(variaveis.politicaComercial.alertas.margemAceitavelAte)} />
+          <FaixaInput label="Margem boa até (%)" value={variaveis.politicaComercial.alertas.margemBoaAte} onChange={(v) => updAlerta("margemBoaAte", v)} hint={formatMarkupFromMargem(variaveis.politicaComercial.alertas.margemBoaAte)} />
           <FaixaInput label="Conflito: alerta abaixo de (%)" value={variaveis.politicaComercial.alertas.conflitoAlertaAbaixoDe} onChange={(v) => updAlerta("conflitoAlertaAbaixoDe", v)} />
           <FaixaInput label="Conflito: atenção abaixo de (%)" value={variaveis.politicaComercial.alertas.conflitoAtencaoAbaixoDe} onChange={(v) => updAlerta("conflitoAtencaoAbaixoDe", v)} />
         </CardContent>
@@ -120,9 +122,12 @@ const Configuracoes = () => {
   );
 };
 
-const FaixaInput = ({ label, value, onChange }: { label: string; value: number; onChange: (v: string) => void }) => (
+const FaixaInput = ({ label, value, onChange, hint }: { label: string; value: number; onChange: (v: string) => void; hint?: string }) => (
   <div className="space-y-1">
-    <Label className="text-xs">{label}</Label>
+    <div className="flex items-center justify-between">
+      <Label className="text-xs">{label}</Label>
+      {hint && <span className="text-[10px] font-mono text-accent tabular-nums">{hint}</span>}
+    </div>
     <Input type="number" step="0.1" value={value} onChange={(e) => onChange(e.target.value)} className="h-9" />
   </div>
 );

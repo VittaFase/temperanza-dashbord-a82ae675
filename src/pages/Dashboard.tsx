@@ -1,5 +1,5 @@
 import { useDashboard } from "@/hooks/useDashboard";
-import { calcularTempero } from "@/lib/calc";
+import { calcularTempero, formatMarkupFromMargem } from "@/lib/calc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AlertTriangle } from "lucide-react";
@@ -55,7 +55,7 @@ const Dashboard = () => {
         <p className="text-xs uppercase tracking-[0.3em] text-gold">Canal Atacado</p>
         <div className="grid gap-4 md:grid-cols-2">
           <Stat label="Valor estoque (venda atacado)" value={brl(totalVendaAtacado)} accent />
-          <Stat label="Margem média atacado" value={`${margemAtacadoMedia.toFixed(1)}%`} accent />
+          <Stat label="Margem média atacado" value={`${margemAtacadoMedia.toFixed(1)}%`} sub={formatMarkupFromMargem(margemAtacadoMedia)} accent />
         </div>
       </section>
 
@@ -63,7 +63,7 @@ const Dashboard = () => {
         <p className="text-xs uppercase tracking-[0.3em] text-gold">Canal Cliente Final</p>
         <div className="grid gap-4 md:grid-cols-2">
           <Stat label="Valor estoque (venda cliente)" value={brl(totalVendaCliente)} accent />
-          <Stat label="Margem média cliente" value={`${margemClienteMedia.toFixed(1)}%`} accent />
+          <Stat label="Margem média cliente" value={`${margemClienteMedia.toFixed(1)}%`} sub={formatMarkupFromMargem(margemClienteMedia)} accent />
         </div>
       </section>
 
@@ -101,11 +101,14 @@ const Dashboard = () => {
   );
 };
 
-const Stat = ({ label, value, accent }: { label: string; value: string; accent?: boolean }) => (
+const Stat = ({ label, value, accent, sub }: { label: string; value: string; accent?: boolean; sub?: string }) => (
   <Card className="shadow-card bg-card-gradient">
     <CardContent className="p-5">
       <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
-      <p className={`font-display text-3xl mt-1 ${accent ? "text-primary" : "text-foreground"}`}>{value}</p>
+      <div className="flex items-baseline gap-3 mt-1">
+        <p className={`font-display text-3xl ${accent ? "text-primary" : "text-foreground"}`}>{value}</p>
+        {sub && <span className="text-sm font-mono text-accent tabular-nums">{sub}</span>}
+      </div>
     </CardContent>
   </Card>
 );
