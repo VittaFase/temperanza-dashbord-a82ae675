@@ -871,7 +871,7 @@ export default function Pedidos() {
                             <div className="min-w-0">
                               <div className="font-medium text-sm truncate">{cliente.nome}</div>
                               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                                {cliente.tipo === "atacado" ? "Atacado" : "Cliente Final"}
+                                {labelCanal(cliente.tipo)}
                                 {cliente.telefone ? ` · ${cliente.telefone}` : ""}
                                 {ultima ? ` · última: ${new Date(ultima).toLocaleDateString("pt-BR")}` : ""}
                               </div>
