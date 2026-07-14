@@ -99,6 +99,7 @@ export const POLITICA_INICIAL: PoliticaComercial = {
     margemBoaAte: 65,
     conflitoAlertaAbaixoDe: 10,
     conflitoAtencaoAbaixoDe: 15,
+    margemMinRepasseDistribuidor: 15,
   },
 };
 
