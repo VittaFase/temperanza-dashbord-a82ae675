@@ -104,6 +104,38 @@ export const VariaveisPanel = ({ variaveis, onChange, onReset }: Props) => {
             ))}
           </div>
         </section>
+
+        <section>
+          <h3 className="text-sm font-semibold mb-3 text-accent">
+            Custos exclusivos do Cliente Final (%)
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Taxa de Cartão (Cliente Final)</Label>
+              <Input
+                type="number"
+                step="0.1"
+                value={variaveis.politicaComercial.custos.taxaCartaoCliente}
+                onChange={(e) =>
+                  onChange({
+                    ...variaveis,
+                    politicaComercial: {
+                      ...variaveis.politicaComercial,
+                      custos: {
+                        ...variaveis.politicaComercial.custos,
+                        taxaCartaoCliente: parseFloat(e.target.value) || 0,
+                      },
+                    },
+                  })
+                }
+                className="h-9"
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Incide apenas na venda direta ao consumidor final.
+              </p>
+            </div>
+          </div>
+        </section>
       </CardContent>
     </Card>
   );
