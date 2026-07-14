@@ -47,6 +47,20 @@ const Simulacao = () => {
     { label: "Cliente × Atacado", diff: diffAC, nivel: diffAC < pc.alertas.conflitoAlertaAbaixoDe ? "alerta" : diffAC < pc.alertas.conflitoAtencaoAbaixoDe ? "atencao" : "ok" },
   ];
 
+  // Saúde do repasse Distribuidor → Atacado: margem bruta que o distribuidor obtém
+  // ao revender ao atacado. Precisa ficar acima de `margemMinRepasseDistribuidor`.
+  const precoDistAvg = avg(linhasSim.map((l) => l.precoDistribuidor));
+  const precoAtacAvg = avg(linhasSim.map((l) => l.precoAtacado));
+  const margemRepasse =
+    precoAtacAvg > 0 ? ((precoAtacAvg - precoDistAvg) / precoAtacAvg) * 100 : 0;
+  const minRepasse = pc.alertas.margemMinRepasseDistribuidor;
+  const nivelRepasse: "ok" | "atencao" | "alerta" =
+    margemRepasse < minRepasse
+      ? "alerta"
+      : margemRepasse < minRepasse + 5
+      ? "atencao"
+      : "ok";
+
   const aplicar = () => {
     setVariaveis({ ...variaveis, markupDistribuidor: mDist, markupAtacado: mAtacado, markupCliente: mCliente });
     toast.success("Markups aplicados e salvos");
