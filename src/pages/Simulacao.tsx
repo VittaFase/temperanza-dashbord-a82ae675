@@ -47,6 +47,20 @@ const Simulacao = () => {
     { label: "Cliente × Atacado", diff: diffAC, nivel: diffAC < pc.alertas.conflitoAlertaAbaixoDe ? "alerta" : diffAC < pc.alertas.conflitoAtencaoAbaixoDe ? "atencao" : "ok" },
   ];
 
+  // Saúde do repasse Distribuidor → Atacado: margem bruta que o distribuidor obtém
+  // ao revender ao atacado. Precisa ficar acima de `margemMinRepasseDistribuidor`.
+  const precoDistAvg = avg(linhasSim.map((l) => l.precoDistribuidor));
+  const precoAtacAvg = avg(linhasSim.map((l) => l.precoAtacado));
+  const margemRepasse =
+    precoAtacAvg > 0 ? ((precoAtacAvg - precoDistAvg) / precoAtacAvg) * 100 : 0;
+  const minRepasse = pc.alertas.margemMinRepasseDistribuidor;
+  const nivelRepasse: "ok" | "atencao" | "alerta" =
+    margemRepasse < minRepasse
+      ? "alerta"
+      : margemRepasse < minRepasse + 5
+      ? "atencao"
+      : "ok";
+
   const aplicar = () => {
     setVariaveis({ ...variaveis, markupDistribuidor: mDist, markupAtacado: mAtacado, markupCliente: mCliente });
     toast.success("Markups aplicados e salvos");
@@ -111,6 +125,48 @@ const Simulacao = () => {
               </div>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-card">
+        <CardHeader>
+          <CardTitle className="font-display text-lg">
+            Saúde da cadeia · Repasse Distribuidor → Atacado
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div
+            className={`flex items-center justify-between rounded-md border p-4 ${
+              nivelRepasse === "alerta"
+                ? "border-destructive/40 bg-destructive/10"
+                : nivelRepasse === "atencao"
+                ? "border-amber-500/40 bg-amber-500/10"
+                : "border-emerald-500/40 bg-emerald-500/10"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {nivelRepasse !== "ok" && <AlertTriangle className="h-4 w-4" />}
+              <div>
+                <p className="text-sm font-medium">
+                  Margem do distribuidor ao revender para o atacado
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Mínimo saudável configurado: {minRepasse.toFixed(0)}% ·
+                  {" "}atacado inclui mercearia, padaria, supermercado, casa de carne, lanchonete etc.
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="font-display text-2xl tabular-nums">{margemRepasse.toFixed(1)}%</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                {nivelRepasse === "alerta"
+                  ? "Insuficiente"
+                  : nivelRepasse === "atencao"
+                  ? "Apertado"
+                  : "Saudável"}
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

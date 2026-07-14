@@ -69,11 +69,19 @@ export type AlertasPolitica = {
   margemBoaAte: number;          // acima → excelente
   conflitoAlertaAbaixoDe: number;  // diferença entre canais
   conflitoAtencaoAbaixoDe: number;
+  /** Margem mínima esperada no repasse Distribuidor → Atacado (%). */
+  margemMinRepasseDistribuidor: number;
+};
+
+export type CustosCanal = {
+  /** Taxa de cartão aplicada somente em venda direta ao Cliente Final (%). */
+  taxaCartaoCliente: number;
 };
 
 export type PoliticaComercial = {
   canais: Record<CanalKey, FaixaCanal>;
   alertas: AlertasPolitica;
+  custos: CustosCanal;
 };
 
 export const POLITICA_INICIAL: PoliticaComercial = {
@@ -82,12 +90,16 @@ export const POLITICA_INICIAL: PoliticaComercial = {
     atacado:      { min: 50, recomendado: 60, padrao: 60, max: 70 },
     marketplace:  { min: 90, recomendado: 120, padrao: 120, max: 150 },
   },
+  custos: {
+    taxaCartaoCliente: 3.5,
+  },
   alertas: {
     margemBaixaAte: 35,
     margemAceitavelAte: 50,
     margemBoaAte: 65,
     conflitoAlertaAbaixoDe: 10,
     conflitoAtencaoAbaixoDe: 15,
+    margemMinRepasseDistribuidor: 15,
   },
 };
 
