@@ -67,8 +67,24 @@ const toVariaveis = (r: DbVariaveis): Variaveis => ({
   markupCliente: Number(r.markup_cliente),
   contabilidadeMensal: Number(r.contabilidade_mensal ?? 500),
   producaoEstimada: Number(r.producao_estimada ?? 2000),
-  politicaComercial: (r.politica_comercial as PoliticaComercial) ?? POLITICA_INICIAL,
+  politicaComercial: mergePolitica(r.politica_comercial as PoliticaComercial | null),
 });
+
+/** Garante que políticas persistidas antes da Onda 1 recebam os novos campos padrão. */
+const mergePolitica = (p: PoliticaComercial | null): PoliticaComercial => {
+  if (!p) return POLITICA_INICIAL;
+  return {
+    canais: p.canais ?? POLITICA_INICIAL.canais,
+    custos: {
+      taxaCartaoCliente:
+        p.custos?.taxaCartaoCliente ?? POLITICA_INICIAL.custos.taxaCartaoCliente,
+    },
+    alertas: {
+      ...POLITICA_INICIAL.alertas,
+      ...(p.alertas ?? {}),
+    },
+  };
+};
 
 export const fetchTemperos = async (userId: string): Promise<Tempero[]> => {
   const { data, error } = await supabase
