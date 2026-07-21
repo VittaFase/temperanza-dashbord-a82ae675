@@ -40,6 +40,7 @@ export type Pedido = {
   total: number;
   observacoes: string | null;
   data_pedido: string;
+  tabela_especial?: boolean;
 };
 
 export type PedidoComItens = Pedido & {
