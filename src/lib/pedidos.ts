@@ -23,6 +23,10 @@ export type ItemPedido = {
   preco_unitario: number;
   desconto: number;
   subtotal: number;
+  /** Preço "de tabela" do canal no momento do pedido (referência). */
+  preco_base?: number | null;
+  /** true quando o preço unitário deste item foi negociado (tabela especial). */
+  tabela_especial?: boolean;
 };
 
 export type Pedido = {
@@ -36,6 +40,7 @@ export type Pedido = {
   total: number;
   observacoes: string | null;
   data_pedido: string;
+  tabela_especial?: boolean;
 };
 
 export type PedidoComItens = Pedido & {
@@ -87,6 +92,7 @@ export const criarPedido = async (
   const subtotal = input.itens.reduce((s, i) => s + i.subtotal, 0);
   const desconto = Math.max(0, Math.min(subtotal, input.desconto ?? 0));
   const total = subtotal - desconto;
+  const pedidoEspecial = input.itens.some((i) => i.tabela_especial);
 
   const { data: pedido, error } = await supabase
     .from("pedidos")
@@ -99,7 +105,8 @@ export const criarPedido = async (
       desconto,
       total,
       status: "confirmado",
-    })
+      tabela_especial: pedidoEspecial,
+    } as any)
     .select("*")
     .single();
   if (error) throw error;
@@ -113,9 +120,11 @@ export const criarPedido = async (
     preco_unitario: i.preco_unitario,
     desconto: i.desconto ?? 0,
     subtotal: i.subtotal,
+    preco_base: i.preco_base ?? null,
+    tabela_especial: !!i.tabela_especial,
   }));
 
-  const { error: e2 } = await supabase.from("itens_pedido").insert(rows);
+  const { error: e2 } = await supabase.from("itens_pedido").insert(rows as any);
   if (e2) {
     await supabase.from("pedidos").delete().eq("id", pedido.id);
     throw e2;
@@ -144,6 +153,7 @@ export const fetchPedidos = async (userId: string, limit = 50): Promise<PedidoCo
     desconto: Number(p.desconto ?? 0),
     total: Number(p.total ?? 0),
     cliente: p.cliente ?? null,
+    tabela_especial: !!p.tabela_especial,
     itens: (p.itens ?? []).map((i: any) => ({
       tempero_id: i.tempero_id,
       nome_produto: i.nome_produto,
@@ -151,6 +161,8 @@ export const fetchPedidos = async (userId: string, limit = 50): Promise<PedidoCo
       preco_unitario: Number(i.preco_unitario),
       desconto: Number(i.desconto ?? 0),
       subtotal: Number(i.subtotal),
+      preco_base: i.preco_base != null ? Number(i.preco_base) : null,
+      tabela_especial: !!i.tabela_especial,
     })),
   })) as PedidoComItens[];
 };

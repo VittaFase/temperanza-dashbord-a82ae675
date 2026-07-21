@@ -49,6 +49,9 @@ const formVazio: ClienteForm = {
 const recalcSubtotal = (i: ItemPedido): ItemPedido => ({
   ...i,
   subtotal: Math.max(0, i.preco_unitario * i.quantidade - (i.desconto ?? 0)),
+  tabela_especial:
+    i.preco_base != null &&
+    Math.abs((i.preco_unitario ?? 0) - (i.preco_base ?? 0)) > 0.005,
 });
 
 export default function Pedidos() {
@@ -76,6 +79,7 @@ export default function Pedidos() {
   const [histCanal, setHistCanal] = useState<"todos" | Canal>("todos");
   const [clienteExpandido, setClienteExpandido] = useState<Set<string>>(new Set());
   const [rangePorCliente, setRangePorCliente] = useState<Record<string, { from?: Date; to?: Date }>>({});
+  const [tabelaEspecial, setTabelaEspecial] = useState(false);
 
   const abrirPreview = (p: PedidoComItens, formato: "a4" | "cupom" = "a4") =>
     setPreview({ open: true, pedido: p, formato });
@@ -101,7 +105,7 @@ export default function Pedidos() {
     setCarrinho((prev) =>
       prev.map((i) => {
         const preco = precoDoProduto(i.tempero_id);
-        return recalcSubtotal({ ...i, preco_unitario: preco });
+        return recalcSubtotal({ ...i, preco_unitario: preco, preco_base: preco });
       })
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -157,6 +161,7 @@ export default function Pedidos() {
           nome_produto: t.nome,
           quantidade: 1,
           preco_unitario: preco,
+          preco_base: preco,
           desconto: 0,
           subtotal: 0,
         }),
@@ -188,6 +193,26 @@ export default function Pedidos() {
     );
   };
 
+  const mudarPrecoItem = (id: string, valor: number) => {
+    setCarrinho((prev) =>
+      prev.map((i) =>
+        i.tempero_id === id
+          ? recalcSubtotal({ ...i, preco_unitario: Math.max(0, valor) })
+          : i
+      )
+    );
+  };
+
+  const resetPrecoItem = (id: string) => {
+    setCarrinho((prev) =>
+      prev.map((i) => {
+        if (i.tempero_id !== id) return i;
+        const base = i.preco_base ?? precoDoProduto(i.tempero_id);
+        return recalcSubtotal({ ...i, preco_unitario: base, preco_base: base });
+      })
+    );
+  };
+
   const removerItem = (id: string) =>
     setCarrinho((prev) => prev.filter((i) => i.tempero_id !== id));
 
@@ -213,6 +238,7 @@ export default function Pedidos() {
             nome_produto: t.nome,
             quantidade: it.quantidade,
             preco_unitario: preco,
+            preco_base: preco,
             desconto: 0,
             subtotal: 0,
           }));
@@ -273,6 +299,7 @@ export default function Pedidos() {
       setDescontoGeral("");
       setCupomInput("");
       setClienteSel(null);
+      setTabelaEspecial(false);
       window.dispatchEvent(new Event("temperos:refresh"));
     } catch (e: any) {
       toast.error(e.message ?? "Erro ao registrar pedido");
@@ -297,11 +324,14 @@ export default function Pedidos() {
         if (p.canal === "atacado") return c.precoAtacado;
         return c.precoCliente;
       })();
+      const precoOriginal = Number(item.preco_unitario) || preco;
+      const usarEspecial = !!item.tabela_especial && precoOriginal > 0;
       novos.push(recalcSubtotal({
         tempero_id: item.tempero_id,
         nome_produto: t.nome,
         quantidade: qtd,
-        preco_unitario: preco,
+        preco_unitario: usarEspecial ? precoOriginal : preco,
+        preco_base: preco,
         desconto: 0,
         subtotal: 0,
       }));
@@ -315,6 +345,7 @@ export default function Pedidos() {
     setCarrinho(novos);
     setObs(p.observacoes ?? "");
     setDescontoGeral("");
+    setTabelaEspecial(novos.some((i) => i.tabela_especial));
     toast.success(ajustou ? "Pedido duplicado (quantidades ajustadas ao estoque)" : "Pedido duplicado no carrinho");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -435,22 +466,49 @@ export default function Pedidos() {
             Registro de vendas, baixa automática de estoque e nota não fiscal.
           </p>
         </div>
-        <ToggleGroup
-          type="single"
-          value={canal}
-          onValueChange={(v) => v && setCanal(v as Canal)}
-          className="border rounded-md"
-        >
-          <ToggleGroupItem value="cliente_final" className="px-3">
-            Cliente Final
-          </ToggleGroupItem>
-          <ToggleGroupItem value="atacado" className="px-3">
-            Atacado
-          </ToggleGroupItem>
-          <ToggleGroupItem value="distribuidor" className="px-3">
-            Distribuidor
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !tabelaEspecial;
+              setTabelaEspecial(next);
+              if (!next) {
+                // ao desligar, recompõe os preços com o base do canal
+                setCarrinho((prev) =>
+                  prev.map((i) => {
+                    const base = i.preco_base ?? precoDoProduto(i.tempero_id);
+                    return recalcSubtotal({ ...i, preco_unitario: base, preco_base: base });
+                  })
+                );
+              }
+            }}
+            className={cn(
+              "h-9 px-3 rounded-md border text-xs uppercase tracking-widest transition",
+              tabelaEspecial
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background hover:border-primary/60"
+            )}
+            title="Ativar preços negociados por item para este pedido"
+          >
+            Tabela especial {tabelaEspecial ? "· ON" : "· OFF"}
+          </button>
+          <ToggleGroup
+            type="single"
+            value={canal}
+            onValueChange={(v) => v && setCanal(v as Canal)}
+            className="border rounded-md"
+          >
+            <ToggleGroupItem value="cliente_final" className="px-3">
+              Cliente Final
+            </ToggleGroupItem>
+            <ToggleGroupItem value="atacado" className="px-3">
+              Atacado
+            </ToggleGroupItem>
+            <ToggleGroupItem value="distribuidor" className="px-3">
+              Distribuidor
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_380px] gap-4">
@@ -650,10 +708,55 @@ export default function Pedidos() {
                     </Button>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] text-muted-foreground">{brl(i.preco_unitario)}</div>
+                    <div className="text-[10px] text-muted-foreground flex items-center gap-1 justify-end">
+                      {i.tabela_especial && i.preco_base != null && (
+                        <span className="line-through opacity-60">{brl(i.preco_base)}</span>
+                      )}
+                      <span className={cn(i.tabela_especial && "text-amber-600 font-semibold")}>
+                        {brl(i.preco_unitario)}
+                      </span>
+                    </div>
                     <div className="font-display">{brl(i.subtotal)}</div>
                   </div>
                 </div>
+                {tabelaEspecial && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                      Preço
+                    </span>
+                    <Input
+                      type="number" min={0} step="0.01"
+                      value={i.preco_unitario || ""}
+                      placeholder={i.preco_base != null ? brl(i.preco_base) : "R$ 0,00"}
+                      onChange={(e) => mudarPrecoItem(i.tempero_id, Number(e.target.value) || 0)}
+                      className={cn(
+                        "h-6 text-xs px-2",
+                        i.tabela_especial && "border-amber-500"
+                      )}
+                    />
+                    {i.tabela_especial && i.preco_base != null && i.preco_base > 0 && (
+                      <>
+                        <span
+                          className={cn(
+                            "text-[10px] tabular-nums",
+                            i.preco_unitario < i.preco_base ? "text-destructive" : "text-herb-green"
+                          )}
+                          title={`Base ${labelCanal(canal)}: ${brl(i.preco_base)}`}
+                        >
+                          {((i.preco_unitario / i.preco_base - 1) * 100).toFixed(1)}%
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => resetPrecoItem(i.tempero_id)}
+                          className="text-[10px] uppercase tracking-widest text-muted-foreground hover:text-primary"
+                          title="Voltar ao preço base do canal"
+                        >
+                          ↺
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Desc.</span>
                   <Input

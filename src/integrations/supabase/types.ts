@@ -273,9 +273,11 @@ export type Database = {
           id: string
           nome_produto: string
           pedido_id: string
+          preco_base: number | null
           preco_unitario: number
           quantidade: number
           subtotal: number
+          tabela_especial: boolean
           tempero_id: string
           user_id: string
         }
@@ -285,9 +287,11 @@ export type Database = {
           id?: string
           nome_produto: string
           pedido_id: string
+          preco_base?: number | null
           preco_unitario: number
           quantidade: number
           subtotal: number
+          tabela_especial?: boolean
           tempero_id: string
           user_id: string
         }
@@ -297,9 +301,11 @@ export type Database = {
           id?: string
           nome_produto?: string
           pedido_id?: string
+          preco_base?: number | null
           preco_unitario?: number
           quantidade?: number
           subtotal?: number
+          tabela_especial?: boolean
           tempero_id?: string
           user_id?: string
         }
@@ -387,6 +393,7 @@ export type Database = {
           observacoes: string | null
           status: string
           subtotal: number
+          tabela_especial: boolean
           total: number
           updated_at: string
           user_id: string
@@ -404,6 +411,7 @@ export type Database = {
           observacoes?: string | null
           status?: string
           subtotal?: number
+          tabela_especial?: boolean
           total?: number
           updated_at?: string
           user_id: string
@@ -421,6 +429,7 @@ export type Database = {
           observacoes?: string | null
           status?: string
           subtotal?: number
+          tabela_especial?: boolean
           total?: number
           updated_at?: string
           user_id?: string
