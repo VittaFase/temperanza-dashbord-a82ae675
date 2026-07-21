@@ -153,6 +153,7 @@ export const fetchPedidos = async (userId: string, limit = 50): Promise<PedidoCo
     desconto: Number(p.desconto ?? 0),
     total: Number(p.total ?? 0),
     cliente: p.cliente ?? null,
+    tabela_especial: !!p.tabela_especial,
     itens: (p.itens ?? []).map((i: any) => ({
       tempero_id: i.tempero_id,
       nome_produto: i.nome_produto,
@@ -160,6 +161,8 @@ export const fetchPedidos = async (userId: string, limit = 50): Promise<PedidoCo
       preco_unitario: Number(i.preco_unitario),
       desconto: Number(i.desconto ?? 0),
       subtotal: Number(i.subtotal),
+      preco_base: i.preco_base != null ? Number(i.preco_base) : null,
+      tabela_especial: !!i.tabela_especial,
     })),
   })) as PedidoComItens[];
 };
