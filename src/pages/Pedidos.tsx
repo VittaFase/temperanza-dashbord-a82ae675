@@ -193,6 +193,26 @@ export default function Pedidos() {
     );
   };
 
+  const mudarPrecoItem = (id: string, valor: number) => {
+    setCarrinho((prev) =>
+      prev.map((i) =>
+        i.tempero_id === id
+          ? recalcSubtotal({ ...i, preco_unitario: Math.max(0, valor) })
+          : i
+      )
+    );
+  };
+
+  const resetPrecoItem = (id: string) => {
+    setCarrinho((prev) =>
+      prev.map((i) => {
+        if (i.tempero_id !== id) return i;
+        const base = i.preco_base ?? precoDoProduto(i.tempero_id);
+        return recalcSubtotal({ ...i, preco_unitario: base, preco_base: base });
+      })
+    );
+  };
+
   const removerItem = (id: string) =>
     setCarrinho((prev) => prev.filter((i) => i.tempero_id !== id));
 
