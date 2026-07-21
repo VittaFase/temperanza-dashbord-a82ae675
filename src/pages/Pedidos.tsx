@@ -238,6 +238,7 @@ export default function Pedidos() {
             nome_produto: t.nome,
             quantidade: it.quantidade,
             preco_unitario: preco,
+            preco_base: preco,
             desconto: 0,
             subtotal: 0,
           }));
