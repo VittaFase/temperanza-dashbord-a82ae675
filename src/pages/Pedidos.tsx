@@ -466,22 +466,49 @@ export default function Pedidos() {
             Registro de vendas, baixa automática de estoque e nota não fiscal.
           </p>
         </div>
-        <ToggleGroup
-          type="single"
-          value={canal}
-          onValueChange={(v) => v && setCanal(v as Canal)}
-          className="border rounded-md"
-        >
-          <ToggleGroupItem value="cliente_final" className="px-3">
-            Cliente Final
-          </ToggleGroupItem>
-          <ToggleGroupItem value="atacado" className="px-3">
-            Atacado
-          </ToggleGroupItem>
-          <ToggleGroupItem value="distribuidor" className="px-3">
-            Distribuidor
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !tabelaEspecial;
+              setTabelaEspecial(next);
+              if (!next) {
+                // ao desligar, recompõe os preços com o base do canal
+                setCarrinho((prev) =>
+                  prev.map((i) => {
+                    const base = i.preco_base ?? precoDoProduto(i.tempero_id);
+                    return recalcSubtotal({ ...i, preco_unitario: base, preco_base: base });
+                  })
+                );
+              }
+            }}
+            className={cn(
+              "h-9 px-3 rounded-md border text-xs uppercase tracking-widest transition",
+              tabelaEspecial
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background hover:border-primary/60"
+            )}
+            title="Ativar preços negociados por item para este pedido"
+          >
+            Tabela especial {tabelaEspecial ? "· ON" : "· OFF"}
+          </button>
+          <ToggleGroup
+            type="single"
+            value={canal}
+            onValueChange={(v) => v && setCanal(v as Canal)}
+            className="border rounded-md"
+          >
+            <ToggleGroupItem value="cliente_final" className="px-3">
+              Cliente Final
+            </ToggleGroupItem>
+            <ToggleGroupItem value="atacado" className="px-3">
+              Atacado
+            </ToggleGroupItem>
+            <ToggleGroupItem value="distribuidor" className="px-3">
+              Distribuidor
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_380px] gap-4">
