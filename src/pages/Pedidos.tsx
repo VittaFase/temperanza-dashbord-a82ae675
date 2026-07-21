@@ -299,6 +299,7 @@ export default function Pedidos() {
       setDescontoGeral("");
       setCupomInput("");
       setClienteSel(null);
+      setTabelaEspecial(false);
       window.dispatchEvent(new Event("temperos:refresh"));
     } catch (e: any) {
       toast.error(e.message ?? "Erro ao registrar pedido");
