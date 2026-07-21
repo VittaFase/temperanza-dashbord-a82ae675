@@ -92,6 +92,7 @@ export const criarPedido = async (
   const subtotal = input.itens.reduce((s, i) => s + i.subtotal, 0);
   const desconto = Math.max(0, Math.min(subtotal, input.desconto ?? 0));
   const total = subtotal - desconto;
+  const pedidoEspecial = input.itens.some((i) => i.tabela_especial);
 
   const { data: pedido, error } = await supabase
     .from("pedidos")
@@ -104,7 +105,8 @@ export const criarPedido = async (
       desconto,
       total,
       status: "confirmado",
-    })
+      tabela_especial: pedidoEspecial,
+    } as any)
     .select("*")
     .single();
   if (error) throw error;
@@ -118,9 +120,11 @@ export const criarPedido = async (
     preco_unitario: i.preco_unitario,
     desconto: i.desconto ?? 0,
     subtotal: i.subtotal,
+    preco_base: i.preco_base ?? null,
+    tabela_especial: !!i.tabela_especial,
   }));
 
-  const { error: e2 } = await supabase.from("itens_pedido").insert(rows);
+  const { error: e2 } = await supabase.from("itens_pedido").insert(rows as any);
   if (e2) {
     await supabase.from("pedidos").delete().eq("id", pedido.id);
     throw e2;
