@@ -344,6 +344,7 @@ export default function Pedidos() {
     setCarrinho(novos);
     setObs(p.observacoes ?? "");
     setDescontoGeral("");
+    setTabelaEspecial(novos.some((i) => i.tabela_especial));
     toast.success(ajustou ? "Pedido duplicado (quantidades ajustadas ao estoque)" : "Pedido duplicado no carrinho");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
