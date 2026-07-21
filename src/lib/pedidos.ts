@@ -23,6 +23,10 @@ export type ItemPedido = {
   preco_unitario: number;
   desconto: number;
   subtotal: number;
+  /** Preço "de tabela" do canal no momento do pedido (referência). */
+  preco_base?: number | null;
+  /** true quando o preço unitário deste item foi negociado (tabela especial). */
+  tabela_especial?: boolean;
 };
 
 export type Pedido = {
