@@ -105,7 +105,7 @@ export default function Pedidos() {
     setCarrinho((prev) =>
       prev.map((i) => {
         const preco = precoDoProduto(i.tempero_id);
-        return recalcSubtotal({ ...i, preco_unitario: preco });
+        return recalcSubtotal({ ...i, preco_unitario: preco, preco_base: preco });
       })
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
