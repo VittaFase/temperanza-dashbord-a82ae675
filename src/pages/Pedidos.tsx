@@ -323,11 +323,14 @@ export default function Pedidos() {
         if (p.canal === "atacado") return c.precoAtacado;
         return c.precoCliente;
       })();
+      const precoOriginal = Number(item.preco_unitario) || preco;
+      const usarEspecial = !!item.tabela_especial && precoOriginal > 0;
       novos.push(recalcSubtotal({
         tempero_id: item.tempero_id,
         nome_produto: t.nome,
         quantidade: qtd,
-        preco_unitario: preco,
+        preco_unitario: usarEspecial ? precoOriginal : preco,
+        preco_base: preco,
         desconto: 0,
         subtotal: 0,
       }));
