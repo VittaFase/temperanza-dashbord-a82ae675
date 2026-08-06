@@ -598,11 +598,11 @@ export default function Pedidos() {
             />
           </div>
           {blends.length > 0 && (
-            <div className="border rounded-md bg-primary/5 p-2 space-y-1.5">
+            <div className="border rounded-md bg-primary/5 p-2 space-y-2">
               <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
                 <Package2 className="h-3 w-3" /> Blends (kit 12 potes)
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-col gap-2">
                 {blends.map((b) => {
                   const disp = blendsDisponiveis(b, temperos);
                   const preco = b.itens.reduce(
@@ -610,17 +610,39 @@ export default function Pedidos() {
                     0
                   );
                   return (
-                    <button
+                    <div
                       key={b.id}
-                      disabled={disp <= 0}
-                      onClick={() => adicionarBlend(b)}
-                      title={`${disp} disponível(is) · ${brl(preco)}`}
-                      className="text-[11px] px-2 py-1 rounded border bg-background hover:border-primary hover:bg-primary/10 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                      className="rounded border bg-background overflow-hidden"
                     >
-                      <span className="font-medium">{b.nome.replace("Blend ", "")}</span>
-                      <span className="text-primary tabular-nums">{brl(preco)}</span>
-                      {disp <= 0 && <span className="text-destructive text-[9px]">esgotado</span>}
-                    </button>
+                      <button
+                        disabled={disp <= 0}
+                        onClick={() => adicionarBlend(b)}
+                        title={`${disp} disponível(is)`}
+                        className="w-full text-left p-2 hover:bg-primary/5 transition disabled:opacity-40 disabled:cursor-not-allowed group"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-bold uppercase tracking-wide">
+                            {b.nome.replace("Blend ", "")}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-primary tabular-nums text-xs font-semibold">{brl(preco)}</span>
+                            {disp <= 0 && <span className="text-destructive text-[9px] uppercase font-bold">esgotado</span>}
+                          </div>
+                        </div>
+                        
+                        <div className="mt-1.5 grid grid-cols-1 gap-0.5 border-t border-dashed pt-1.5">
+                          {b.itens.map((it, idx) => {
+                            const t = temperos.find(x => x.id === it.tempero_id);
+                            return (
+                              <div key={idx} className="flex justify-between text-[10px] text-muted-foreground group-hover:text-foreground transition-colors">
+                                <span className="truncate pr-2">• {t?.nome || "Produto"}</span>
+                                <span className="tabular-nums font-medium whitespace-nowrap">{it.quantidade} potes</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -689,22 +711,33 @@ export default function Pedidos() {
                 Clique em um produto para adicionar.
               </p>
             )}
-            {carrinho.map((i) => (
-              <div key={i.tempero_id} className="border rounded-md p-2 text-xs space-y-1.5">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="font-medium leading-tight">{i.nome_produto}</div>
-                  <button onClick={() => removerItem(i.tempero_id)} className="text-muted-foreground hover:text-destructive">
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => mudarQtd(i.tempero_id, -1)}>
-                      <Minus className="h-3 w-3" />
-                    </Button>
-                    <span className="w-8 text-center tabular-nums">{i.quantidade}</span>
-                    <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => mudarQtd(i.tempero_id, +1)}>
-                      <Plus className="h-3 w-3" />
+            {carrinho.map((i) => {
+              const tempero = temperos.find(t => t.id === i.tempero_id);
+              // Tenta identificar se é parte de um blend pela quantidade (se múltiplo de potes do blend)
+              // ou apenas exibe a SKU/detalhes se disponíveis
+              return (
+                <div key={i.tempero_id} className="border rounded-md p-2 text-xs space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="font-medium leading-tight truncate">{i.nome_produto}</div>
+                      {tempero?.sku && (
+                        <div className="text-[9px] text-muted-foreground uppercase tracking-tighter">
+                          SKU: {tempero.sku}
+                        </div>
+                      )}
+                    </div>
+                    <button onClick={() => removerItem(i.tempero_id)} className="text-muted-foreground hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => mudarQtd(i.tempero_id, -1)}>
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      <span className="w-8 text-center tabular-nums">{i.quantidade}</span>
+                      <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => mudarQtd(i.tempero_id, +1)}>
+                        <Plus className="h-3 w-3" />
                     </Button>
                   </div>
                   <div className="text-right">
@@ -767,11 +800,12 @@ export default function Pedidos() {
                     className="h-6 text-xs px-2"
                   />
                 </div>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
 
-          <Separator />
+        <Separator />
 
           <Textarea
             placeholder="Observações do pedido..."
