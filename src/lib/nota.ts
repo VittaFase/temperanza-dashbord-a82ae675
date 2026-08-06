@@ -40,7 +40,10 @@ export const gerarNotaHTML = (p: PedidoComItens): string => {
 <style>
   :root { color-scheme: light; }
   * { box-sizing: border-box; }
-  html { background: #ffffff; }
+  *, *::before, *::after { color: #1a1512 !important; -webkit-text-fill-color: #1a1512 !important; text-shadow: none !important; opacity: 1 !important; background-image: none !important; }
+  .muted, .muted * { color: #555555 !important; -webkit-text-fill-color: #555555 !important; }
+  .no-print button, .no-print button * { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+  html { background: #ffffff !important; }
   body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #1a1512 !important; background: #ffffff !important; padding: 32px; max-width: 800px; margin: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   h1 { font-family: Georgia, serif; letter-spacing: .1em; text-transform: uppercase; font-size: 22px; margin: 0; color: #1a1512; }
   .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1512; padding-bottom: 16px; margin-bottom: 24px; }
@@ -56,7 +59,7 @@ export const gerarNotaHTML = (p: PedidoComItens): string => {
   .totais .grand { border-top: 2px solid #1a1512; margin-top: 6px; padding-top: 8px; font-size: 18px; font-weight: 700; }
   .footer { margin-top: 40px; font-size: 11px; color: #888; text-align: center; border-top: 1px solid #e5e0d8; padding-top: 12px; }
   .badge { display: inline-block; padding: 3px 10px; border: 1px solid #1a1512; border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: #1a1512; }
-  @media print { html, body { background: #ffffff !important; color: #1a1512 !important; } body { padding: 0; } .no-print { display: none; } }
+  @media print { html, body { background: #ffffff !important; color: #1a1512 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } *, *::before, *::after { color: #1a1512 !important; -webkit-text-fill-color: #1a1512 !important; opacity: 1 !important; } .muted, .muted * { color: #555555 !important; -webkit-text-fill-color: #555555 !important; } body { padding: 0; } .no-print { display: none; } }
 </style>
 </head><body>
   <div class="header">
@@ -133,7 +136,10 @@ export const gerarCupom80mmHTML = (p: PedidoComItens): string => {
   @page { size: 80mm auto; margin: 3mm; }
   :root { color-scheme: light; }
   * { box-sizing: border-box; }
-  html { background: #ffffff; }
+  *, *::before, *::after { color: #000000 !important; -webkit-text-fill-color: #000000 !important; text-shadow: none !important; opacity: 1 !important; background-image: none !important; }
+  .muted, .muted * { color: #444444 !important; -webkit-text-fill-color: #444444 !important; }
+  .no-print button, .no-print button * { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+  html { background: #ffffff !important; }
   body { font-family: "Menlo", "Courier New", monospace; font-size: 11px; color: #000 !important; background: #ffffff !important; width: 74mm; margin: 0; padding: 4mm 2mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   h1 { font-size: 13px; text-align: center; margin: 0 0 2mm; letter-spacing: .05em; color: #000; }
   .muted { color: #444; }
@@ -143,7 +149,7 @@ export const gerarCupom80mmHTML = (p: PedidoComItens): string => {
   .item { margin: 2mm 0; color: #000; }
   .total { font-size: 14px; font-weight: 700; }
   .no-print { margin-top: 4mm; }
-  @media print { html, body { background: #ffffff !important; color: #000 !important; } .no-print { display: none; } body { padding: 0; } }
+  @media print { html, body { background: #ffffff !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } *, *::before, *::after { color: #000000 !important; -webkit-text-fill-color: #000000 !important; opacity: 1 !important; } .muted, .muted * { color: #444444 !important; -webkit-text-fill-color: #444444 !important; } .no-print { display: none; } body { padding: 0; } }
 </style>
 </head><body>
   <div class="center"><img src="${LOGO_URL}" alt="Temperanzza" style="width:20mm; height:20mm; object-fit:contain" crossorigin="anonymous"/></div>
