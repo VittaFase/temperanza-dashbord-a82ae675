@@ -38,7 +38,7 @@ const opcoes = (formato: FormatoNota, alvo: HTMLElement) => {
   const secundario = formato === "cupom" ? "#444444" : "#555555";
   return {
     margin: 0,
-    image: { type: "jpeg", quality: 0.98 },
+    image: { type: "jpeg" as const, quality: 0.98 },
     html2canvas: {
       scale: 2,
       useCORS: true,
