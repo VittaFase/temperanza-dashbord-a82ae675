@@ -802,10 +802,11 @@ export default function Pedidos() {
                 </div>
               </div>
             );
+            );
           })}
         </div>
 
-          <Separator />
+        <Separator />
 
           <Textarea
             placeholder="Observações do pedido..."
