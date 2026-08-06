@@ -105,11 +105,11 @@ export function NotaPreviewDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col gap-0">
-        <DialogHeader className="px-5 py-3 border-b flex-row items-center justify-between space-y-0">
+        <DialogHeader className="px-5 py-3 border-b flex-row items-center justify-between gap-2 space-y-0 flex-wrap">
           <DialogTitle className="font-display tracking-wide">
             Pré-visualização — Nota Nº {numero}
           </DialogTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {pedido && formato === "a4" && (
               <Button size="sm" variant="outline" onClick={() => abrirCupom80mm(pedido)}>
                 <Receipt className="h-4 w-4 mr-1" /> Cupom 80mm
@@ -117,6 +117,9 @@ export function NotaPreviewDialog({
             )}
             <Button size="sm" variant="outline" onClick={imprimir}>
               <Printer className="h-4 w-4 mr-1" /> Imprimir
+            </Button>
+            <Button size="sm" variant="outline" onClick={enviarWhatsApp}>
+              <MessageCircle className="h-4 w-4 mr-1" /> WhatsApp
             </Button>
             <Button size="sm" onClick={baixarPDF}>
               <Download className="h-4 w-4 mr-1" /> Baixar PDF
