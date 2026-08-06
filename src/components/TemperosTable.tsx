@@ -37,7 +37,8 @@ export const TemperosTable = ({ temperos, variaveis, onUpdate, onDelete, onAdd }
           <Plus className="h-4 w-4" /> Adicionar
         </Button>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
+      <CardContent className="overflow-x-auto relative">
+        <p className="lg:hidden text-[10px] text-muted-foreground pb-2">Arraste para o lado para ver mais colunas →</p>
         <Table>
           <TableHeader>
             <TableRow className="bg-secondary/60">
