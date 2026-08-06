@@ -28,7 +28,8 @@ const MARGEM_CLASSES: Record<FaixaMargem, string> = {
 
 const Produtos = () => {
   const { temperos, variaveis, updateTempero, deleteTempero, addTempero } = useDashboard();
-  const [q, setQ] = useState("");
+  const [searchParams] = useSearchParams();
+  const [q, setQ] = useState(searchParams.get("q") ?? "");
   const [editing, setEditing] = useState<Tempero | null>(null);
 
   const filtrados = temperos.filter((t) => {
