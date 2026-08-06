@@ -40,7 +40,10 @@ export const gerarNotaHTML = (p: PedidoComItens): string => {
 <style>
   :root { color-scheme: light; }
   * { box-sizing: border-box; }
-  html { background: #ffffff; }
+  *, *::before, *::after { color: #1a1512 !important; -webkit-text-fill-color: #1a1512 !important; text-shadow: none !important; opacity: 1 !important; background-image: none !important; }
+  .muted, .muted * { color: #555555 !important; -webkit-text-fill-color: #555555 !important; }
+  .no-print button, .no-print button * { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+  html { background: #ffffff !important; }
   body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #1a1512 !important; background: #ffffff !important; padding: 32px; max-width: 800px; margin: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   h1 { font-family: Georgia, serif; letter-spacing: .1em; text-transform: uppercase; font-size: 22px; margin: 0; color: #1a1512; }
   .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1512; padding-bottom: 16px; margin-bottom: 24px; }
