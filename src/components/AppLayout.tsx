@@ -3,7 +3,6 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { DashboardProvider, useDashboard } from "@/hooks/useDashboard";
 import { Loader2 } from "lucide-react";
-import { VoiceCommandBar } from "@/components/VoiceCommandBar";
 
 const Shell = () => {
   const { loading } = useDashboard();
@@ -17,7 +16,6 @@ const Shell = () => {
           <span className="font-display text-sm text-muted-foreground tracking-[0.2em]">
             Custos & Precificação
           </span>
-          <VoiceCommandBar />
         </header>
         <main className="flex-1 overflow-auto">
           {loading ? (
