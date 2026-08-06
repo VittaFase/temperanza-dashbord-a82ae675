@@ -48,11 +48,13 @@ const formVazio: ClienteForm = {
 
 const recalcSubtotal = (i: ItemPedido): ItemPedido => ({
   ...i,
-  subtotal: Math.max(0, i.preco_unitario * i.quantidade - (i.desconto ?? 0)),
+  desconto: 0,
+  subtotal: Math.max(0, i.preco_unitario * i.quantidade),
   tabela_especial:
     i.preco_base != null &&
     Math.abs((i.preco_unitario ?? 0) - (i.preco_base ?? 0)) > 0.005,
 });
+
 
 export default function Pedidos() {
   const { user } = useAuth();
