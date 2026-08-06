@@ -67,8 +67,8 @@ const opcoes = (formato: FormatoNota, alvo: HTMLElement) => {
     },
     jsPDF:
       formato === "cupom"
-        ? { unit: "mm", format: [80, 297], orientation: "portrait" }
-        : { unit: "mm", format: "a4", orientation: "portrait" },
+        ? { unit: "mm", format: [80, 297] as [number, number], orientation: "portrait" as const }
+        : { unit: "mm", format: "a4", orientation: "portrait" as const },
   };
 };
 
