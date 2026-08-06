@@ -11,7 +11,7 @@ const Shell = () => {
       <AppSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-12 flex items-center border-b bg-card/50 backdrop-blur px-2 gap-3">
-          <SidebarTrigger />
+          <SidebarTrigger className="h-11 w-11 md:h-9 md:w-9" aria-label="Abrir menu de navegação" />
           <span className="brand-chip">Temperanzza</span>
           <span className="font-display text-sm text-muted-foreground tracking-[0.2em]">
             Custos & Precificação

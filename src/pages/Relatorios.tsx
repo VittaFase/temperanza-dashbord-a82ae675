@@ -18,7 +18,7 @@ const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 type Periodo = "7" | "30" | "90" | "all";
-type CanalFiltro = "todos" | "atacado" | "cliente_final";
+type CanalFiltro = "todos" | "distribuidor" | "atacado" | "cliente_final";
 
 export default function Relatorios() {
   const { user } = useAuth();
@@ -128,7 +128,7 @@ export default function Relatorios() {
         String(p.numero).padStart(6, "0"),
         new Date(p.data_pedido).toLocaleString("pt-BR"),
         p.cliente?.nome ?? "Consumidor não identificado",
-        p.canal === "atacado" ? "Atacado" : "Cliente Final",
+        p.canal === "atacado" ? "Atacado" : p.canal === "distribuidor" ? "Distribuidor" : "Cliente Final",
         String(p.itens.length),
         String(p.itens.reduce((s, i) => s + i.quantidade, 0)),
         Number(p.total).toFixed(2).replace(".", ","),
@@ -164,6 +164,7 @@ export default function Relatorios() {
             <ToggleGroupItem value="todos" className="px-3 text-xs">Todos</ToggleGroupItem>
             <ToggleGroupItem value="cliente_final" className="px-3 text-xs">Cliente</ToggleGroupItem>
             <ToggleGroupItem value="atacado" className="px-3 text-xs">Atacado</ToggleGroupItem>
+            <ToggleGroupItem value="distribuidor" className="px-3 text-xs">Distribuidor</ToggleGroupItem>
           </ToggleGroup>
           <Button variant="outline" size="sm" onClick={exportCSV} disabled={filtrados.length === 0}>
             <Download className="h-3 w-3 mr-1" /> CSV
