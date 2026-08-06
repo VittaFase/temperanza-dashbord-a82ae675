@@ -2,8 +2,8 @@ import { useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { PedidoComItens } from "@/lib/pedidos";
-import { gerarNotaHTML, gerarCupom80mmHTML, abrirCupom80mm } from "@/lib/nota";
-import { Printer, Download, Receipt, X } from "lucide-react";
+import { gerarNotaHTML, gerarCupom80mmHTML, abrirCupom80mm, enviarNotaWhatsApp } from "@/lib/nota";
+import { Printer, Download, Receipt, X, MessageCircle } from "lucide-react";
 import html2pdf from "html2pdf.js";
 import { toast } from "sonner";
 
