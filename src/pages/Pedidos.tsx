@@ -719,54 +719,43 @@ export default function Pedidos() {
                     <div className="font-display">{brl(i.subtotal)}</div>
                   </div>
                 </div>
-                {tabelaEspecial && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                      Preço
-                    </span>
-                    <Input
-                      type="number" min={0} step="0.01"
-                      value={i.preco_unitario || ""}
-                      placeholder={i.preco_base != null ? brl(i.preco_base) : "R$ 0,00"}
-                      onChange={(e) => mudarPrecoItem(i.tempero_id, Number(e.target.value) || 0)}
-                      className={cn(
-                        "h-6 text-xs px-2",
-                        i.tabela_especial && "border-amber-500"
-                      )}
-                    />
-                    {i.tabela_especial && i.preco_base != null && i.preco_base > 0 && (
-                      <>
-                        <span
-                          className={cn(
-                            "text-[10px] tabular-nums",
-                            i.preco_unitario < i.preco_base ? "text-destructive" : "text-herb-green"
-                          )}
-                          title={`Base ${labelCanal(canal)}: ${brl(i.preco_base)}`}
-                        >
-                          {((i.preco_unitario / i.preco_base - 1) * 100).toFixed(1)}%
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => resetPrecoItem(i.tempero_id)}
-                          className="text-[10px] uppercase tracking-widest text-muted-foreground hover:text-primary"
-                          title="Voltar ao preço base do canal"
-                        >
-                          ↺
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Desc.</span>
+                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                    Valor especial
+                  </span>
                   <Input
                     type="number" min={0} step="0.01"
-                    value={i.desconto || ""}
-                    placeholder="R$ 0,00"
-                    onChange={(e) => mudarDescontoItem(i.tempero_id, Number(e.target.value) || 0)}
-                    className="h-6 text-xs px-2"
+                    value={i.preco_unitario || ""}
+                    placeholder={i.preco_base != null ? brl(i.preco_base) : "R$ 0,00"}
+                    onChange={(e) => mudarPrecoItem(i.tempero_id, Number(e.target.value) || 0)}
+                    className={cn(
+                      "h-6 text-xs px-2",
+                      i.tabela_especial && "border-amber-500"
+                    )}
                   />
+                  {i.tabela_especial && i.preco_base != null && i.preco_base > 0 && (
+                    <>
+                      <span
+                        className={cn(
+                          "text-[10px] tabular-nums",
+                          i.preco_unitario < i.preco_base ? "text-destructive" : "text-herb-green"
+                        )}
+                        title={`Base ${labelCanal(canal)}: ${brl(i.preco_base)}`}
+                      >
+                        {((i.preco_unitario / i.preco_base - 1) * 100).toFixed(1)}%
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => resetPrecoItem(i.tempero_id)}
+                        className="text-[10px] uppercase tracking-widest text-muted-foreground hover:text-primary"
+                        title="Voltar ao preço base do canal"
+                      >
+                        ↺
+                      </button>
+                    </>
+                  )}
                 </div>
+
               </div>
             ))}
           </div>
