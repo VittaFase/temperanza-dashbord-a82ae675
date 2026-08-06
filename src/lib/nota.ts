@@ -131,17 +131,19 @@ export const gerarCupom80mmHTML = (p: PedidoComItens): string => {
 <title>Cupom #${numero}</title>
 <style>
   @page { size: 80mm auto; margin: 3mm; }
+  :root { color-scheme: light; }
   * { box-sizing: border-box; }
-  body { font-family: "Menlo", "Courier New", monospace; font-size: 11px; color: #000; width: 74mm; margin: 0; padding: 4mm 2mm; }
-  h1 { font-size: 13px; text-align: center; margin: 0 0 2mm; letter-spacing: .05em; }
+  html { background: #ffffff; }
+  body { font-family: "Menlo", "Courier New", monospace; font-size: 11px; color: #000 !important; background: #ffffff !important; width: 74mm; margin: 0; padding: 4mm 2mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1 { font-size: 13px; text-align: center; margin: 0 0 2mm; letter-spacing: .05em; color: #000; }
   .muted { color: #444; }
   .center { text-align: center; }
   .dashed { border-top: 1px dashed #000; margin: 3mm 0; }
-  .row { display: flex; justify-content: space-between; }
-  .item { margin: 2mm 0; }
+  .row { display: flex; justify-content: space-between; color: #000; }
+  .item { margin: 2mm 0; color: #000; }
   .total { font-size: 14px; font-weight: 700; }
   .no-print { margin-top: 4mm; }
-  @media print { .no-print { display: none; } body { padding: 0; } }
+  @media print { html, body { background: #ffffff !important; color: #000 !important; } .no-print { display: none; } body { padding: 0; } }
 </style>
 </head><body>
   <div class="center"><img src="${LOGO_URL}" alt="Temperanzza" style="width:20mm; height:20mm; object-fit:contain" crossorigin="anonymous"/></div>
