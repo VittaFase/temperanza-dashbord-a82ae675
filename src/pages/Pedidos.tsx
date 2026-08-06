@@ -642,10 +642,10 @@ export default function Pedidos() {
                           })}
                         </div>
                       </button>
-                    </div>
-                  );
-                })}
-              </div>
+                </div>
+              );
+            })}
+          </div>
             </div>
           )}
           <div className="flex-1 overflow-auto">
