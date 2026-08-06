@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { DashboardProvider, useDashboard } from "@/hooks/useDashboard";
 import { Loader2 } from "lucide-react";
+import { VoiceCommandBar } from "@/components/VoiceCommandBar";
 
 const Shell = () => {
   const { loading } = useDashboard();
