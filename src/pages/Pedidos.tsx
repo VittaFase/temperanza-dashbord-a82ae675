@@ -467,31 +467,18 @@ export default function Pedidos() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
-          <button
-            type="button"
-            onClick={() => {
-              const next = !tabelaEspecial;
-              setTabelaEspecial(next);
-              if (!next) {
-                // ao desligar, recompõe os preços com o base do canal
-                setCarrinho((prev) =>
-                  prev.map((i) => {
-                    const base = i.preco_base ?? precoDoProduto(i.tempero_id);
-                    return recalcSubtotal({ ...i, preco_unitario: base, preco_base: base });
-                  })
-                );
-              }
-            }}
+          <span
             className={cn(
-              "h-9 px-3 rounded-md border text-xs uppercase tracking-widest transition",
+              "h-9 px-3 rounded-md border text-xs uppercase tracking-widest inline-flex items-center",
               tabelaEspecial
                 ? "bg-primary text-primary-foreground border-primary"
-                : "bg-background hover:border-primary/60"
+                : "bg-background text-muted-foreground"
             )}
-            title="Ativar preços negociados por item para este pedido"
+            title="Indica se algum item deste pedido está com valor especial diferente da tabela do canal"
           >
             Tabela especial {tabelaEspecial ? "· ON" : "· OFF"}
-          </button>
+          </span>
+
           <ToggleGroup
             type="single"
             value={canal}
