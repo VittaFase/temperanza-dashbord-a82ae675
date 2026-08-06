@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { VoiceButton } from "@/components/VoiceButton";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { calcularTempero } from "@/lib/calc";
@@ -63,7 +65,7 @@ export default function Pedidos() {
   const [blends, setBlends] = useState<Blend[]>([]);
   const [cupons, setCupons] = useState<CupomBlend[]>([]);
   const [cupomInput, setCupomInput] = useState("");
-  const [busca, setBusca] = useState("");
+  const [busca, setBusca] = useState(searchParamsInit);
   const [buscaProd, setBuscaProd] = useState("");
   const [clienteSel, setClienteSel] = useState<Cliente | null>(null);
   const [canal, setCanal] = useState<Canal>("cliente_final");
@@ -74,7 +76,8 @@ export default function Pedidos() {
   const [salvando, setSalvando] = useState(false);
   const [dlgCliente, setDlgCliente] = useState<{ open: boolean; edit: Cliente | null }>({ open: false, edit: null });
   const [preview, setPreview] = useState<{ open: boolean; pedido: PedidoComItens | null; formato: "a4" | "cupom" }>({ open: false, pedido: null, formato: "a4" });
-  const [histBusca, setHistBusca] = useState("");
+  const [searchParams] = useSearchParams();
+  const [histBusca, setHistBusca] = useState(searchParams.get("q") ?? "");
   const [histPeriodo, setHistPeriodo] = useState<"7" | "30" | "90" | "all">("30");
   const [histCanal, setHistCanal] = useState<"todos" | Canal>("todos");
   const [clienteExpandido, setClienteExpandido] = useState<Set<string>>(new Set());
@@ -529,7 +532,12 @@ export default function Pedidos() {
               placeholder="Buscar..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="pl-8 h-9"
+              className="pl-8 pr-9 h-9"
+            />
+            <VoiceButton
+              onResult={(t) => setBusca(t)}
+              title="Ditar nome do cliente"
+              className="absolute right-1 top-1"
             />
           </div>
           <div className="flex-1 overflow-auto space-y-1">
@@ -594,7 +602,12 @@ export default function Pedidos() {
               placeholder="Nome, SKU ou EAN"
               value={buscaProd}
               onChange={(e) => setBuscaProd(e.target.value)}
-              className="pl-8 h-9"
+              className="pl-8 pr-9 h-9"
+            />
+            <VoiceButton
+              onResult={(t) => setBuscaProd(t)}
+              title="Ditar busca de produto"
+              className="absolute right-1 top-1"
             />
           </div>
           {blends.length > 0 && (
@@ -773,13 +786,20 @@ export default function Pedidos() {
 
           <Separator />
 
-          <Textarea
-            placeholder="Observações do pedido..."
-            value={obs}
-            onChange={(e) => setObs(e.target.value)}
-            rows={2}
-            className="text-xs"
-          />
+          <div className="relative">
+            <Textarea
+              placeholder="Observações do pedido..."
+              value={obs}
+              onChange={(e) => setObs(e.target.value)}
+              rows={2}
+              className="text-xs pr-9"
+            />
+            <VoiceButton
+              onResult={(t) => setObs((prev) => (prev ? `${prev} ${t}` : t))}
+              title="Ditar observações"
+              className="absolute right-1 top-1"
+            />
+          </div>
 
           <div className="space-y-1.5">
             <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -867,7 +887,12 @@ export default function Pedidos() {
                 placeholder="Nº, cliente..."
                 value={histBusca}
                 onChange={(e) => setHistBusca(e.target.value)}
-                className="pl-7 h-9 w-56 text-xs"
+                className="pl-7 pr-9 h-9 w-56 text-xs"
+              />
+              <VoiceButton
+                onResult={(t) => setHistBusca(t)}
+                title="Ditar nome do cliente"
+                className="absolute right-1 top-1"
               />
             </div>
             <ToggleGroup
