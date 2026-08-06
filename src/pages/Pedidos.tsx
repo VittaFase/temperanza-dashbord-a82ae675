@@ -8,6 +8,7 @@ import {
 } from "@/lib/pedidos";
 import { Blend, CupomBlend, fetchBlends, fetchCupons, blendsDisponiveis, labelCanal, cupomPadrao, CanalBlend } from "@/lib/blends";
 import { NotaPreviewDialog } from "@/components/NotaPreviewDialog";
+import { enviarNotaWhatsApp } from "@/lib/nota";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -398,37 +399,10 @@ export default function Pedidos() {
       <Button
         size="sm"
         variant="ghost"
-        title={p.cliente?.telefone ? "Enviar por WhatsApp" : "Cliente sem telefone cadastrado"}
-        disabled={!p.cliente?.telefone}
+        title="Enviar por WhatsApp"
         onClick={() => {
-          const raw = (p.cliente?.telefone ?? "").replace(/\D/g, "");
-          if (!raw) { toast.error("Cliente sem telefone cadastrado"); return; }
-          const phone = raw.length <= 11 ? `55${raw}` : raw;
-          const numero = String(p.numero).padStart(6, "0");
-          const dataFmt = new Date(p.data_pedido).toLocaleDateString("pt-BR");
-          const nomeCliente = p.cliente?.nome ?? "Consumidor não identificado";
-          const subtotalCalc = p.itens.reduce((s, i) => s + i.preco_unitario * i.quantidade, 0);
-          const descontoVal = (p as any).desconto ?? 0;
-          const linhas = p.itens.map((i) => `• ${i.nome_produto}  ${i.quantidade}× ${brl(i.preco_unitario)} = ${brl(i.subtotal)}`);
-          const msg = [
-            `*Temperanzza Condimentos*`,
-            `Nota #${numero} — ${dataFmt}`,
-            ``,
-            `Cliente: ${nomeCliente}`,
-            `—`,
-            ...linhas,
-            `—`,
-            `Subtotal: ${brl(subtotalCalc)}`,
-            descontoVal > 0 ? `Desconto: ${brl(descontoVal)}` : ``,
-            `*Total: ${brl(p.total)}*`,
-            (p as any).observacoes ? `\nObs.: ${(p as any).observacoes}` : ``,
-            ``,
-            `"Bem vindo a Família Temperanzza" 🌿`,
-          ].filter(Boolean).join("\n");
-          const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-          const a = document.createElement("a");
-          a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer";
-          document.body.appendChild(a); a.click(); a.remove();
+          const ok = enviarNotaWhatsApp(p);
+          if (!ok) toast.info("Cliente sem telefone — escolha o contato no WhatsApp");
         }}
       >
         <MessageCircle className="h-3 w-3" />

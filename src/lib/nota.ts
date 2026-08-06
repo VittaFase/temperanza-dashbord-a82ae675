@@ -185,3 +185,54 @@ const abrir = (html: string) => {
 
 export const abrirNota = (p: PedidoComItens) => abrir(gerarNotaHTML(p));
 export const abrirCupom80mm = (p: PedidoComItens) => abrir(gerarCupom80mmHTML(p));
+
+// ============ WHATSAPP ============
+export const montarMensagemWhatsApp = (p: PedidoComItens): string => {
+  const numero = String(p.numero).padStart(6, "0");
+  const dataFmt = new Date(p.data_pedido).toLocaleDateString("pt-BR");
+  const nomeCliente = p.cliente?.nome ?? "Consumidor não identificado";
+  const subtotal = p.subtotal || p.itens.reduce((s, i) => s + i.subtotal, 0);
+  const linhas = p.itens.map(
+    (i) => `• ${i.nome_produto}  ${i.quantidade}× ${brl(i.preco_unitario)} = ${brl(i.subtotal)}`
+  );
+  return [
+    `*Temperanzza Condimentos*`,
+    `Nota #${numero} — ${dataFmt}`,
+    ``,
+    `Cliente: ${nomeCliente}`,
+    `—`,
+    ...linhas,
+    `—`,
+    `Subtotal: ${brl(subtotal)}`,
+    p.desconto ? `Desconto: -${brl(p.desconto)}` : ``,
+    `*Total: ${brl(p.total)}*`,
+    p.observacoes ? `\nObs.: ${p.observacoes}` : ``,
+    ``,
+    `"Bem vindo a Família Temperanzza" 🌿`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+};
+
+export const telefoneWhatsApp = (telefone?: string | null): string | null => {
+  const raw = (telefone ?? "").replace(/\D/g, "");
+  if (raw.length < 10) return null;
+  return raw.length <= 11 ? `55${raw}` : raw;
+};
+
+/** Abre o WhatsApp com a nota do pedido. Retorna false se não houver telefone válido. */
+export const enviarNotaWhatsApp = (p: PedidoComItens): boolean => {
+  const phone = telefoneWhatsApp(p.cliente?.telefone);
+  const texto = encodeURIComponent(montarMensagemWhatsApp(p));
+  const url = phone
+    ? `https://wa.me/${phone}?text=${texto}`
+    : `https://wa.me/?text=${texto}`;
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  return !!phone;
+};
