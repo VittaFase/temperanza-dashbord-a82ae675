@@ -1,10 +1,23 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { PedidoComItens } from "@/lib/pedidos";
-import { gerarNotaHTML, gerarCupom80mmHTML, abrirCupom80mm, enviarNotaWhatsApp } from "@/lib/nota";
+import {
+  gerarNotaHTML,
+  gerarCupom80mmHTML,
+  abrirCupom80mm,
+  montarResumoWhatsApp,
+  montarMensagemWhatsApp,
+  telefoneWhatsApp,
+} from "@/lib/nota";
+import {
+  gerarNotaPdfBlob,
+  baixarEAbrirPdf,
+  compartilharPdf,
+  imprimirNota,
+  nomeArquivoNota,
+} from "@/lib/notaPdf";
 import { Printer, Download, Receipt, X, MessageCircle } from "lucide-react";
-import html2pdf from "html2pdf.js";
 import { toast } from "sonner";
 
 type Formato = "a4" | "cupom";
@@ -21,6 +34,7 @@ export function NotaPreviewDialog({
   formato?: Formato;
 }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [ocupado, setOcupado] = useState(false);
 
   const html = useMemo(() => {
     if (!pedido) return "";
@@ -30,82 +44,78 @@ export function NotaPreviewDialog({
   const numero = pedido ? String(pedido.numero).padStart(6, "0") : "";
 
   const imprimir = () => {
-    const w = iframeRef.current?.contentWindow;
-    if (!w) return;
-    w.focus();
-    w.print();
-  };
-
-  const baixarPDF = async () => {
     if (!pedido) return;
-    const doc = iframeRef.current?.contentDocument;
-    const alvo = doc?.body;
-    if (!doc || !alvo) return;
-    const texto = formato === "cupom" ? "#000000" : "#1a1512";
-    const secundario = formato === "cupom" ? "#444444" : "#555555";
-    const escondidos: HTMLElement[] = [];
-    try {
-      toast.loading("Gerando PDF...", { id: "pdf" });
-      // esconde controles no próprio iframe (mantém o isolamento de estilos)
-      doc.querySelectorAll<HTMLElement>(".no-print").forEach((n) => {
-        escondidos.push(n);
-        n.style.display = "none";
-      });
-      doc.documentElement.style.background = "#ffffff";
-      alvo.style.background = "#ffffff";
-      await html2pdf()
-        .set({
-          margin: 0,
-          filename: `Nota-${numero}.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#ffffff",
-            windowWidth: alvo.scrollWidth,
-            // o clone é inserido no documento do app (tema escuro):
-            // forçamos fundo branco e texto sólido dentro do clone
-            onclone: (clonedDoc: Document) => {
-              const style = clonedDoc.createElement("style");
-              style.textContent = `
-                html, body { background: #ffffff !important; }
-                *, *::before, *::after {
-                  color: ${texto} !important;
-                  -webkit-text-fill-color: ${texto} !important;
-                  text-shadow: none !important;
-                  opacity: 1 !important;
-                  background-image: none !important;
-                }
-                .muted, .muted * {
-                  color: ${secundario} !important;
-                  -webkit-text-fill-color: ${secundario} !important;
-                }
-                .no-print { display: none !important; }
-              `;
-              clonedDoc.head?.appendChild(style);
-              clonedDoc.body?.style.setProperty("background", "#ffffff", "important");
-            },
-          },
-          jsPDF:
-            formato === "cupom"
-              ? { unit: "mm", format: [80, 297], orientation: "portrait" }
-              : { unit: "mm", format: "a4", orientation: "portrait" },
-        })
-        .from(alvo)
-        .save();
-      toast.success("PDF baixado", { id: "pdf" });
-    } catch (e: any) {
-      toast.error(e?.message ?? "Falha ao gerar PDF", { id: "pdf" });
-    } finally {
-      escondidos.forEach((n) => (n.style.display = ""));
+    const ok = imprimirNota(pedido, formato);
+    if (!ok) {
+      // pop-up bloqueado: imprime pelo próprio iframe
+      const w = iframeRef.current?.contentWindow;
+      if (!w) {
+        toast.error("Permita janelas pop-up para imprimir");
+        return;
+      }
+      w.focus();
+      w.print();
+    } else {
+      toast.info("Escolha a impressora na janela do sistema (Bluetooth, Wi-Fi ou AirPrint)");
     }
   };
 
-  const enviarWhatsApp = () => {
-    if (!pedido) return;
-    const ok = enviarNotaWhatsApp(pedido);
-    if (!ok) toast.info("Cliente sem telefone — escolha o contato no WhatsApp");
+  const gerarBlob = async () => {
+    if (!pedido) return null;
+    return gerarNotaPdfBlob(pedido, formato, iframeRef.current?.contentDocument);
   };
+
+  const baixarPDF = async () => {
+    if (!pedido || ocupado) return;
+    setOcupado(true);
+    try {
+      toast.loading("Gerando PDF...", { id: "pdf" });
+      const blob = await gerarBlob();
+      if (!blob) return;
+      const nome = nomeArquivoNota(pedido, formato);
+      const { url, abriu } = baixarEAbrirPdf(blob, nome);
+      if (abriu) {
+        toast.success("PDF baixado e aberto", { id: "pdf" });
+      } else {
+        toast.success("PDF baixado", {
+          id: "pdf",
+          action: { label: "Abrir nota", onClick: () => window.open(url, "_blank") },
+        });
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Falha ao gerar PDF", { id: "pdf" });
+    } finally {
+      setOcupado(false);
+    }
+  };
+
+  const enviarWhatsApp = async () => {
+    if (!pedido || ocupado) return;
+    setOcupado(true);
+    try {
+      toast.loading("Preparando a nota...", { id: "wpp" });
+      const blob = await gerarBlob();
+      if (!blob) return;
+      const nome = nomeArquivoNota(pedido, formato);
+      const resumo = montarResumoWhatsApp(pedido);
+      const compartilhou = await compartilharPdf(blob, nome, resumo);
+      if (compartilhou) {
+        toast.success("Escolha o WhatsApp e o contato", { id: "wpp" });
+        return;
+      }
+      // desktop: baixa/abre o PDF e abre o WhatsApp Web com a mensagem
+      baixarEAbrirPdf(blob, nome);
+      const phone = telefoneWhatsApp(pedido.cliente?.telefone);
+      const texto = encodeURIComponent(montarMensagemWhatsApp(pedido));
+      window.open(phone ? `https://wa.me/${phone}?text=${texto}` : `https://wa.me/?text=${texto}`, "_blank");
+      toast.info("PDF baixado — arraste o arquivo para a conversa do WhatsApp", { id: "wpp" });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Falha ao enviar", { id: "wpp" });
+    } finally {
+      setOcupado(false);
+    }
+  };
+
 
 
   return (

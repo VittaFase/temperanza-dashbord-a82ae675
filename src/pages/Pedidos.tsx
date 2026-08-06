@@ -8,7 +8,8 @@ import {
 } from "@/lib/pedidos";
 import { Blend, CupomBlend, fetchBlends, fetchCupons, blendsDisponiveis, labelCanal, cupomPadrao, CanalBlend } from "@/lib/blends";
 import { NotaPreviewDialog } from "@/components/NotaPreviewDialog";
-import { enviarNotaWhatsApp } from "@/lib/nota";
+import { enviarNotaWhatsApp, montarResumoWhatsApp } from "@/lib/nota";
+import { gerarNotaPdfBlob, nomeArquivoNota, compartilharPdf, baixarEAbrirPdf } from "@/lib/notaPdf";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -400,9 +401,27 @@ export default function Pedidos() {
         size="sm"
         variant="ghost"
         title="Enviar por WhatsApp"
-        onClick={() => {
-          const ok = enviarNotaWhatsApp(p);
-          if (!ok) toast.info("Cliente sem telefone — escolha o contato no WhatsApp");
+        onClick={async () => {
+          try {
+            toast.loading("Preparando a nota...", { id: "wpp" });
+            const blob = await gerarNotaPdfBlob(p, "a4");
+            const nome = nomeArquivoNota(p, "a4");
+            const compartilhou = await compartilharPdf(blob, nome, montarResumoWhatsApp(p));
+            if (compartilhou) {
+              toast.success("Escolha o WhatsApp e o contato", { id: "wpp" });
+              return;
+            }
+            baixarEAbrirPdf(blob, nome);
+            const ok = enviarNotaWhatsApp(p);
+            toast.info(
+              ok
+                ? "PDF baixado — arraste o arquivo para a conversa"
+                : "PDF baixado — escolha o contato no WhatsApp e anexe o arquivo",
+              { id: "wpp" }
+            );
+          } catch (e: any) {
+            toast.error(e?.message ?? "Falha ao enviar", { id: "wpp" });
+          }
         }}
       >
         <MessageCircle className="h-3 w-3" />
