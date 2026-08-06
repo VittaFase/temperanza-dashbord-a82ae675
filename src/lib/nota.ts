@@ -59,7 +59,7 @@ export const gerarNotaHTML = (p: PedidoComItens): string => {
   .totais .grand { border-top: 2px solid #1a1512; margin-top: 6px; padding-top: 8px; font-size: 18px; font-weight: 700; }
   .footer { margin-top: 40px; font-size: 11px; color: #888; text-align: center; border-top: 1px solid #e5e0d8; padding-top: 12px; }
   .badge { display: inline-block; padding: 3px 10px; border: 1px solid #1a1512; border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: #1a1512; }
-  @media print { html, body { background: #ffffff !important; color: #1a1512 !important; } body { padding: 0; } .no-print { display: none; } }
+  @media print { html, body { background: #ffffff !important; color: #1a1512 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } *, *::before, *::after { color: #1a1512 !important; -webkit-text-fill-color: #1a1512 !important; opacity: 1 !important; } .muted, .muted * { color: #555555 !important; -webkit-text-fill-color: #555555 !important; } body { padding: 0; } .no-print { display: none; } }
 </style>
 </head><body>
   <div class="header">
