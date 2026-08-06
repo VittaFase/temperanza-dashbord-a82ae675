@@ -730,14 +730,14 @@ export default function Pedidos() {
                       <X className="h-3 w-3" />
                     </button>
                   </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => mudarQtd(i.tempero_id, -1)}>
-                      <Minus className="h-3 w-3" />
-                    </Button>
-                    <span className="w-8 text-center tabular-nums">{i.quantidade}</span>
-                    <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => mudarQtd(i.tempero_id, +1)}>
-                      <Plus className="h-3 w-3" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => mudarQtd(i.tempero_id, -1)}>
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      <span className="w-8 text-center tabular-nums">{i.quantidade}</span>
+                      <Button size="icon" variant="outline" className="h-6 w-6" onClick={() => mudarQtd(i.tempero_id, +1)}>
+                        <Plus className="h-3 w-3" />
                     </Button>
                   </div>
                   <div className="text-right">
