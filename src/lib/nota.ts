@@ -214,6 +214,21 @@ export const montarMensagemWhatsApp = (p: PedidoComItens): string => {
     .join("\n");
 };
 
+/** Mensagem curta usada quando o PDF da nota vai anexado. */
+export const montarResumoWhatsApp = (p: PedidoComItens): string => {
+  const numero = String(p.numero).padStart(6, "0");
+  const dataFmt = new Date(p.data_pedido).toLocaleDateString("pt-BR");
+  const nomeCliente = p.cliente?.nome ?? "Consumidor não identificado";
+  return [
+    `*Temperanzza Condimentos*`,
+    `Nota #${numero} — ${dataFmt}`,
+    `Cliente: ${nomeCliente}`,
+    `*Total: ${brl(p.total)}*`,
+    ``,
+    `Segue a nota em PDF em anexo. 🌿`,
+  ].join("\n");
+};
+
 export const telefoneWhatsApp = (telefone?: string | null): string | null => {
   const raw = (telefone ?? "").replace(/\D/g, "");
   if (raw.length < 10) return null;
