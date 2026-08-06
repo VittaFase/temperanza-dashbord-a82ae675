@@ -11,6 +11,8 @@ import { classificarMargem, FaixaMargem } from "@/data/temperos";
 import { ProdutoFoto } from "@/components/ProdutoFoto";
 import { ProdutoDetalhesDrawer } from "@/components/ProdutoDetalhesDrawer";
 import { Tempero } from "@/data/temperos";
+import { VoiceButton } from "@/components/VoiceButton";
+import { useSearchParams } from "react-router-dom";
 
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
