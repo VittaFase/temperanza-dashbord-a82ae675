@@ -38,23 +38,25 @@ export const gerarNotaHTML = (p: PedidoComItens): string => {
 <meta charset="utf-8"/>
 <title>Nota #${numero} — Temperanzza</title>
 <style>
+  :root { color-scheme: light; }
   * { box-sizing: border-box; }
-  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #1a1512; padding: 32px; max-width: 800px; margin: auto; }
-  h1 { font-family: Georgia, serif; letter-spacing: .1em; text-transform: uppercase; font-size: 22px; margin: 0; }
+  html { background: #ffffff; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #1a1512 !important; background: #ffffff !important; padding: 32px; max-width: 800px; margin: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1 { font-family: Georgia, serif; letter-spacing: .1em; text-transform: uppercase; font-size: 22px; margin: 0; color: #1a1512; }
   .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1512; padding-bottom: 16px; margin-bottom: 24px; }
   .muted { color: #666; font-size: 12px; }
-  .block { margin: 12px 0; font-size: 14px; }
+  .block { margin: 12px 0; font-size: 14px; color: #1a1512; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 16px 0 24px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e0d8; font-size: 13px; text-align: left; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; background: #ffffff; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e0d8; font-size: 13px; text-align: left; color: #1a1512; background: #ffffff; }
   th { background: #f8f5ef; text-transform: uppercase; font-size: 11px; letter-spacing: .1em; }
   .num { text-align: right; font-variant-numeric: tabular-nums; }
-  .totais { margin-top: 16px; margin-left: auto; width: 260px; font-size: 13px; }
+  .totais { margin-top: 16px; margin-left: auto; width: 260px; font-size: 13px; color: #1a1512; }
   .totais .row { display:flex; justify-content:space-between; padding: 4px 0; }
   .totais .grand { border-top: 2px solid #1a1512; margin-top: 6px; padding-top: 8px; font-size: 18px; font-weight: 700; }
   .footer { margin-top: 40px; font-size: 11px; color: #888; text-align: center; border-top: 1px solid #e5e0d8; padding-top: 12px; }
-  .badge { display: inline-block; padding: 3px 10px; border: 1px solid #1a1512; border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
-  @media print { body { padding: 0; } .no-print { display: none; } }
+  .badge { display: inline-block; padding: 3px 10px; border: 1px solid #1a1512; border-radius: 999px; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: #1a1512; }
+  @media print { html, body { background: #ffffff !important; color: #1a1512 !important; } body { padding: 0; } .no-print { display: none; } }
 </style>
 </head><body>
   <div class="header">
