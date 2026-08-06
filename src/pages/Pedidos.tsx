@@ -81,7 +81,7 @@ export default function Pedidos() {
   const [histCanal, setHistCanal] = useState<"todos" | Canal>("todos");
   const [clienteExpandido, setClienteExpandido] = useState<Set<string>>(new Set());
   const [rangePorCliente, setRangePorCliente] = useState<Record<string, { from?: Date; to?: Date }>>({});
-  const [tabelaEspecial, setTabelaEspecial] = useState(false);
+  const tabelaEspecial = carrinho.some((i) => i.tabela_especial);
 
   const abrirPreview = (p: PedidoComItens, formato: "a4" | "cupom" = "a4") =>
     setPreview({ open: true, pedido: p, formato });
