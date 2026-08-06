@@ -136,7 +136,10 @@ export const gerarCupom80mmHTML = (p: PedidoComItens): string => {
   @page { size: 80mm auto; margin: 3mm; }
   :root { color-scheme: light; }
   * { box-sizing: border-box; }
-  html { background: #ffffff; }
+  *, *::before, *::after { color: #000000 !important; -webkit-text-fill-color: #000000 !important; text-shadow: none !important; opacity: 1 !important; background-image: none !important; }
+  .muted, .muted * { color: #444444 !important; -webkit-text-fill-color: #444444 !important; }
+  .no-print button, .no-print button * { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+  html { background: #ffffff !important; }
   body { font-family: "Menlo", "Courier New", monospace; font-size: 11px; color: #000 !important; background: #ffffff !important; width: 74mm; margin: 0; padding: 4mm 2mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   h1 { font-size: 13px; text-align: center; margin: 0 0 2mm; letter-spacing: .05em; color: #000; }
   .muted { color: #444; }
@@ -146,7 +149,7 @@ export const gerarCupom80mmHTML = (p: PedidoComItens): string => {
   .item { margin: 2mm 0; color: #000; }
   .total { font-size: 14px; font-weight: 700; }
   .no-print { margin-top: 4mm; }
-  @media print { html, body { background: #ffffff !important; color: #000 !important; } .no-print { display: none; } body { padding: 0; } }
+  @media print { html, body { background: #ffffff !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; } *, *::before, *::after { color: #000000 !important; -webkit-text-fill-color: #000000 !important; opacity: 1 !important; } .muted, .muted * { color: #444444 !important; -webkit-text-fill-color: #444444 !important; } .no-print { display: none; } body { padding: 0; } }
 </style>
 </head><body>
   <div class="center"><img src="${LOGO_URL}" alt="Temperanzza" style="width:20mm; height:20mm; object-fit:contain" crossorigin="anonymous"/></div>
