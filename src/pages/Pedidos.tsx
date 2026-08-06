@@ -65,7 +65,8 @@ export default function Pedidos() {
   const [blends, setBlends] = useState<Blend[]>([]);
   const [cupons, setCupons] = useState<CupomBlend[]>([]);
   const [cupomInput, setCupomInput] = useState("");
-  const [busca, setBusca] = useState(searchParamsInit);
+  const [searchParams] = useSearchParams();
+  const [busca, setBusca] = useState(searchParams.get("q") ?? "");
   const [buscaProd, setBuscaProd] = useState("");
   const [clienteSel, setClienteSel] = useState<Cliente | null>(null);
   const [canal, setCanal] = useState<Canal>("cliente_final");
@@ -76,7 +77,6 @@ export default function Pedidos() {
   const [salvando, setSalvando] = useState(false);
   const [dlgCliente, setDlgCliente] = useState<{ open: boolean; edit: Cliente | null }>({ open: false, edit: null });
   const [preview, setPreview] = useState<{ open: boolean; pedido: PedidoComItens | null; formato: "a4" | "cupom" }>({ open: false, pedido: null, formato: "a4" });
-  const [searchParams] = useSearchParams();
   const [histBusca, setHistBusca] = useState(searchParams.get("q") ?? "");
   const [histPeriodo, setHistPeriodo] = useState<"7" | "30" | "90" | "all">("30");
   const [histCanal, setHistCanal] = useState<"todos" | Canal>("todos");
