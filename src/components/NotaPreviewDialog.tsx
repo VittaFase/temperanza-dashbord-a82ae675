@@ -41,6 +41,8 @@ export function NotaPreviewDialog({
     const doc = iframeRef.current?.contentDocument;
     const alvo = doc?.body;
     if (!doc || !alvo) return;
+    const texto = formato === "cupom" ? "#000000" : "#1a1512";
+    const secundario = formato === "cupom" ? "#444444" : "#555555";
     const escondidos: HTMLElement[] = [];
     try {
       toast.loading("Gerando PDF...", { id: "pdf" });
@@ -61,6 +63,28 @@ export function NotaPreviewDialog({
             useCORS: true,
             backgroundColor: "#ffffff",
             windowWidth: alvo.scrollWidth,
+            // o clone é inserido no documento do app (tema escuro):
+            // forçamos fundo branco e texto sólido dentro do clone
+            onclone: (clonedDoc: Document) => {
+              const style = clonedDoc.createElement("style");
+              style.textContent = `
+                html, body { background: #ffffff !important; }
+                *, *::before, *::after {
+                  color: ${texto} !important;
+                  -webkit-text-fill-color: ${texto} !important;
+                  text-shadow: none !important;
+                  opacity: 1 !important;
+                  background-image: none !important;
+                }
+                .muted, .muted * {
+                  color: ${secundario} !important;
+                  -webkit-text-fill-color: ${secundario} !important;
+                }
+                .no-print { display: none !important; }
+              `;
+              clonedDoc.head?.appendChild(style);
+              clonedDoc.body?.style.setProperty("background", "#ffffff", "important");
+            },
           },
           jsPDF:
             formato === "cupom"
