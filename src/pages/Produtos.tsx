@@ -11,6 +11,8 @@ import { classificarMargem, FaixaMargem } from "@/data/temperos";
 import { ProdutoFoto } from "@/components/ProdutoFoto";
 import { ProdutoDetalhesDrawer } from "@/components/ProdutoDetalhesDrawer";
 import { Tempero } from "@/data/temperos";
+import { VoiceButton } from "@/components/VoiceButton";
+import { useSearchParams } from "react-router-dom";
 
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -26,7 +28,8 @@ const MARGEM_CLASSES: Record<FaixaMargem, string> = {
 
 const Produtos = () => {
   const { temperos, variaveis, updateTempero, deleteTempero, addTempero } = useDashboard();
-  const [q, setQ] = useState("");
+  const [searchParams] = useSearchParams();
+  const [q, setQ] = useState(searchParams.get("q") ?? "");
   const [editing, setEditing] = useState<Tempero | null>(null);
 
   const filtrados = temperos.filter((t) => {
@@ -116,14 +119,17 @@ const Produtos = () => {
           <CardTitle className="font-display text-xl">
             {filtrados.length} de {temperos.length} produtos
           </CardTitle>
-          <div className="relative w-72">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar por nome, SKU ou EAN..."
-              className="pl-8 h-9"
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative w-72">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Buscar por nome, SKU ou EAN..."
+                className="pl-8 h-9"
+              />
+            </div>
+            <VoiceButton onResult={(t) => setQ(t)} title="Ditar busca de produto" />
           </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
