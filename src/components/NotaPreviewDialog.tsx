@@ -40,30 +40,43 @@ export function NotaPreviewDialog({
     if (!pedido) return;
     const doc = iframeRef.current?.contentDocument;
     const alvo = doc?.body;
-    if (!alvo) return;
+    if (!doc || !alvo) return;
+    const escondidos: HTMLElement[] = [];
     try {
       toast.loading("Gerando PDF...", { id: "pdf" });
-      // remove botão de impressão do clone
-      const clone = alvo.cloneNode(true) as HTMLElement;
-      clone.querySelectorAll(".no-print").forEach((n) => n.remove());
+      // esconde controles no próprio iframe (mantém o isolamento de estilos)
+      doc.querySelectorAll<HTMLElement>(".no-print").forEach((n) => {
+        escondidos.push(n);
+        n.style.display = "none";
+      });
+      doc.documentElement.style.background = "#ffffff";
+      alvo.style.background = "#ffffff";
       await html2pdf()
         .set({
           margin: 0,
           filename: `Nota-${numero}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            windowWidth: alvo.scrollWidth,
+          },
           jsPDF:
             formato === "cupom"
               ? { unit: "mm", format: [80, 297], orientation: "portrait" }
               : { unit: "mm", format: "a4", orientation: "portrait" },
         })
-        .from(clone)
+        .from(alvo)
         .save();
       toast.success("PDF baixado", { id: "pdf" });
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao gerar PDF", { id: "pdf" });
+    } finally {
+      escondidos.forEach((n) => (n.style.display = ""));
     }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
