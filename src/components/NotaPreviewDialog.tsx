@@ -101,6 +101,12 @@ export function NotaPreviewDialog({
     }
   };
 
+  const enviarWhatsApp = () => {
+    if (!pedido) return;
+    const ok = enviarNotaWhatsApp(pedido);
+    if (!ok) toast.info("Cliente sem telefone — escolha o contato no WhatsApp");
+  };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
