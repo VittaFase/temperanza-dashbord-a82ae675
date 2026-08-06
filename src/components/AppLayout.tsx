@@ -16,6 +16,7 @@ const Shell = () => {
           <span className="font-display text-sm text-muted-foreground tracking-[0.2em]">
             Custos & Precificação
           </span>
+          <VoiceCommandBar />
         </header>
         <main className="flex-1 overflow-auto">
           {loading ? (
