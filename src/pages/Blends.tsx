@@ -114,8 +114,7 @@ export default function Blends() {
 
               {/* Tabela de sabores × canais */}
               <div className="space-y-1 text-xs">
-                <div className="grid grid-cols-[1fr_repeat(3,minmax(0,72px))] gap-2 text-[10px] uppercase tracking-widest text-muted-foreground pb-0.5">
-                  <span>Sabor</span>
+                <div className="grid grid-cols-3 gap-2 text-[10px] uppercase tracking-widest text-muted-foreground pb-0.5">
                   {COLS.map((c) => (
                     <span key={c.key} className="text-right">{c.short}</span>
                   ))}
@@ -132,14 +131,18 @@ export default function Blends() {
                   return (
                     <div
                       key={i.tempero_id}
-                      className="grid grid-cols-[1fr_repeat(3,minmax(0,72px))] gap-2 items-center border-b border-dashed border-border/60 py-1"
+                      className="border-b border-dashed border-border/60 py-1"
                     >
-                      <span className="min-w-0 truncate">{i.quantidade}× {nomePote(i.tempero_id)}</span>
-                      {COLS.map((col) => (
-                        <span key={col.key} className="text-right tabular-nums text-muted-foreground">
-                          {brl(subs[col.key])}
-                        </span>
-                      ))}
+                      <div className="leading-snug break-words">
+                        {i.quantidade}× {nomePote(i.tempero_id)}
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {COLS.map((col) => (
+                          <span key={col.key} className="text-right tabular-nums text-muted-foreground">
+                            {brl(subs[col.key])}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   );
                 })}
@@ -148,7 +151,7 @@ export default function Blends() {
               {/* Totais por canal */}
               <div className="grid grid-cols-3 gap-2 pt-2 border-t">
                 {precos.map(({ col, preco, markup }) => (
-                  <div key={col.key}>
+                  <div key={col.key} className="min-w-0">
                     <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                       {col.short}
                     </div>
@@ -158,12 +161,13 @@ export default function Blends() {
                     <div className="text-[10px] text-muted-foreground tabular-nums">
                       Markup {markup}
                     </div>
-                    <div className="text-[10px] text-herb-green tabular-nums">
-                      c/ {col.cupom}: {brl(preco * (1 - col.cupomPct))}
+                    <div className="text-[10px] text-herb-green tabular-nums break-words leading-tight">
+                      c/ {col.cupom}:<br />{brl(preco * (1 - col.cupomPct))}
                     </div>
                   </div>
                 ))}
               </div>
+
 
               <Button
                 size="sm"
