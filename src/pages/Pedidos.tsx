@@ -8,6 +8,7 @@ import {
 } from "@/lib/pedidos";
 import { Blend, CupomBlend, fetchBlends, fetchCupons, blendsDisponiveis, labelCanal, cupomPadrao, CanalBlend } from "@/lib/blends";
 import { NotaPreviewDialog } from "@/components/NotaPreviewDialog";
+import { enviarNotaWhatsApp } from "@/lib/nota";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
