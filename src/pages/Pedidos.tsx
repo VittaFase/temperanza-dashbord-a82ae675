@@ -183,15 +183,8 @@ export default function Pedidos() {
     );
   };
 
-  const mudarDescontoItem = (id: string, valor: number) => {
-    setCarrinho((prev) =>
-      prev.map((i) =>
-        i.tempero_id === id
-          ? recalcSubtotal({ ...i, desconto: Math.max(0, Math.min(i.preco_unitario * i.quantidade, valor)) })
-          : i
-      )
-    );
-  };
+
+
 
   const mudarPrecoItem = (id: string, valor: number) => {
     setCarrinho((prev) =>
