@@ -800,8 +800,9 @@ export default function Pedidos() {
                     className="h-6 text-xs px-2"
                   />
                 </div>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
 
           <Separator />
