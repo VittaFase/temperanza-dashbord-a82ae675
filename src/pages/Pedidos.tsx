@@ -636,7 +636,7 @@ export default function Pedidos() {
         </Card>
 
         {/* Carrinho */}
-        <Card className="p-3 flex flex-col gap-3 max-h-[calc(100vh-220px)]">
+        <Card className="p-3 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-sm tracking-widest uppercase flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" /> Pedido
@@ -658,7 +658,7 @@ export default function Pedidos() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto space-y-2">
+          <div className="max-h-80 overflow-y-auto space-y-2">
             {carrinho.length === 0 && (
               <p className="text-xs text-muted-foreground text-center py-6">
                 Clique em um produto para adicionar.
