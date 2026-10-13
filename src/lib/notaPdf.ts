@@ -1,6 +1,6 @@
 import html2pdf from "html2pdf.js";
 import { PedidoComItens } from "./pedidos";
-import { gerarNotaHTML, gerarCupom80mmHTML } from "./nota";
+import { gerarNotaHTML, gerarCupom80mmHTML, PAPEL_NOTA } from "./nota";
 
 export type FormatoNota = "a4" | "cupom";
 
@@ -34,30 +34,33 @@ const montarIframe = (html: string) =>
   });
 
 const opcoes = (formato: FormatoNota, alvo: HTMLElement) => {
-  const texto = formato === "cupom" ? "#000000" : "#1a1512";
-  const secundario = formato === "cupom" ? "#444444" : "#555555";
+  const papel = PAPEL_NOTA[formato];
+  // Match CSS pixels to physical millimetres, plus a small rounding allowance.
+  const alturaCupom = Math.max(80, Math.ceil(alvo.getBoundingClientRect().height * 25.4 / 96) + papel.margem * 2 + 2);
   return {
-    margin: 0,
+    margin: [papel.margem, papel.margem, papel.margem, papel.margem] as [number, number, number, number],
+    pagebreak: formato === "cupom" ? { mode: [] } : { mode: ["css", "legacy"], avoid: ["tr", ".header", ".customer-grid", ".totais", ".footer"] },
     image: { type: "jpeg" as const, quality: 0.98 },
     html2canvas: {
       scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
-      windowWidth: alvo.scrollWidth,
+      windowWidth: Math.ceil(papel.largura * 96 / 25.4),
       onclone: (clonedDoc: Document) => {
         const style = clonedDoc.createElement("style");
         style.textContent = `
           html, body { background: #ffffff !important; }
-          *, *::before, *::after {
-            color: ${texto} !important;
-            -webkit-text-fill-color: ${texto} !important;
+          .nota-document, .nota-document *, .nota-document *::before, .nota-document *::after {
+            color: hsl(0 0% 0%) !important;
+            -webkit-text-fill-color: hsl(0 0% 0%) !important;
             text-shadow: none !important;
             opacity: 1 !important;
             background-image: none !important;
           }
-          .muted, .muted * {
-            color: ${secundario} !important;
-            -webkit-text-fill-color: ${secundario} !important;
+          .nota-document { width: ${papel.util}mm !important; margin: 0 !important; }
+          .nota-document .muted, .nota-document .muted * {
+            color: hsl(0 0% 28%) !important;
+            -webkit-text-fill-color: hsl(0 0% 28%) !important;
           }
           .no-print { display: none !important; }
         `;
@@ -67,7 +70,7 @@ const opcoes = (formato: FormatoNota, alvo: HTMLElement) => {
     },
     jsPDF:
       formato === "cupom"
-        ? { unit: "mm", format: [80, 297] as [number, number], orientation: "portrait" as const }
+        ? { unit: "mm", format: [80, alturaCupom] as [number, number], orientation: "portrait" as const }
         : { unit: "mm", format: "a4", orientation: "portrait" as const },
   };
 };
@@ -85,19 +88,25 @@ export const gerarNotaPdfBlob = async (
     doc = criado.doc;
     destruir = criado.destruir;
   }
-  const alvo = doc.body;
-  const escondidos: HTMLElement[] = [];
   try {
-    doc.querySelectorAll<HTMLElement>(".no-print").forEach((n) => {
-      escondidos.push(n);
-      n.style.display = "none";
-    });
-    doc.documentElement.style.background = "#ffffff";
-    alvo.style.background = "#ffffff";
-    const blob: Blob = await html2pdf().set(opcoes(formato, alvo)).from(alvo).outputPdf("blob");
+    await doc.fonts.ready;
+    const alvo = doc.querySelector<HTMLElement>(".nota-document");
+    if (!alvo) throw new Error("A nota ainda não está pronta. Tente novamente.");
+    // The scoped stylesheet lives inside this root, so html2pdf keeps the layout
+    // when it clones into the dark-themed application document.
+    const worker = html2pdf().set(opcoes(formato, alvo)).from(alvo);
+    if (formato === "cupom") {
+      await worker.toCanvas();
+      const canvas: HTMLCanvasElement = await worker.get("canvas");
+      // Use the actual rendered image, not the pre-clone height: text wrapping
+      // and raster rounding must never crop the final lines of a thermal receipt.
+      const papel = PAPEL_NOTA.cupom;
+      const altura = Math.max(80, Math.ceil(canvas.height / canvas.width * papel.util) + papel.margem * 2 + 1);
+      await worker.set({ jsPDF: { unit: "mm", format: [papel.largura, altura], orientation: "portrait" } });
+    }
+    const blob: Blob = await worker.outputPdf("blob");
     return blob;
   } finally {
-    escondidos.forEach((n) => (n.style.display = ""));
     destruir();
   }
 };
@@ -154,8 +163,9 @@ export const compartilharPdf = async (blob: Blob, filename: string, texto: strin
   if (!podeCompartilharArquivo()) return false;
   const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
   const file = new File([blob], filename, { type: "application/pdf" });
+  if (!nav.share) return false;
   try {
-    await nav.share!({ files: [file], text: texto, title: filename });
+    await nav.share({ files: [file], text: texto, title: filename });
     return true;
   } catch (e: any) {
     if (e?.name === "AbortError") return true;

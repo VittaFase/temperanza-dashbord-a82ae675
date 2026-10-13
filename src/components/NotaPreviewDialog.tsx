@@ -151,7 +151,7 @@ export function NotaPreviewDialog({
               ref={iframeRef}
               title="Pré-visualização"
               srcDoc={html}
-              className="w-full h-full bg-white"
+              className="w-full h-full"
             />
           )}
         </div>
