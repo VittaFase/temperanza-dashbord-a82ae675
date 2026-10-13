@@ -14,21 +14,22 @@ const estilos = `
   .nota-document *, .nota-document *::before, .nota-document *::after { box-sizing: border-box; color: hsl(var(--ink)) !important; -webkit-text-fill-color: hsl(var(--ink)) !important; text-shadow: none !important; background-image: none !important; opacity: 1 !important; letter-spacing: 0; }
   .nota-document .muted, .nota-document .muted * { color: hsl(var(--secondary-ink)) !important; -webkit-text-fill-color: hsl(var(--secondary-ink)) !important; }
   .nota-document h1, .nota-document p { margin: 0; }
-  .nota-document .header { display: table; width: 100%; border-bottom: 2px solid hsl(var(--ink)); padding-bottom: 20px; margin-bottom: 24px; }
+  .nota-document { display: flow-root; padding-bottom: 2px; }
+  .nota-document .header { display: table; width: 100%; border-bottom: 2px solid hsl(var(--ink)); padding-bottom: 16px; margin-bottom: 18px; }
   .nota-document .brand, .nota-document .reference { display: table-cell; vertical-align: top; }
   .nota-document .brand { width: 63%; }
   .nota-document .brand h1 { font-family: Georgia, "Times New Roman", serif; font-size: 30px; line-height: 1.1; text-transform: uppercase; font-weight: 400; }
   .nota-document .brand p { font-size: 11px; margin-top: 6px; text-transform: uppercase; }
   .nota-document .reference { text-align: right; font-size: 12px; }
   .nota-document .reference strong { display: block; font-size: 20px; margin: 3px 0; }
-  .nota-document .customer-grid { display: table; width: 100%; table-layout: fixed; margin-bottom: 24px; }
+  .nota-document .customer-grid { display: table; width: 100%; table-layout: fixed; margin-bottom: 18px; }
   .nota-document .customer, .nota-document .order-info { display: table-cell; vertical-align: top; padding: 12px 14px; border: 1px solid hsl(var(--rule)); overflow-wrap: anywhere; }
   .nota-document .customer { width: 65%; }
   .nota-document .order-info { width: 35%; border-left: 0; }
   .nota-document .label { font-size: 10px; text-transform: uppercase; margin-bottom: 6px; }
   .nota-document .customer strong { font-size: 15px; }
   .nota-document table { border-collapse: collapse; width: 100%; table-layout: fixed; background: hsl(var(--paper)); }
-  .nota-document th, .nota-document td { text-align: left; vertical-align: top; padding: 10px 8px; border-bottom: 1px solid hsl(var(--rule)); font-size: 12px; overflow-wrap: anywhere; }
+  .nota-document th, .nota-document td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid hsl(var(--rule)); font-size: 12px; overflow-wrap: anywhere; }
   .nota-document th { background: hsl(var(--wash)); font-size: 10px; font-weight: 700; text-transform: uppercase; border-top: 1px solid hsl(var(--ink)); }
   .nota-document tbody tr:nth-child(even) td { background: hsl(var(--wash)); }
   .nota-document .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -39,7 +40,7 @@ const estilos = `
   .nota-document .totais .row { padding: 5px 0; }
   .nota-document .grand { border-top: 3px double hsl(var(--ink)); margin-top: 6px; padding-top: 9px !important; font-size: 18px; font-weight: 700; }
   .nota-document .observacoes { margin-top: 24px; padding-top: 12px; border-top: 1px solid hsl(var(--rule)); white-space: pre-wrap; overflow-wrap: anywhere; }
-  .nota-document .footer { margin-top: 32px; border-top: 1px solid hsl(var(--rule)); padding-top: 12px; text-align: center; font-size: 10px; }
+  .nota-document .footer { margin-top: 24px; border-top: 1px solid hsl(var(--rule)); padding-top: 12px; text-align: center; font-size: 10px; }
   .nota-document tr, .nota-document .header, .nota-document .customer-grid, .nota-document .totais, .nota-document .footer, .nota-document .item { break-inside: avoid; page-break-inside: avoid; }
   .nota-document thead { display: table-header-group; }
   .nota-document.cupom { font-family: "Courier New", monospace; font-size: 11px; line-height: 1.45; }

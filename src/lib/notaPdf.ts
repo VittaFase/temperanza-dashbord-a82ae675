@@ -39,7 +39,7 @@ const opcoes = (formato: FormatoNota, alvo: HTMLElement) => {
   const alturaCupom = Math.max(80, Math.ceil(alvo.getBoundingClientRect().height * 25.4 / 96) + papel.margem * 2 + 2);
   return {
     margin: [papel.margem, papel.margem, papel.margem, papel.margem] as [number, number, number, number],
-    pagebreak: { mode: ["css", "legacy"], avoid: ["tr", ".header", ".customer-grid", ".totais", ".totais-cupom", ".item", ".footer"] },
+    pagebreak: formato === "cupom" ? { mode: [] } : { mode: ["css", "legacy"], avoid: ["tr", ".header", ".customer-grid", ".totais", ".footer"] },
     image: { type: "jpeg" as const, quality: 0.98 },
     html2canvas: {
       scale: 2,
@@ -94,7 +94,17 @@ export const gerarNotaPdfBlob = async (
     if (!alvo) throw new Error("A nota ainda não está pronta. Tente novamente.");
     // The scoped stylesheet lives inside this root, so html2pdf keeps the layout
     // when it clones into the dark-themed application document.
-    const blob: Blob = await html2pdf().set(opcoes(formato, alvo)).from(alvo).outputPdf("blob");
+    const worker = html2pdf().set(opcoes(formato, alvo)).from(alvo);
+    if (formato === "cupom") {
+      await worker.toCanvas();
+      const canvas: HTMLCanvasElement = await worker.get("canvas");
+      // Use the actual rendered image, not the pre-clone height: text wrapping
+      // and raster rounding must never crop the final lines of a thermal receipt.
+      const papel = PAPEL_NOTA.cupom;
+      const altura = Math.max(80, Math.ceil(canvas.height / canvas.width * papel.util) + papel.margem * 2 + 1);
+      await worker.set({ jsPDF: { unit: "mm", format: [papel.largura, altura], orientation: "portrait" } });
+    }
+    const blob: Blob = await worker.outputPdf("blob");
     return blob;
   } finally {
     destruir();
