@@ -38,7 +38,7 @@ const opcoes = (formato: FormatoNota, alvo: HTMLElement) => {
   // Match CSS pixels to physical millimetres, plus a small rounding allowance.
   const alturaCupom = Math.max(80, Math.ceil(alvo.getBoundingClientRect().height * 25.4 / 96) + papel.margem * 2 + 2);
   return {
-    margin: [papel.margem, papel.margem, papel.margem, papel.margem],
+    margin: [papel.margem, papel.margem, papel.margem, papel.margem] as [number, number, number, number],
     pagebreak: { mode: ["css", "legacy"], avoid: ["tr", ".header", ".customer-grid", ".totais", ".totais-cupom", ".item", ".footer"] },
     image: { type: "jpeg" as const, quality: 0.98 },
     html2canvas: {
